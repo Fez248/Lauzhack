@@ -60,7 +60,7 @@ Branch: `nathann` · Last updated: 2026-11-21
 - After merge, each person `git merge origin/main` into their branch, then code lands per part in
   small PRs (milestones M0–M9 in docs/mvp0-plan.md §14).
 
-- **Not verified yet:** real Gmail SMTP sending; Docker Compose + tunnel with the final build; the
+- **Not verified yet:** real Gmail SMTP sending; `deploy/docker-compose.prod.yml` on a real domain (HTTPS via Caddy; the dev compose incl. profile `web` was run end to end locally); the
   Pages and CI workflows on GitHub (never run); the Android app on a device; a timed placement run
   with a person (item timings suggest 5 to 6 minutes, the intro says "About 3 minutes").
 - **Needs a human before the demo:** review every content item and the lesson (all `draft`), incl. the

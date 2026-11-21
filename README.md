@@ -25,7 +25,7 @@ except through a reviewed pull request.
 | `androidApp/` | Android shell, built only when an Android SDK is found |
 | `server/` | Ktor server: accounts, sync, leaderboard, the opt-in practice email |
 | `content/` | Items (`items/`), lesson 1 (`lessons/`), practice-email template (`field/`), resource links |
-| `deploy/` | Dockerfile, Docker Compose, `.env.example` |
+| `deploy/` | Dockerfile (server + web targets), Caddyfile, dev and prod Docker Compose, `.env.example` |
 | `static/`, `guide-rules.md` | Design reference only (ported to Compose, not shipped) |
 
 ## Run it
@@ -33,8 +33,10 @@ except through a reviewed pull request.
 You need JDK 21 (`JAVA_HOME` must point to it). Gradle comes with the wrapper.
 
 ```bash
-# 1. Backend on http://localhost:8080 (in-memory database, emails printed to the console)
+# 1a. Backend on http://localhost:8080 (in-memory database, emails printed to the console)
 RATE_LIMITS=off ./gradlew :server:run
+# 1b. or the same backend with Postgres, in Docker (no .env needed)
+docker compose -f deploy/docker-compose.dev.yml up --build
 
 # 2a. Web app on http://localhost:8081
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
@@ -43,7 +45,11 @@ RATE_LIMITS=off ./gradlew :server:run
 ```
 
 - The app finds the backend at `http://localhost:8080` by default. Another backend: open the web app
-  with `?api=https://your-backend` (saved; `?api=reset` clears it), or set `TEA_API` on desktop.
+  with `?api=https://your-backend` (saved in the browser; **`?api=reset` clears it**: use it if a
+  local web app keeps talking to another server), or set `TEA_API` on desktop.
+- To try the production layout locally (web app at `/`, API at `/api`, behind Caddy, no TLS), stop the
+  Gradle dev server and run `docker compose -f deploy/docker-compose.dev.yml --profile web up --build`,
+  then open http://localhost:8081.
 - **Signing in without real email:** while no `SMTP_PASSWORD` is set, the server prints each
   verification code to its console and also accepts the debug code `426769`. The debug code switches
   off by itself once SMTP is configured (`DEV_VERIFY_CODE=off` disables it always).
@@ -59,16 +65,23 @@ Tests and checks:
 
 Wasm tests (`:shared:wasmJsTest`) need a Chromium browser; set `CHROME_BIN` if Chrome is not installed.
 
-## Deploy for the demo
+## Deploy
 
-1. Copy `deploy/.env.example` to `.env` at the repo root and fill it in (never commit `.env`).
-2. `docker compose -f deploy/docker-compose.yml up --build` starts the server and Postgres on port 8080.
-3. Expose it: `cloudflared tunnel --url http://localhost:8080`. Quick tunnel URLs change on restart:
-   update the `API_URL` repository variable, or open the site with `?api=<tunnel url>`.
-4. The web app is published to GitHub Pages by `.github/workflows/pages.yml` on every push to `main`
-   (Settings → Pages → Source: GitHub Actions; repository variable `API_URL`).
-5. Set `APP_PUBLIC_URL` (the Pages URL, with trailing slash) and `API_PUBLIC_URL` (the tunnel) in
-   `.env` so the link in the practice email opens the app.
+Production is one machine with a public IP and a DNS name pointing at it (ports 80 and 443 open).
+Caddy serves the web app at `https://<domain>/` and the API at `https://<domain>/api`, with an automatic
+Let's Encrypt certificate. The web app and API share one origin, so no tunnel, CORS or `?api=` is needed.
+
+1. Copy `deploy/.env.example` to `.env` at the repo root, set `PUBLIC_URL=https://<domain>` and replace
+   every `changeme` (never commit `.env`).
+2. `docker compose -f deploy/docker-compose.prod.yml up -d --build` builds the server and the wasm app
+   and starts Postgres, the server and Caddy. Only Caddy's ports are published.
+3. Update: `git pull`, then the same command. Logs: `docker compose -f deploy/docker-compose.prod.yml logs -f app`.
+
+**GitHub Pages (optional, guest-only mirror).** `.github/workflows/pages.yml` also publishes the web
+app on every push to `main`. To turn it on: Settings → Pages → Build and deployment → Source:
+**GitHub Actions** (no branch, no Jekyll). To give it sign-in and sync, set the repository variable
+`API_URL` to `https://<domain>/api` and add the Pages origin (`https://<org>.github.io`) to
+`ALLOWED_ORIGINS` in `.env`. Without `API_URL` the Pages build works as a guest only.
 
 ## Shared code and platform code
 
