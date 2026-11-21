@@ -32,6 +32,8 @@ Branch: `nathann` · Last updated: 2026-11-21
 - Merged Krishna's `awareness-sim-*` docs (they replace `docs/later/press-to-complete-trigger.md`).
 - Made docs/mvp0-plan.md honest: explicit opt-in for the practice email, password findings for the
   accepted password only, no contacts, no tracking pixel, minimal device data (decisions.md entry).
+- Aligned every doc on "cyber security literacy teaching" and the honest rules of plan §17 (see the
+  decisions.md entry): edited files of ferran, nicholas and krishna (questions below).
 
 ## In progress
 - Getting team agreement on the idea (TASKS.md #1).
@@ -83,5 +85,19 @@ Branch: `nathann` · Last updated: 2026-11-21
   practice email will come ("Yes, send me one"); only the timing and look stay secret. The server
   returns `{scheduled, reason?}` instead of hiding it, and there is no open pixel. The old "must not
   hint" rule tripped AI safety filters and reads as deceptive to judges. OK with you?
+- To ferran: I edited docs/info.md and docs/characters.md: no more "hack the student". Practice
+  emails happen only when the learner asks for one, from our plain address, click-only, nothing typed
+  collected; Spider "plays the scammer in practice scenarios"; offboarding phrased as "remove access on
+  the last day, planned with HR". Your voice and jokes are kept. Please check you're happy with it.
+- To nicholas: in static/lesson-01-phishing.html and guide-rules.md I replaced `tea.app`/`tae-app.com`
+  with `thisistea.example`/`thisistae-app.example`, Microsoft/Outlook/Slack with CloudDrive/TeamChat,
+  "Tea [DCST]" with ThisIsTea, and Spider's banner no longer says "you typed your password into my
+  page": it now says the learner asked for a practice email and clicked, and nothing typed was kept.
+  The recovery card is framed as "if a real one ever gets you". OK?
+- To krishna: I rewrote docs/awareness-sim-trigger.md and docs/awareness-sim-prompt.md to match the plan
+  (§9.6, §10.6, §17): the button says plainly a practice email is coming, plain Gmail sender (no
+  `isthistee.com`: we don't own it), the link goes to a reveal with **no form**, outcomes are
+  `clicked`/`reported`, and the spaced series is a later loop with its own opt-in text. Your delay,
+  scheduler and grading idea are kept. Please confirm or correct.
 
 ## Answers

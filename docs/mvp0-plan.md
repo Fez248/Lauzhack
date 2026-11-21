@@ -21,7 +21,7 @@
 | [docs/onboarding-and-field-mode.md](onboarding-and-field-mode.md) | Background research, later field mode | Pitch; later loops |
 | [docs/localization.md](localization.md) | Languages and resources beyond en/fr/es | Later languages |
 | [docs/tech-stack.md](tech-stack.md) | Long-term platform split (simulator, iOS) | Later; MVP 0 has no simulator |
-| [docs/awareness-sim-trigger.md](awareness-sim-trigger.md), [docs/awareness-sim-prompt.md](awareness-sim-prompt.md) | Krishna's later-loop part 5 design (resend series, landing page) | **Not MVP 0**; see §1.4. Where they say the button must not hint at a message, §9.6 wins (honest opt-in). |
+| [docs/awareness-sim-trigger.md](awareness-sim-trigger.md), [docs/awareness-sim-prompt.md](awareness-sim-prompt.md) | Krishna's part 5 design (opt-in trigger, reveal; later spaced series) | MVP 0 builds one email per press; the series is later (§1.4) |
 | [docs/decisions.md](decisions.md) | Why things were decided | Rationale; append-only |
 | [TASKS.md](../TASKS.md) | Long-term task board | MVP 0 work follows §14 |
 
@@ -812,9 +812,9 @@ greeting and signature); tapped regions get a `highlight` background and a Spide
 
 `LessonScreen` renders `lesson.<lang>.json` section by section with a top progress row of the section
 titles (done / current), mirroring the HTML topbar. Port all copy from
-`static/lesson-01-phishing.html` with these replacements: `tea.app` → `thisistea.example`, the lookalike
-domains → lookalike `.example` domains, Microsoft/Slack → fictional TeamChat / CloudDrive, persona "Sam"
-stays. Remove the "Demo toggle".
+`static/lesson-01-phishing.html` (already uses `thisistea.example`, look-alike `.example` domains and the
+fictional TeamChat / CloudDrive; persona "Sam" stays). Remove the "Demo toggle"; Spider's practice-email
+banner appears only when the learner asked for a practice email (§9.6).
 - **content**: two rule cards side by side (≥ 600dp) or stacked: Cat (personal), Turtle (organisational),
   3 rules each, sign-off. Tap a card → enlarged dialog.
 - **tools**: Dog intro bubble + tool rows (icon letter, name, what, Dog's line, button opening the URL from
@@ -1174,9 +1174,8 @@ gradle cache → `./gradlew :composeApp:wasmJsBrowserDistribution -Pstrict=true`
 
 - The Gmail account exists and has an app password; Gmail SMTP volume is fine for a few team addresses.
 - Krishna: confirm the `field_sends` table and scheduler in §10.6 replace the in-memory scheduler, and
-  write `practice-email-01` text with the team. Your `awareness-sim-*` docs still say the button must
-  not hint at a message and describe a mock login page; for MVP 0 the honest opt-in (§9.6) and
-  click-only email apply. Please align the later-loop design with §17 when you next touch it.
+  write `practice-email-01` text with the team. Your `awareness-sim-*` docs were revised to match §9.6
+  and §17 (honest opt-in, plain sender, no login form); please confirm.
 - Nicholas: confirm §4.2 maps his five sections (the "answers" quiz becomes practice items).
 - Ferran: confirm the name ThisIsTea; deliver art as `persona_<name>_<mood>.png` (neutral, happy,
   worried, smug; 256×256, transparent).

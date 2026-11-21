@@ -1,4 +1,4 @@
-# Tea [DCST] — Design Guide Rules
+# ThisIsTea — Design Guide Rules
 
 > **Satellite file.** What to build for MVP 0 is defined only in [docs/mvp0-plan.md](docs/mvp0-plan.md) (§8 ports these rules to Compose). This file and `static/` are the **design reference only**; the HTML is not shipped and the app is named **ThisIsTea**. If this file disagrees with the plan, **the plan wins**.
 
@@ -12,7 +12,7 @@ Keywords: MUST / MUST NOT are hard rules. SHOULD is the default unless there is 
 
 ## 1. What the product is
 
-"Tea" is a security-awareness course. Each lesson is one static HTML page served from `/static` (Ktor). A lesson teaches through four animal characters, each with a fixed job, colour, typeface and bubble shape. The look is **neo-brutalist and playful**: thick dark outlines, hard offset shadows (no blur), flat colour, rounded corners, slightly tilted cards.
+"ThisIsTea" is a cyber security literacy course. Each lesson is one static HTML page served from `/static` (Ktor). A lesson teaches through four animal characters, each with a fixed job, colour, typeface and bubble shape. The look is **neo-brutalist and playful**: thick dark outlines, hard offset shadows (no blur), flat colour, rounded corners, slightly tilted cards.
 
 Page tone: second person, short sentences, warm, never preachy. Characters have personality; the narrator (the app itself) is neutral.
 
@@ -33,7 +33,7 @@ Page tone: second person, short sentences, warm, never preachy. Characters have 
 
 Every lesson page has the same skeleton. Keep the order.
 
-1. **`.topbar`** (sticky): brand "Tea [DCST]" + `ol.steps` progress nav with five anchors: `#content`, `#tools`, `#attacks`, `#status`, `#answers`. JS marks links `done` / `current` from scroll position.
+1. **`.topbar`** (sticky): brand "ThisIsTea" + `ol.steps` progress nav with five anchors: `#content`, `#tools`, `#attacks`, `#status`, `#answers`. JS marks links `done` / `current` from scroll position.
 2. **`header.hero#top`**: left = lesson pill, `h1`, subtitle, primary button + meta (time, question count). Right = `.guides`, four tilted character cards (Cat, Turtle, Dog, Spider) each with one teaser line.
 3. **`main.wrap`** containing five `section.lesson-section`, each starting with `.section-head` (numbered circle `.step-no` + `h2`):
    1. **Content** (`#content`): two `.lesson-card`s side by side in `.grid-2` — **Cat** (personal) and **Turtle** (organisational). Each = `.top` (char tag, `.char-title`, `.say`), `ol.rules` (3 rules), `.sign-off`.
@@ -186,7 +186,7 @@ These are product decisions, not decoration. Preserve them when restyling.
 - **Active before passive**: the Spider hunt makes the learner find the three tricks (address, urgency, credentials) before they are explained. Decoy elements (`data-decoy`) cost a "wrong guess"; "Show me the rest" gives up.
 - **No answer on the first miss**: a wrong quiz answer shows a hint and allows one retry; only the second miss reveals the answer. Single-choice wrong picks are struck out and disabled. Option order is shuffled each render.
 - **Each wrong answer links back** to the card/rule or section that teaches it (`review: { card, rule }` or `{ href }`).
-- **Two outcomes for the trap**: the page opens with Spider claiming the learner already fell (`caught`) or dodged (`dodged`). Copy, button label, link text and recovery title all switch. The "Demo toggle" button is a dev aid; it MUST be removed or hidden once real state comes from the backend.
+- **Two outcomes for the practice email**: only for a learner who asked for a practice email, Spider reveals whether they clicked its link (`caught`) or not (`dodged`). It is click-only: nothing typed is ever collected, and the copy says so. Without a practice email, the banner is not shown. Copy, button label, link text and recovery title all switch. The "Demo toggle" button is a dev aid; it MUST be removed or hidden once real state comes from the backend.
 - **Status** is self-assessed (LOW / MEDIUM / HIGH). Replies are intentionally in character, including Spider's "confident people are my favourite".
 - **Persistence**: only the recovery checklist uses `localStorage` (`tea.phishing.recovery`). Wrap storage in try/catch. Quiz answers live in the page script, so a learner can read them; real grading belongs on the server (see the comment above `QUESTIONS`).
 - **Quiz copy**: each question has `text`, optional `artifact` (HTML), `options[{t, ok}]`, `hint`, `explain`, `review`, `voice`, and `type: 'single' | 'multi'`. Set `mono: true` when options are URLs.
@@ -212,11 +212,11 @@ Design mobile-first thinking, but extend the existing breakpoints rather than ad
 
 - Language: English, **British spelling** (favourite, neighbours, finalising).
 - **No em dashes.** Use commas, full stops or ellipses (`...`, which is Spider's signature).
-- Short sentences. Second person ("you"). Concrete examples (`tea.app` vs `tae-app.com`).
+- Short sentences. Second person ("you"). Concrete examples (`thisistea.example` vs `thisistae-app.example`).
 - Each character speaks in their own register (see table in section 4). Turtle says "dear"; Dog uses "!" and "buddy"; Cat is terse; Spider teases.
 - Rules are headline-then-explanation: `<b>Short imperative.</b>One or two sentences of why.`
 - Buttons: verb-first, sentence case ("Start the lesson", "Check my answers"). Dog's tool buttons name the tool ("Open Bitwarden").
-- Fake domain in all examples: **tea.app** (real) vs lookalikes. Persona: "Sam".
+- Fake domain in all examples: **thisistea.example** (real) vs lookalikes, all on `.example`; fictional brands only (TeamChat, CloudDrive, SwissAlpBank), never real ones. Persona: "Sam".
 - Headline numbers stay consistent with the page ("6 questions", "10 minutes", "3 tricks", "3 rules", "5-step plan"). If you change a count, change it everywhere (intro, hero meta, buddy lines, `HUNT_TOTAL`).
 
 ## 13. Checklist for a new lesson page

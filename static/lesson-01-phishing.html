@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lesson 1: Phishing · Tea</title>
+    <title>Lesson 1: Phishing · ThisIsTea</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- In Ktor, serve this from your static folder, e.g. /static/tea-theme.css -->
@@ -13,7 +13,7 @@
 
     <div class="topbar">
         <div class="wrap">
-            <a class="brand" href="#top">Tea<small>[DCST]</small></a>
+            <a class="brand" href="#top">ThisIsTea</a>
             <ol class="steps" id="steps" aria-label="Lesson progress">
                 <li><a href="#content" data-step="content">Content</a></li>
                 <li><a href="#tools" data-step="tools">Tools</a></li>
@@ -30,7 +30,7 @@
             <div>
                 <span class="lesson-pill">Lesson 1</span>
                 <h1>Phishing: don't take the bait</h1>
-                <p class="subtitle">How attackers trick people into handing over their keys, and whether you already handed over yours.</p>
+                <p class="subtitle">How attackers trick people into handing over their keys, and how to spot it before you do.</p>
                 <div class="hero-meta">
                     <a class="btn btn-go" href="#content">Start the lesson</a>
                     <span>About 10 minutes, 6 questions</span>
@@ -80,7 +80,7 @@
                         <p class="say">I can't look after anyone if my own logins are wide open. Neither can you. So we start with you.</p>
                     </div>
                     <ol class="rules voice-cat">
-                        <li><b>Read the domain after the @.</b>Every letter. tea.app and tae-app.com belong to two different owners.</li>
+                        <li><b>Read the domain after the @.</b>Every letter. thisistea.example and thisistae-app.example belong to two different owners.</li>
                         <li><b>Notice the rush.</b>A two-hour deadline is a feeling someone else put in you. Feelings aren't evidence.</li>
                         <li><b>Never type a password after clicking an email link.</b>Open the site yourself, from a bookmark or by typing the address.</li>
                     </ol>
@@ -172,7 +172,7 @@
                     <span class="avatar" aria-hidden="true">🕷️</span>
                     <div>
                         <strong id="trapAlertTitle">Ah... there you are. We've already met.</strong>
-                        <span id="trapAlertBody">Before this lesson I sent you a little note about a problem with your account. You were worried, you were in a hurry, and you typed your password into my page. Relax, I didn't keep it. I only wanted you to feel how easy it was.</span>
+                        <span id="trapAlertBody">You asked me to test you, so I sent you one practice email. You were in a hurry and you clicked its link. That is all I recorded: no password, nothing you typed. I only wanted you to feel how easy it is.</span>
                         <a class="trap-link" id="trapLink" href="#recovery">What to do now, step by step &darr;</a>
                     </div>
                 </div>
@@ -181,14 +181,14 @@
                     <div class="email hunting" id="emailMock">
                         <div class="email-bar"><i></i><i></i><i></i><span>Inbox</span></div>
                         <div class="email-head">
-                            <p><b>From</b> <span data-flag="domain">support@tae-app.com</span></p>
-                            <p><b>Subject</b> Action required: problem creating your Tea account</p>
+                            <p><b>From</b> <span data-flag="domain">support@thisistae-app.example</span></p>
+                            <p><b>Subject</b> Action required: problem creating your ThisIsTea account</p>
                         </div>
                         <div class="email-body">
                             <p><span data-decoy="greeting">Hi there,</span></p>
                             <p><span data-decoy="error">We ran into an error finalising your account.</span> Please <span data-flag="credentials">re-enter your email and password</span> <span data-flag="urgency">within 2 hours</span> to avoid automatic deactivation.</p>
                             <a class="fake-link" data-flag="domain" tabindex="-1">Verify account now</a>
-                            <span class="url-under" data-flag="domain">https://tae-app.com/login</span>
+                            <span class="url-under" data-flag="domain">https://thisistae-app.example/login</span>
                         </div>
                     </div>
 
@@ -211,7 +211,7 @@
                         </button>
                         <button type="button" class="flag-btn is-locked" data-flag-btn="credentials" aria-pressed="false" disabled onclick="showFlag('credentials', this)">
                             <strong>The ask</strong>
-                            <span>Tea would never ask for your password by email. But I sounded like Tea, and that was enough.</span>
+                            <span>ThisIsTea would never ask for your password by email. But I sounded like ThisIsTea, and that was enough.</span>
                         </button>
                     </div>
                 </div>
@@ -219,8 +219,8 @@
                 <div class="grid-2" id="huntDebrief" style="gap: 1.25rem; align-items: start;" hidden>
                     <div class="domain-diff">
                         <h4 style="font-size: 1.05rem; margin-bottom: .6rem;">Spot the difference</h4>
-                        <div class="domain-row real"><small>Real</small><span>tea.app</span></div>
-                        <div class="domain-row"><small>Fake</small><span>t<span class="diff">ae</span><span class="diff">-</span>app<span class="diff">.com</span></span></div>
+                        <div class="domain-row real"><small>Real</small><span>thisistea.example</span></div>
+                        <div class="domain-row"><small>Fake</small><span>thisist<span class="diff">ae</span><span class="diff">-app</span>.example</span></div>
                     </div>
                     <div class="speaker voice-cat">
                         <div class="char-tag"><span class="avatar sm" aria-hidden="true">🐱</span></div>
@@ -240,14 +240,14 @@
                         <div class="email">
                             <div class="email-bar"><i></i><i></i><i></i><span>Inbox</span></div>
                             <div class="email-head">
-                                <p><b>From</b> Tea &lt;notifications@tea.app&gt;</p>
+                                <p><b>From</b> ThisIsTea &lt;notifications@thisistea.example&gt;</p>
                                 <p><b>Subject</b> Your team's weekly digest</p>
                             </div>
                             <div class="email-body">
                                 <p>Hi Sam,</p>
-                                <p>Three colleagues finished Lesson 1 this week. See the full digest in the Tea app whenever you like.</p>
+                                <p>Three colleagues finished Lesson 1 this week. See the full digest in the ThisIsTea app whenever you like.</p>
                                 <a class="fake-link" tabindex="-1">Open digest</a>
-                                <span class="url-under">https://tea.app/digest</span>
+                                <span class="url-under">https://thisistea.example/digest</span>
                             </div>
                         </div>
                         <div class="spot-actions">
@@ -260,14 +260,14 @@
                         <div class="email">
                             <div class="email-bar"><i></i><i></i><i></i><span>Inbox</span></div>
                             <div class="email-head">
-                                <p><b>From</b> IT Helpdesk &lt;helpdesk@tea.app.secure-login.net&gt;</p>
+                                <p><b>From</b> IT Helpdesk &lt;helpdesk@thisistea.example.secure-login.example&gt;</p>
                                 <p><b>Subject</b> Your password expires today</p>
                             </div>
                             <div class="email-body">
                                 <p>Hi Sam,</p>
-                                <p>Your Tea password expires at 17:00 today. Sign in now to keep your current password.</p>
+                                <p>Your ThisIsTea password expires at 17:00 today. Sign in now to keep your current password.</p>
                                 <a class="fake-link" tabindex="-1">Keep my password</a>
-                                <span class="url-under">https://tea.app.secure-login.net/keep</span>
+                                <span class="url-under">https://thisistea.example.secure-login.example/keep</span>
                             </div>
                         </div>
                         <div class="spot-actions">
@@ -286,8 +286,8 @@
                         <span class="avatar" aria-hidden="true">🐢</span>
                         <span><span class="name">Turtle</span><span class="role">If it already happened</span></span>
                     </div>
-                    <h3 class="char-title" id="recoveryTitle">Do this now, dear. It takes ten minutes.</h3>
-                    <p class="say" id="recoveryLead">It happens to the careful ones too. What matters is how fast we close the door. Work down this list and tick each step as you go.</p>
+                    <h3 class="char-title" id="recoveryTitle">If a real one ever gets you, dear, do this.</h3>
+                    <p class="say" id="recoveryLead">This time it was only practice and nothing was taken. A real one happens to the careful ones too, and then what matters is how fast we close the door. Here is the list.</p>
                 </div>
                 <ul class="checklist" id="recoveryList">
                     <li><label><input type="checkbox" data-step="1"><span><b>Change the password, on the real site.</b>Open the site yourself, from a bookmark or by typing the address, never through the email. Then change that same password anywhere else you reused it.</span></label></li>
@@ -403,7 +403,7 @@
         }
 
         // ------------------------------------------------------------------
-        // 1. Pre-lesson trap (Spider attack demo) and the recovery plan that follows it
+        // 1. Result of the practice email the learner asked for (click-only), and the recovery plan
         // ------------------------------------------------------------------
         let fellForTrap = true;
 
@@ -419,15 +419,15 @@
             if (fellForTrap) {
                 alertElem.className = 'trap caught';
                 titleElem.textContent = 'Ah... there you are. We\'ve already met.';
-                bodyElem.textContent = 'Before this lesson I sent you a little note about a problem with your account. You were worried, you were in a hurry, and you typed your password into my page. Relax, I didn\'t keep it. I only wanted you to feel how easy it was.';
+                bodyElem.textContent = 'You asked me to test you, so I sent you one practice email. You were in a hurry and you clicked its link. That is all I recorded: no password, nothing you typed. I only wanted you to feel how easy it is.';
                 btnElem.textContent = 'Demo toggle: switch to Dodged';
                 linkElem.textContent = 'What to do now, step by step ↓';
-                recTitle.textContent = 'Do this now, dear. It takes ten minutes.';
-                recLead.textContent = 'It happens to the careful ones too. What matters is how fast we close the door. Work down this list and tick each step as you go.';
+                recTitle.textContent = 'If a real one ever gets you, dear, do this.';
+                recLead.textContent = 'This time it was only practice and nothing was taken. A real one happens to the careful ones too, and then what matters is how fast we close the door. Here is the list.';
             } else {
                 alertElem.className = 'trap dodged';
                 titleElem.textContent = 'Hm. You didn\'t bite.';
-                bodyElem.textContent = 'I left you a little note before this lesson and you walked right past it. Clever. I\'ll remember that... and next time I won\'t be using email.';
+                bodyElem.textContent = 'You asked me to test you, and you walked right past my practice email. Clever. Ask me again whenever you like... next time it won\'t look like this one.';
                 btnElem.textContent = 'Demo toggle: switch to Fell for it';
                 linkElem.textContent = 'Keep the rescue plan for next time ↓';
                 recTitle.textContent = 'Keep this plan in your pocket';
@@ -566,8 +566,8 @@
 
         // Spot check: two fresh emails, safe or phish?
         const SPOT_TEXT = {
-            a: "The domain is exactly tea.app. It asks for nothing: no password, no deadline, no pressure. And even then, you could skip the link and open the app yourself.",
-            b: "Read a web address from the right: the owner is the last name before the first slash, and here that's secure-login.net. The tea.app on the left is just decoration. Add a 17:00 deadline and a link to keep your password, and you have the full set."
+            a: "The domain is exactly thisistea.example. It asks for nothing: no password, no deadline, no pressure. And even then, you could skip the link and open the app yourself.",
+            b: "Read a web address from the right: the owner is the last name before the first slash, and here that's secure-login.example. The thisistea.example on the left is just decoration. Add a 17:00 deadline and a link to keep your password, and you have the full set."
         };
         document.querySelectorAll('#spotcheck .spot').forEach(spot => {
             spot.addEventListener('click', e => {
@@ -648,7 +648,7 @@
             {
                 id: 'q1', voice: 'cat', type: 'single',
                 text: 'This email just landed in your inbox. What do you do?',
-                artifact: '<div class="email"><div class="email-bar"><i></i><i></i><i></i><span>Inbox</span></div><div class="email-head"><p><b>From</b> security@micr0soft-support.com</p><p><b>Subject</b> Mailbox full: sign in now</p></div><div class="email-body"><p>Your inbox is 99% full. Sign in within 1 hour or incoming mail will be rejected.</p><a class="fake-link" tabindex="-1">Sign in to Outlook</a></div></div>',
+                artifact: '<div class="email"><div class="email-bar"><i></i><i></i><i></i><span>Inbox</span></div><div class="email-head"><p><b>From</b> security@cl0uddrive-support.example</p><p><b>Subject</b> Mailbox full: sign in now</p></div><div class="email-body"><p>Your inbox is 99% full. Sign in within 1 hour or incoming mail will be rejected.</p><a class="fake-link" tabindex="-1">Sign in to CloudDrive</a></div></div>',
                 options: [
                     { t: "Sign in through the link, quickly. A full mailbox could make you miss important mail.", ok: false },
                     { t: "Reply and ask the sender whether the message is genuine.", ok: false },
@@ -656,17 +656,17 @@
                     { t: "Click nothing. Report it to IT, then check your mailbox by opening the official site yourself.", ok: true }
                 ],
                 hint: "Read the sender's address letter by letter. Then ask yourself: who chose the deadline, you or them?",
-                explain: "'micr0soft' has a zero where the o belongs, and it isn't Microsoft's domain anyway. Replying tells them your address is live, and a lookalike link can look perfectly reasonable when you hover over it. Report it, then open your account yourself.",
+                explain: "'cl0uddrive' has a zero where the o belongs, and it isn't CloudDrive's domain anyway. Replying tells them your address is live, and a lookalike link can look perfectly reasonable when you hover over it. Report it, then open your account yourself.",
                 review: { card: 'card-cat', rule: 0, label: "Cat's first rule: read the domain" }
             },
             {
                 id: 'q2', voice: 'turtle', type: 'single',
-                text: "Your CEO messages you on Slack and wants a client database export before a board meeting. What's the safest move?",
+                text: "Your CEO messages you on TeamChat and wants a client database export before a board meeting. What's the safest move?",
                 artifact: '<div class="chat-mock"><span class="pic" aria-hidden="true">AM</span><div><b>Alex Morgan</b> <span class="role-tag">CEO</span><time>8:52</time><p>Need the full client export for the board in 10 minutes. Drop it here. I\'m in transit, can\'t talk.</p></div></div>',
                 options: [
                     { t: "Confirm the request through another channel you already know, like a call to their usual number.", ok: true },
                     { t: "Send it right away. A board meeting is no time for questions.", ok: false },
-                    { t: "Ask \"is this really you?\" in the same Slack chat, and send it if they say yes.", ok: false },
+                    { t: "Ask \"is this really you?\" in the same TeamChat chat, and send it if they say yes.", ok: false },
                     { t: "Send only part of the data, to limit the damage if it's a trick.", ok: false }
                 ],
                 hint: "If that account had been taken over, who would answer your question in the same chat?",
@@ -675,15 +675,15 @@
             },
             {
                 id: 'q3', voice: 'cat', type: 'single', mono: true,
-                text: 'Which of these links really belongs to tea.app?',
+                text: 'Which of these links really belongs to thisistea.example?',
                 options: [
-                    { t: "https://tea.app.secure-login.net/signin", ok: false },
-                    { t: "https://tea.app/signin", ok: true },
-                    { t: "https://tae-app.com/signin", ok: false },
-                    { t: "https://tea.app-support.com/signin", ok: false }
+                    { t: "https://thisistea.example.secure-login.example/signin", ok: false },
+                    { t: "https://thisistea.example/signin", ok: true },
+                    { t: "https://thisistae-app.example/signin", ok: false },
+                    { t: "https://thisistea-support.example/signin", ok: false }
                 ],
                 hint: "Look at what sits right before the first single slash. That is the real owner. Everything to its left is decoration.",
-                explain: "Only https://tea.app/signin has tea.app right before the first slash. In the others, tea.app is decoration on the left of a different owner (secure-login.net, app-support.com), or two letters are swapped. Read from the right.",
+                explain: "Only https://thisistea.example/signin has thisistea.example right before the first slash. In the others, the real owner is a different name (secure-login.example, thisistea-support.example), or two letters are swapped (thisistae-app.example). Read from the right.",
                 review: { card: 'card-cat', rule: 0, label: "Cat's first rule: read the domain" }
             },
             {

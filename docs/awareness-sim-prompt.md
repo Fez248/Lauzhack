@@ -1,83 +1,65 @@
-# Build prompt: press-to-complete trigger (loop 1)
+# Build prompt: practice-email trigger (loop 1)
 
 > A ready-to-paste prompt for a coding agent to build krishna's piece of the first loop.
 > Design: [awareness-sim-trigger.md](awareness-sim-trigger.md). Keep the two in sync.
+> **The plan wins:** [docs/mvp0-plan.md](mvp0-plan.md) §9.6, §10.6, §12, §17.
 
 ---
 
-You are building one piece of a **consent-based security-awareness training app** (the GoPhish /
-KnowBe4 category) for the Lauzhack hackathon. The app teaches people to spot scams, then — only after
-the learner opts in — delivers a **simulated phishing message** so they can practise recognising one.
-It is a defensive teaching tool. Three guarantees make it safe and must hold in your code:
+You are building one piece of **ThisIsTea, a cyber security literacy course** (LauzHack hackathon).
+Learners take short lessons on spotting scams. At the end of a lesson, a learner can **ask** for a
+harmless practice email in their real inbox, to check that the habit holds outside the app. Three rules
+must hold in your code:
 
-1. **The learner enrols themselves** by pressing a button; no one else is targeted.
-2. **Everything is fictional and self-owned:** our own domain and invented names; no real brand, person
-   or sender is imitated.
-3. **No credentials are ever captured.** The practice form is inert: the password and email the learner
-   types are never transmitted, logged, or stored. The app records only a training signal — *did they
-   open the link, and did they submit the form* — never the contents.
-
-Your piece is the **press-to-complete trigger**: a button the learner presses at the end of a lesson,
-which after a random delay fires a (placeholder) message send, **plus the training "confirm your
-email" mock page that the message links to** — which records whether the learner engaged, without ever
-touching their password.
+1. **The learner asks for it, knowingly.** The button says plainly that a practice email is coming. Only
+   the moment it arrives and what it looks like stay secret.
+2. **Nothing is imitated.** The email comes from our own plain address and uses fictional names. No
+   look-alike domains, no real brands, services or people.
+3. **Nothing is collected.** The link leads to a short reveal page with no form. We record only whether
+   the link was clicked or the email was reported.
 
 ## Stack
 
-- **Kotlin.** Server: **Ktor**. UI: **Compose Multiplatform** (web/desktop target).
-- This matches the team's `docs/tech-stack.md`. Do not introduce another language.
-- The message send is a **placeholder** for now: nothing is actually delivered.
+- **Kotlin.** Server: **Ktor**. UI: **Compose Multiplatform**. Do not introduce another language.
+- Sending goes through a `Sender` interface; start with a `PlaceholderSender` that only logs.
 
 ## Build this
 
-1. **Compose button** labelled **"Press to complete"**, shown at the end of the lesson, with
-   a subtitle: "Press this once you feel confident you could spot a scam like this."
-   - On press: call the server endpoint, then disable the button and show a neutral "Lesson complete"
-     confirmation. **Do not** hint that a message is coming.
-   - Pressing again does nothing (one press = one scheduled send).
+1. **Compose opt-in card** at the end of the lesson:
+   - Text: "Want to test yourself for real? We'll send one practice phishing email to {{email}} at a
+     random moment in the next few minutes. It's harmless and never asks for a password. See if you
+     spot it."
+   - Buttons: **"Yes, send me one"** and "Not now".
+   - On "Yes": call the server, disable the button, show the server's answer: scheduled → "Done. Keep an
+     eye on your inbox."; not scheduled → the reason in plain words.
 
-2. **Ktor endpoint** `POST /complete` that:
-   - Accepts `{ "learnerId": "...", "toAddress": "...", "templateId": "default-login-reset-01" }`
-     (`templateId` defaults to `"default-login-reset-01"` if omitted).
-   - Picks a random delay `d` uniformly in **[15.0s, 90.0s]**: `15.0 + Random.nextDouble() * 75.0`.
-   - Schedules the send for `now + d` (a coroutine `launch { delay(...); sender.send(payload) }`,
-     tracked so it can be cancelled). Logs the chosen delay at INFO (for the demo/debugging).
-   - Returns `202 Accepted` immediately with the scheduling result (e.g. `{ "scheduledInSeconds": 47 }`).
+2. **Ktor endpoint** `POST /me/readiness` (session auth) with `{ "lesson_id": "email-01" }`:
+   - Checks: email verified, terms accepted, practice emails not paused or stopped, no earlier send for
+     this lesson. If one fails, return `{ "scheduled": false, "reason": "paused" | "stopped" |
+     "not_verified" | "already_done" }`.
+   - Otherwise set `practice_emails_allowed = true`, pick `d = 15.0 + Random.nextDouble() * 75.0`
+     seconds, persist a `field_sends` row due at `now + d`, log the delay at INFO, and return
+     `{ "scheduled": true }`. Never return the send time.
 
-3. **`Sender` interface** with one method `suspend fun send(payload: ScheduledSend)` and a
-   **`PlaceholderSender`** implementation that only logs the full payload. The real sender is
-   added later by swapping the implementation — the trigger must not change.
+3. **Scheduler**: a coroutine in the application scope that every 5 s picks due, unsent, uncancelled
+   rows, renders the human-written template (`content/field/practice-email-01.<lang>.json`; ship a
+   placeholder that says "Placeholder practice email: replace before the demo"), and calls
+   `sender.send(payload)`. If the learner paused or stopped meanwhile, cancel instead.
 
-4. **Cancel**: `POST /complete/cancel` with `{ "learnerId": "..." }` cancels that learner's pending
-   send (for demo resets). Cancelling a non-existent one is a no-op 200.
+4. **`Sender` interface** `suspend fun send(payload: ScheduledSend)`, with `PlaceholderSender` (logs
+   only). The real Gmail SMTP sender is swapped in later without touching the trigger.
 
-5. **Training landing page.** When the placeholder "sends", it logs a link like
-   `/confirm?t=<token>`, where the token encodes `learnerId` + `templateId` (a signed/opaque
-   one-time token; a simple map in memory is fine for loop 1).
-   - `GET /confirm?t=<token>`: serve a generic "Confirm your email — please log in" page with an
-     **email** field and a **password** field. Generic styling, fictional brand, no real logo. **The
-     fields are inert** (see below). Record outcome `link_opened` for that token on load.
-   - `POST /confirm`: the page posts **only** `{ "token": "..." }` — **never the password, never the
-     typed email**. Record outcome `form_submitted`, then return a simple reveal:
-     "This was a practice exercise. Here's what gave it away…". The typed values are discarded
-     in the browser and never sent.
-   - Store outcomes as `OutcomeEvent` keyed by learner, readable by the lesson piece later.
-   - There is **no credential store** anywhere; the form exists only to measure behaviour.
+5. **Click → reveal.** The email's one link is `/f/c/<token>` (random 32-byte token, store only its
+   SHA-256). It records `clicked` once and redirects to the in-app reveal: "This was the ThisIsTea
+   practice email you asked for. We only stored that the link was clicked." plus the four steps and the
+   clues from the template. **No form, no input fields.**
 
-6. **Spaced-repetition resend (Anki-style).** The learner gets a *series* of messages, not one. After
-   each outcome is decided, schedule the next one; the interval depends on how they responded.
-   Loop 1 compresses the whole series to **≤5 minutes**.
-   - **Grade the last message** from the recorded outcome:
-     `form_submitted` → 0, `link_opened` → 1, `no_interaction` → 2.
-     The outcome is decided when a click/submit arrives, or after a short no-interaction timeout.
-   - **Next interval:** grade 0 → ~30s, grade 1 → ~60s, grade 2 → `previousInterval * 2.5` capped at
-     300s. The first message keeps the existing random 15–90s after the button press.
-   - **Graduate** (stop resending) after 2 consecutive grade-2 passes. Any grade 0 or 1 resets the
-     growth to the short reinforcement interval.
-   - **Never exceed 300s** for any interval in loop 1.
-   - Keep per-learner state (`currentIntervalSeconds`, `consecutiveClean`, next scheduled send); the
-     cancel endpoint clears it and cancels the pending send.
-   - Keep the intervals/ease as named constants at the top so they're easy to tune.
+6. **Report.** A "Got a suspicious email?" button in the app calls `POST /me/field/report`, which marks
+   the latest unreported send as `reported`. The answer is always careful: "If it came from us, well
+   done for checking. If not, it could be a real scam: let's go through the four steps."
+
+7. **Pause / stop / cancel.** `PUT /me/settings {practice_emails: allowed|pause|stop}`; pause and stop
+   cancel pending sends. `POST /admin/field/cancel` (admin key) for demo resets.
 
 ## Data shape
 
@@ -91,42 +73,30 @@ data class ScheduledSend(
     val scheduledAt: String, // ISO-8601
     val firedAt: String? = null,
 )
-```
 
-```kotlin
 @Serializable
 data class OutcomeEvent(
     val learnerId: String,
     val templateId: String,
-    val outcome: String, // "link_opened" | "form_submitted"
+    val outcome: String, // "clicked" | "reported"
     val at: String,      // ISO-8601
 )
 ```
 
-Use `kotlinx.serialization` and `kotlinx.datetime` (or `Instant`).
+Outcomes are written as `field_clicked` / `field_reported` events to the shared `events` table.
 
-## Rules (non-negotiable — from docs/onboarding-and-field-mode.md)
+## Rules (non-negotiable)
 
-- The button press is the learner's **consent**. No press, no send. The learner can stop at any time.
-- The (future) message uses **our own fictional domain**, e.g. `isthistee.com` as a deliberate
-  misspelling of our own `isthistea.com`. Never imitate a real brand or sender. The placeholder sends
-  nothing, so just carry the template id.
-- The training form is **inert**: it must never store or transmit the password, and must discard the
-  typed email too. It records only the outcome event. The `POST /confirm` body carries the token only —
-  if a credential value can reach the server, that is a bug to fix.
-- Loop 1 uses only the low-pressure login-reset template (`default-login-reset-01`); no alarming
-  scenarios.
+- No press, no email. Pause or stop works at any time.
+- Plain sender address, fictional names, no look-alike domains, no real brands.
+- No login page, no form, no tracking pixel; nothing typed is ever collected.
+- Low-emotion template only (no threats, no family emergencies). The text is written by a human.
 
 ## Done when
 
-- Pressing the button schedules a log-only "send" 15–90s later, visible in the server log.
-- The delay is random within range across presses.
-- A pending send can be cancelled.
-- Swapping `PlaceholderSender` for a real one requires no change to the button or the scheduler.
-- Opening `/confirm?t=<token>` records `link_opened`; submitting the form records
-  `form_submitted` and shows the reveal.
-- No request to the server ever carries the password or the typed email; only the token and the
-  outcome are stored.
-- After each message, the next one is scheduled on a shorter interval when the learner engaged with it
-  and a longer one when they didn't; a learner who ignores two in a row graduates and stops receiving
-  messages; no interval exceeds 5 min.
+- Pressing "Yes, send me one" schedules a send 15–90 s later, visible in the server log; the delay is
+  random across presses; without the press nothing is ever sent.
+- The opt-in text and the server answer tell the learner truthfully what will happen.
+- Clicking the link records `clicked` and shows the reveal; there is nothing to type anywhere.
+- Reporting records `reported`. Pausing before the send cancels it.
+- Swapping `PlaceholderSender` for the real sender changes nothing else.
