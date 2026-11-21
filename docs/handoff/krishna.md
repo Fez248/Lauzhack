@@ -43,23 +43,22 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
 
 ## In progress
 
-- Nothing. The code is on my branch. I have agreed all three `decisions.md` entries; the third
-  (the input-method signal) reverses part of nathann's earlier entry, so it is logged as agreed by me
-  and awaiting his confirmation.
+- Nothing. The code is on my branch and all three `decisions.md` entries are AGREED, including the
+  input-method signal, which replaces the "no paste detection" part of nathann's earlier entry.
 
 ## Blocked / needs
 
-- Nothing blocking. Lesson 2 + the drill and hashed-not-plaintext storage are agreed and done. The
-  disclosed input-method signal is agreed by me and built; nathann confirms it before the PR merges,
-  since it reverses part of his earlier entry. If he declines, delete `InputMethodWatcher`'s three
-  fields from the login request and graduation rate still measures the same habit.
+- Nothing blocking. Lesson 2 + the drill, hashed-not-plaintext storage and the disclosed
+  input-method signal are all agreed and built. If anyone wants the signal gone later, delete the
+  three fields from `VaultLoginRequest` and graduation rate still measures the same habit.
 - Lesson 2's copy (Cat's four rules, Spider's lines, Dog's tool cards) is still placeholder-free only
   in structure: the words need a human writer, per §17.
 - TASKS #33: the password-manager entries for `resources.json` are not written yet.
 
 ## Next
 
-1. Open the PR for the drill; flag the input-method entry for nathann in the description.
+1. Open the PR for the drill; point nathann at the input-method entry in the description, since it
+   changes a rule he wrote.
 2. Write `content/lessons/password-01/lesson.en.json` with the four rules and the tool cards, and add
    the manager entries to `resources.json` (#33) with `verified: false`.
 3. Hook the drill into the lesson flow: lesson 2 should end on the drill the way lesson 1 ends on the
@@ -78,17 +77,18 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
   a plaintext table of "pretend" passwords holds some real ones, and (c) §17 says plaintext lives in
   memory only, and a plaintext table in a security course fails your own honesty test. Confirm, or tell
   me to flip it — it is one column and one sentence on the opening card either way.
-- To nathann: **please confirm or decline the input-method signal.** The login drill notices whether the
-  password was **pasted / autofilled / typed**, to see whether the manager habit stuck. §1.4 lists
+- To nathann: **heads-up, the input-method signal is agreed and in** (`decisions.md`, 2026-11-21), and
+  it replaces the "no paste detection" part of your entry; the rest of that entry stands. The login
+  drill notices whether the password was **pasted / autofilled / typed**, to see whether the manager
+  habit stuck. §1.4 lists
   "paste detection" as out of scope and your 2026-11-21 entry removed it on purpose ("covert phishing
   and surveillance kit"). What is built is the disclosed version: the card tells the learner we watch
   the input method and why, *before* they type; we store one enum, a time-to-first-input and an
   optional self-report; no per-key timings (those are biometrics under the GDPR/nFADP), no clipboard
   reads, no guessing which manager, and it changes no XP and no verdict, only the follow-up line. I
-  read that as passing your honesty test, and I have logged it **AGREED by krishna, nathann still to
-  confirm** in `decisions.md`, because it still reverses something you recorded. If you would rather
-  not have it: delete the three fields from `VaultLoginRequest` and the drill is unaffected, because
-  **graduation rate across the five accounts** measures the same habit with no detection at all.
+  read that as passing your honesty test. Say if you disagree and I will take it out: deleting the
+  three fields from `VaultLoginRequest` leaves the drill unaffected, because **graduation rate across
+  the five accounts** measures the same habit with no detection at all.
 - To nathann: should password behaviour get its own mastery `skill` key in `Bkt.kt`, separate from the
   four scam-defence steps? It is a different skill and I don't want to pollute the step mastery.
 - To nathann: `AGENTS.md` and the AGREED entry in `decisions.md` say branches are the first name in

@@ -1,8 +1,8 @@
 # Password lesson and the Vault drill (lesson 2)
 
-> Status: **built and agreed** (krishna, 2026-11-21). Owner: krishna. Server, screens and tests are in.
-> Krishna has agreed the three `decisions.md` entries of the same day; the third one reverses part of
-> nathann's earlier entry, so he confirms that one before the PR merges.
+> Status: **built and agreed** (krishna, 2026-11-21). Owner: krishna. Server, screens and tests are in,
+> and all three `decisions.md` entries of the same day are **AGREED**. The input-method signal replaces
+> the "no paste detection" part of nathann's earlier entry; the rest of that entry stands.
 > **Satellite file.** MVP 0 ships lesson `email-01` only ([docs/mvp0-plan.md](mvp0-plan.md) §1.1, §1.4).
 > This is the **next lesson after MVP 0**. If this file disagrees with the plan, **the plan wins**.
 > It reuses what the plan already specifies: `PasswordAnalyzer` (§10.4), argon2id, the HIBP prefix
