@@ -354,6 +354,8 @@ class AppUiFlowTest {
     /** Regression: an unknown or deleted token must not say "this was the practice email you asked for". */
     @Test
     fun revealOfUnknownTokenMakesNoClaim() = runComposeUiTest {
+        // Rendered without the app's language wrapper: pin English so the asserted copy matches.
+        Locale.setDefault(Locale.UK)
         setContent { tea.ui.theme.TeaTheme(dark = false) { tea.ui.screens.reveal.RevealContent(null, notFound = true, online = true, onPractise = {}) } }
         waitText("We could not find this practice email", substring = true)
         assertTrue(onAllNodesWithText("We only stored", substring = true).fetchSemanticsNodes().isEmpty())
