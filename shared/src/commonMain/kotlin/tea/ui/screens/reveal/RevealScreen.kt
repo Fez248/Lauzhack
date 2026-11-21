@@ -71,8 +71,9 @@ fun RevealContent(
 ) {
     ScreenColumn(onBack = onBack) {
         SpiderPanel {
-            SectionHeading(stringResource(Res.string.reveal_title), large = true, intro = stringResource(Res.string.reveal_lead))
-            PersonaBubble(Persona.SPIDER, Mood.SMUG, stringResource(Res.string.reveal_spider))
+            // Unknown token: do not claim "you clicked our email" (honesty rule, plan §17).
+            SectionHeading(stringResource(Res.string.reveal_title), large = true, intro = if (notFound) null else stringResource(Res.string.reveal_lead))
+            if (!notFound) PersonaBubble(Persona.SPIDER, Mood.SMUG, stringResource(Res.string.reveal_spider))
         }
         when {
             notFound -> Banner(stringResource(Res.string.reveal_not_found))
