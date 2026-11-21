@@ -49,3 +49,10 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+// `./gradlew :server:run` runs from the repo root, so the default CONTENT_DIR=content finds the
+// items (leaderboard XP) and the field templates. Without this the server ran in server/, found no
+// content and silently fell back to verdict-only XP and the built-in placeholder email.
+tasks.named<JavaExec>("run") {
+    workingDir = rootProject.projectDir
+}
