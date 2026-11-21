@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -30,6 +31,8 @@ import tea.model.StepKey
 import tea.ui.components.TeaIcon
 import tea.ui.components.TeaIcons
 import tea.ui.theme.TeaSpacing
+import tea.ui.theme.LocalOnSpiderPanel
+import tea.ui.theme.TeaColors
 import tea.ui.theme.TeaTheme
 
 /*
@@ -75,13 +78,15 @@ fun OkLine(text: String, modifier: Modifier = Modifier) {
 /** A bullet list of short lines. */
 @Composable
 fun BulletList(lines: List<String>, modifier: Modifier = Modifier) {
+    val spider = LocalOnSpiderPanel.current
+    val ink = if (spider) TeaColors.webInk else TeaTheme.colors.ink
     Column(modifier, verticalArrangement = Arrangement.spacedBy(TeaSpacing.s1)) {
         lines.forEach { line ->
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 androidx.compose.foundation.layout.Box(
-                    Modifier.padding(top = 10.dp).size(6.dp).clip(CircleShape).background(TeaTheme.colors.ink),
+                    Modifier.padding(top = 10.dp).size(6.dp).clip(CircleShape).background(if (spider) TeaColors.spider else TeaTheme.colors.ink),
                 )
-                Text(line, Modifier.weight(1f), style = TeaTheme.type.body, color = TeaTheme.colors.ink)
+                Text(line, Modifier.weight(1f), style = TeaTheme.type.body, color = ink)
             }
         }
     }
@@ -90,19 +95,22 @@ fun BulletList(lines: List<String>, modifier: Modifier = Modifier) {
 /** The four steps, numbered, each with an optional answer under it. */
 @Composable
 fun FourStepsList(answers: Map<StepKey, String> = emptyMap(), modifier: Modifier = Modifier) {
+    val spider = LocalOnSpiderPanel.current
+    val ink = if (spider) TeaColors.webInk else TeaTheme.colors.ink
+    val softInk = if (spider) TeaColors.webSoft else TeaTheme.colors.inkSoft
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(TeaSpacing.s2)) {
         StepKey.entries.forEachIndexed { i, step ->
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 androidx.compose.foundation.layout.Box(
-                    Modifier.size(28.dp).clip(CircleShape).background(TeaTheme.colors.ink),
+                    Modifier.size(28.dp).clip(CircleShape).background(if (spider) TeaColors.spider else TeaTheme.colors.ink),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text((i + 1).toString(), style = TeaTheme.type.smallStrong, color = TeaTheme.colors.paper)
+                    Text((i + 1).toString(), style = TeaTheme.type.smallStrong, color = if (spider) Color.White else TeaTheme.colors.paper)
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(stringResource(step.questionRes), style = TeaTheme.type.bodyStrong, color = TeaTheme.colors.ink)
+                    Text(stringResource(step.questionRes), style = TeaTheme.type.bodyStrong, color = ink)
                     answers[step]?.takeIf { it.isNotBlank() }?.let {
-                        Text(it, style = TeaTheme.type.body, color = TeaTheme.colors.inkSoft)
+                        Text(it, style = TeaTheme.type.body, color = softInk)
                     }
                 }
             }

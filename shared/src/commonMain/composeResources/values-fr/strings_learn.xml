@@ -204,4 +204,45 @@
     <string name="summary_practise_again">S'entraîner encore</string>
     <string name="summary_continue">Continuer</string>
     <string name="summary_empty">Il n'y a pas encore de bilan d'entraînement.</string>
+    <!-- Entretien de retour sur la pratique -->
+    <string name="gotcha_header">Petit retour de pratique</string>
+    <string name="gotcha_title">Regardons ce message</string>
+    <string name="gotcha_intro">Vous avez cliqué sur un de vos messages d’entraînement. Regardons ensemble ce que vous avez remarqué.</string>
+    <string name="gotcha_role">Un message d’entraînement de Spider</string>
+    <string name="gotcha_loading">Chargement du message d’entraînement…</string>
+    <string name="gotcha_load_failed">Je ne peux pas récupérer le message pour le moment. Vous pouvez réessayer ou continuer la leçon.</string>
+    <string name="gotcha_not_found">Ce retour de pratique n’est plus disponible. Vous pouvez continuer la leçon.</string>
+    <string name="gotcha_retry">Réessayer</string>
+    <string name="gotcha_continue">Continuer la leçon</string>
+    <string name="gotcha_spider_open">Un de mes messages d’entraînement a reçu un clic. Regardons-le ensemble.</string>
+    <string name="gotcha_email_heading">Le message sur lequel vous avez cliqué</string>
+    <string name="gotcha_recognition_question">Ce genre de message vous semblait-il familier ?</string>
+    <string name="gotcha_yes">Oui, je l’ai reconnu</string>
+    <string name="gotcha_no">Non, celui-ci était nouveau pour moi</string>
+    <string name="gotcha_yes_spider">Vous avez reconnu un de mes messages d’entraînement. Regardons l’indice que vous avez repéré.</string>
+    <string name="gotcha_fact_clicked">Il a été ouvert par un clic %1$s.</string>
+    <string name="gotcha_fact_email">Son objet était : %1$s.</string>
+    <string name="gotcha_reason_question">Qu’est-ce qui vous aurait aidé à le repérer ?</string>
+    <string name="gotcha_no_spider_who">J’ai emprunté un nom familier. Le véritable expéditeur est un premier indice.</string>
+    <string name="gotcha_no_spider_emotion">J’ai essayé de vous presser. Une pause laisse le temps de réfléchir.</string>
+    <string name="gotcha_no_spider_ask">J’ai fait passer une petite demande pour quelque chose de banal. Vérifions ce qu’elle demande.</string>
+    <string name="gotcha_no_spider_verify">Je me cachais derrière mon propre lien. Vérifiez par un moyen que vous choisissez.</string>
+    <string name="gotcha_steps_heading">Vos quatre vérifications</string>
+    <string name="gotcha_hints_heading">Un indice à retenir</string>
+    <string name="gotcha_time_just_now">à l’instant</string>
+    <string name="gotcha_time_yesterday">hier</string>
+    <string name="gotcha_time_earlier">il y a quelque temps</string>
+    <plurals name="gotcha_time_minutes_ago">
+        <item quantity="one">il y a %1$d minute</item>
+        <item quantity="other">il y a %1$d minutes</item>
+    </plurals>
+    <plurals name="gotcha_time_hours_ago">
+        <item quantity="one">il y a %1$d heure</item>
+        <item quantity="other">il y a %1$d heures</item>
+    </plurals>
+    <plurals name="gotcha_time_days_ago">
+        <item quantity="one">il y a %1$d jour</item>
+        <item quantity="other">il y a %1$d jours</item>
+    </plurals>
+    <string name="lesson_pending_label">Retour de pratique en attente</string>
 </resources>

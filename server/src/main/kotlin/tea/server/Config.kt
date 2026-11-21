@@ -31,6 +31,7 @@ data class Config(
     val smtpFromName: String = "ThisIsTea",
     val fieldDelayMinS: Int = 15,
     val fieldDelayMaxS: Int = 90,
+    val fieldRemindDelayS: Int = 300,
     /** How often the field scheduler looks for due sends (plan: 5 s). */
     val fieldPollInterval: Duration = 5.seconds,
     /** Blank → /admin endpoints are disabled. */
@@ -79,6 +80,7 @@ data class Config(
                 smtpFromName = s("SMTP_FROM_NAME", d.smtpFromName),
                 fieldDelayMinS = i("FIELD_DELAY_MIN_S", d.fieldDelayMinS),
                 fieldDelayMaxS = i("FIELD_DELAY_MAX_S", d.fieldDelayMaxS),
+                fieldRemindDelayS = i("FIELD_REMIND_DELAY_S", d.fieldRemindDelayS).coerceAtLeast(0),
                 fieldPollInterval = i("FIELD_POLL_S", 5).coerceAtLeast(1).seconds,
                 adminKey = s("ADMIN_KEY"),
                 codePepper = s("CODE_PEPPER"),

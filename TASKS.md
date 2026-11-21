@@ -36,3 +36,4 @@ Areas: engine, phone-ui, content-seniors, content-ngo, content-ch, ai-pipeline, 
 | 28 | Placement test: 8–10 items (scam or fine, which is fake, tap the warning sign, what next, "how sure?") → per-step starting mastery | engine | nathann | review |
 | 29 | Write placement items incl. legitimate twins and one fake-news pair | content-seniors | nathann | review |
 | 30 | Stretch: field mode, email only, opt-in team members; report button + "did you send this?" check + reveal page | engine | nathann | review |
+| 31 | Gotcha intercept: reminder, pending lesson, authenticated event flow, localized Spider interview and gallery | engine | devin | review |

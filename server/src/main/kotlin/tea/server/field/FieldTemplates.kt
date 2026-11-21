@@ -36,12 +36,22 @@ class FieldTemplates(contentDir: String) {
 
     data class RenderedMail(val subject: String, val text: String, val html: String?)
 
-    fun render(t: FieldTemplate, firstName: String, clickUrl: String, settingsUrl: String): RenderedMail {
+    fun render(
+        t: FieldTemplate,
+        firstName: String,
+        clickUrl: String,
+        settingsUrl: String,
+        lessonUrl: String = "",
+    ): RenderedMail {
         fun fill(s: String, escape: Boolean): String {
             val name = if (escape) htmlEscape(firstName) else firstName
             val click = if (escape) htmlEscape(clickUrl) else clickUrl
             val settings = if (escape) htmlEscape(settingsUrl) else settingsUrl
-            return s.replace("{{first_name}}", name).replace("{{click_url}}", click).replace("{{settings_url}}", settings)
+            val lesson = if (escape) htmlEscape(lessonUrl) else lessonUrl
+            return s.replace("{{first_name}}", name)
+                .replace("{{click_url}}", click)
+                .replace("{{settings_url}}", settings)
+                .replace("{{lesson_url}}", lesson)
         }
         return RenderedMail(fill(t.subject, false), fill(t.text, false), t.html?.let { fill(it, true) })
     }

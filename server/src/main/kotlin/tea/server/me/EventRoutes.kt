@@ -79,8 +79,19 @@ fun Route.eventRoutes() {
         val batch = call.receive<List<AppEvent>>()
         if (batch.size > MAX_BATCH) throw badRequest("too_many", "At most $MAX_BATCH events per request.")
         for (e in batch) {
-            if (e.type.startsWith(EventTypes.FIELD_PREFIX)) {
+            if (e.type.startsWith(EventTypes.FIELD_PREFIX) && e.type != EventTypes.FIELD_GOTCHA) {
                 throw badRequest("forbidden_event_type", "Events starting with field_ are emitted by the server only.")
+            }
+            if (e.type == EventTypes.FIELD_GOTCHA) {
+                val answer = e.payload.str("answer")
+                val reason = e.payload.str("reason")
+                if (e.payload.str("send_id").isNullOrBlank() ||
+                    e.payload.str("lesson_id").isNullOrBlank() ||
+                    answer !in setOf("yes", "no") ||
+                    reason != null && reason !in setOf("who", "emotion", "ask", "verify")
+                ) {
+                    throw badRequest("invalid_field_gotcha", "Gotcha events need a send, lesson, and valid answer.")
+                }
             }
             if (!TYPE.matches(e.type)) throw badRequest("invalid_event_type", "Event types are lowercase snake_case.")
             if (e.clientId.isBlank() || e.clientId.length > 64) throw badRequest("invalid_client_id", "Every event needs a client_id.")

@@ -38,6 +38,7 @@ import tea.ui.components.TeaCard
 import tea.ui.components.TeaDialog
 import tea.ui.components.TeaIcons
 import tea.ui.screens.FourStepsList
+import tea.ui.screens.LessonPendingPill
 import tea.ui.theme.TeaSpacing
 import tea.ui.theme.TeaTheme
 
@@ -145,6 +146,7 @@ fun HomeContent(ui: HomeUi, actions: HomeActions) {
             "dodged" -> DebriefCard(caught = false, buttonText = stringResource(Res.string.home_debrief_practise), onClick = actions.practiseFocus)
         }
         TeaCard(Modifier.fillMaxWidth()) {
+            if (ui.field.pendingGotchas.containsKey(LESSON_1_ID)) LessonPendingPill()
             Text(stringResource(Res.string.home_lesson_title), style = TeaTheme.type.h3, color = TeaTheme.colors.ink)
             if (ui.lessonDone) {
                 Text(stringResource(Res.string.home_lesson_done), style = TeaTheme.type.body, color = TeaTheme.colors.inkSoft)

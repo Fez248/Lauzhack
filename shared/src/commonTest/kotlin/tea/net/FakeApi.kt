@@ -8,6 +8,7 @@ import tea.model.AppEvent
 import tea.model.Attempt
 import tea.model.AttemptsResponse
 import tea.model.EventTypes
+import tea.model.GotchaResponse
 import tea.model.HealthResponse
 import tea.model.LeaderboardResponse
 import tea.model.LeaderboardRow
@@ -110,9 +111,11 @@ class FakeApi(var token: () -> String? = { null }) : TeaApi {
 
     override suspend fun postEvents(events: List<AppEvent>) = net("events", true) {
         postEventsCalls++
-        if (events.any { it.type.startsWith(EventTypes.FIELD_PREFIX) }) ApiResult.Err("forbidden_event_type", 400)
+        if (events.any { it.type.startsWith(EventTypes.FIELD_PREFIX) && it.type != EventTypes.FIELD_GOTCHA }) ApiResult.Err("forbidden_event_type", 400)
         else {
             events.forEach { this.events.getOrPut(it.clientId) { it } }
+            fieldEvents = events.filter { it.type.startsWith(EventTypes.FIELD_PREFIX) }
+                .map { StoredEvent(it.type, it.payload, it.createdAt) } + fieldEvents
             ApiResult.Ok(Unit)
         }
     }
@@ -133,5 +136,19 @@ class FakeApi(var token: () -> String? = { null }) : TeaApi {
     override suspend fun reveal(token: String) = net("reveal", false) {
         if (token == "missing") ApiResult.Err("not_found", 404)
         else ApiResult.Ok(RevealResponse("practice-email-01", mapOf(StepKey.WHO to "A sender you did not expect."), listOf("The link went somewhere else.")))
+    }
+    override suspend fun gotcha(sendId: String) = net("gotcha", true) {
+        ApiResult.Ok(
+            GotchaResponse(
+                sendId = sendId,
+                lessonId = "email-01",
+                templateId = "practice-email-01",
+                clickedAt = kotlin.time.Instant.parse("2026-11-18T10:00:00Z"),
+                subject = "A safe practice note",
+                text = "A safe practice message.",
+                steps = mapOf(StepKey.WHO to "Check who is really writing."),
+                hints = listOf("Use a channel you control."),
+            ),
+        )
     }
 }

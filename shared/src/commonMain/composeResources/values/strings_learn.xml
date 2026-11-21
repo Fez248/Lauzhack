@@ -205,4 +205,45 @@
     <string name="summary_practise_again">Practise again</string>
     <string name="summary_continue">Continue</string>
     <string name="summary_empty">There's no practice summary yet.</string>
+    <!-- Gotcha interview -->
+    <string name="gotcha_header">A practice check</string>
+    <string name="gotcha_title">Let’s look at that message</string>
+    <string name="gotcha_intro">One of your practice messages was clicked. We can work out what you noticed together.</string>
+    <string name="gotcha_role">A practice message from Spider</string>
+    <string name="gotcha_loading">Loading the practice message…</string>
+    <string name="gotcha_load_failed">I can’t fetch the message right now. You can retry or continue to the lesson.</string>
+    <string name="gotcha_not_found">This practice check is no longer available. You can continue to the lesson.</string>
+    <string name="gotcha_retry">Try again</string>
+    <string name="gotcha_continue">Continue to lesson</string>
+    <string name="gotcha_spider_open">One of my practice messages got a click. Let’s look at it together.</string>
+    <string name="gotcha_email_heading">The message you clicked</string>
+    <string name="gotcha_recognition_question">Did this kind of message feel familiar?</string>
+    <string name="gotcha_yes">Yes, I recognised it</string>
+    <string name="gotcha_no">No, this one was new to me</string>
+    <string name="gotcha_yes_spider">You recognised one of my practice messages. Let’s look at the clue you spotted.</string>
+    <string name="gotcha_fact_clicked">It was clicked %1$s.</string>
+    <string name="gotcha_fact_email">The subject was: %1$s.</string>
+    <string name="gotcha_reason_question">What would have helped you spot it?</string>
+    <string name="gotcha_no_spider_who">I borrowed a familiar name. The real sender is the first clue.</string>
+    <string name="gotcha_no_spider_emotion">I tried to rush you. A pause gives you room to think.</string>
+    <string name="gotcha_no_spider_ask">I made a small request seem ordinary. Let’s check what it asks.</string>
+    <string name="gotcha_no_spider_verify">I hid behind my own link. Check through a route you control.</string>
+    <string name="gotcha_steps_heading">Your four checks</string>
+    <string name="gotcha_hints_heading">A clue to keep</string>
+    <string name="gotcha_time_just_now">just now</string>
+    <string name="gotcha_time_yesterday">yesterday</string>
+    <string name="gotcha_time_earlier">some time ago</string>
+    <plurals name="gotcha_time_minutes_ago">
+        <item quantity="one">%1$d minute ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <plurals name="gotcha_time_hours_ago">
+        <item quantity="one">%1$d hour ago</item>
+        <item quantity="other">%1$d hours ago</item>
+    </plurals>
+    <plurals name="gotcha_time_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <string name="lesson_pending_label">Practice check waiting</string>
 </resources>

@@ -1,5 +1,6 @@
 package tea.server.field
 
+import kotlin.time.Duration.Companion.seconds
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -16,6 +17,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import tea.model.AdminCancelRequest
 import tea.model.EventTypes
+import tea.model.GotchaResponse
 import tea.model.ReadinessRequest
 import tea.model.RevealResponse
 import tea.server.ApiException
@@ -26,6 +28,7 @@ import tea.server.db.FieldSends
 import tea.server.db.Users
 import tea.server.db.emitEvent
 import tea.server.db.toOdt
+import tea.server.db.toKInstant
 import tea.server.notFound
 import tea.server.services
 
@@ -53,9 +56,47 @@ fun Route.fieldRoutes() {
                 .orderBy(FieldSends.sentAt, SortOrder.DESC)
                 .limit(1).singleOrNull() ?: return@tx
             FieldSends.update({ FieldSends.id eq row[FieldSends.id] }) { it[reportedAt] = now.toOdt() }
-            emitEvent(session.userId, EventTypes.FIELD_REPORTED, fieldPayload(row[FieldSends.id], row[FieldSends.templateId]), now)
+            emitEvent(
+                session.userId,
+                EventTypes.FIELD_REPORTED,
+                fieldPayload(row[FieldSends.id], row[FieldSends.templateId], row[FieldSends.lessonId]),
+                now,
+            )
         }
         call.respond(HttpStatusCode.NoContent)
+    }
+
+    get("/me/field/sends/{sendId}") {
+        val s = call.services
+        val session = call.requireUser()
+        val sendId = call.parameters["sendId"].orEmpty()
+        val found = s.db.tx {
+            val row = FieldSends.selectAll()
+                .where { (FieldSends.id eq sendId) and (FieldSends.userId eq session.userId) }
+                .singleOrNull()
+                ?.takeIf { it[FieldSends.clickedAt] != null }
+                ?: return@tx null
+            val user = Users.selectAll().where { Users.id eq session.userId }.singleOrNull() ?: return@tx null
+            val email = user[Users.email]
+            val firstName = (user[Users.firstName] ?: tea.server.me.UserData.profile(user).firstName)
+                ?.trim()?.takeIf { it.isNotEmpty() } ?: email.substringBefore('@')
+            Triple(row, user[Users.language], firstName)
+        } ?: throw notFound("Unknown practice email.")
+        val row = found.first
+        val template = s.templates.load(row[FieldSends.templateId], found.second)
+        val rendered = s.templates.render(template, found.third, "(practice link)", "(settings)")
+        call.respond(
+            GotchaResponse(
+                sendId = row[FieldSends.id],
+                lessonId = row[FieldSends.lessonId],
+                templateId = row[FieldSends.templateId],
+                clickedAt = row[FieldSends.clickedAt]!!.toKInstant(),
+                subject = rendered.subject,
+                text = rendered.text,
+                steps = template.reveal.steps,
+                hints = template.reveal.hints,
+            ),
+        )
     }
 
     /** The one link inside the practice email. Records the click once, then opens the in-app Reveal. */
@@ -68,8 +109,16 @@ fun Route.fieldRoutes() {
             s.db.tx {
                 val row = FieldSends.selectAll().where { FieldSends.tokenHash eq hash }.singleOrNull() ?: return@tx
                 if (row[FieldSends.clickedAt] == null) {
-                    FieldSends.update({ FieldSends.id eq row[FieldSends.id] }) { it[clickedAt] = now.toOdt() }
-                    emitEvent(row[FieldSends.userId], EventTypes.FIELD_CLICKED, fieldPayload(row[FieldSends.id], row[FieldSends.templateId]), now)
+                    FieldSends.update({ FieldSends.id eq row[FieldSends.id] }) {
+                        it[clickedAt] = now.toOdt()
+                        it[remindAt] = (now + s.config.fieldRemindDelayS.coerceAtLeast(0).seconds).toOdt()
+                    }
+                    emitEvent(
+                        row[FieldSends.userId],
+                        EventTypes.FIELD_CLICKED,
+                        fieldPayload(row[FieldSends.id], row[FieldSends.templateId], row[FieldSends.lessonId]),
+                        now,
+                    )
                 }
             }
         }

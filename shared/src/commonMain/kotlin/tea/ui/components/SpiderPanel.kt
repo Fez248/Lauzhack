@@ -71,10 +71,10 @@ fun SpiderPanel(
 
 /** The decorative web (`.attack-panel::before`): rings and spokes from the top-right corner. */
 @Composable
-private fun SpiderWeb(modifier: Modifier) {
+internal fun SpiderWeb(modifier: Modifier, alpha: Float = 0.2f) {
     Canvas(modifier.clearAndSetSemantics { }) {
         val c = Offset(size.width, 0f)
-        val color = Color.White.copy(alpha = 0.2f)
+        val color = Color.White.copy(alpha = alpha)
         val stroke = Stroke(1.dp.toPx())
         for (r in listOf(18, 52, 92, 140)) {
             drawCircle(color, r.dp.toPx(), c, style = stroke)

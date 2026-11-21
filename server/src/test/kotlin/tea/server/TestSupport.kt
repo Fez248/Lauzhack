@@ -68,13 +68,19 @@ class FakePwned(private val known: Map<String, Int> = emptyMap()) : PwnedClient 
     }
 }
 
-fun testConfig(contentDir: String = "does-not-exist", rateLimits: Boolean = false, devVerifyCode: String = "") = Config(
+fun testConfig(
+    contentDir: String = "does-not-exist",
+    rateLimits: Boolean = false,
+    devVerifyCode: String = "",
+    fieldRemindDelayS: Int = 300,
+) = Config(
     devVerifyCode = devVerifyCode,
     databaseUrl = "jdbc:h2:mem:test-${UUID.randomUUID()};DB_CLOSE_DELAY=-1",
     appPublicUrl = "https://app.example/tea/",
     apiPublicUrl = "https://api.example",
     fieldDelayMinS = 0,
     fieldDelayMaxS = 0,
+    fieldRemindDelayS = fieldRemindDelayS,
     fieldPollInterval = 100.milliseconds,
     adminKey = "admin-secret",
     codePepper = "test-pepper",
@@ -132,13 +138,14 @@ fun teaTest(
     pwned: FakePwned = FakePwned(),
     startScheduler: Boolean = false,
     devVerifyCode: String = "",
+    fieldRemindDelayS: Int = 300,
     block: suspend TestCtx.() -> Unit,
 ) = testApplication {
     val mailer = FakeMailer()
     val clock = FakeClock()
     lateinit var services: Services
     application {
-        services = module(testConfig(contentDir, rateLimits, devVerifyCode), mailer, clock, pwned, startScheduler)
+        services = module(testConfig(contentDir, rateLimits, devVerifyCode, fieldRemindDelayS), mailer, clock, pwned, startScheduler)
     }
     startApplication()
     val client = createClient {

@@ -96,6 +96,28 @@ class MeTest {
     }
 
     @Test
+    fun gotchaEventsAreTheOnlyClientFieldEventsAndAreListedByPrefix() = teaTest {
+        val s = register()
+        val gotcha = event(
+            EventTypes.FIELD_GOTCHA,
+            clock.now(),
+            "send_id" to "send-1",
+            "lesson_id" to "email-01",
+            "answer" to "no",
+            "reason" to "verify",
+        )
+        assertEquals(HttpStatusCode.NoContent, post("/me/events", s.token, listOf(gotcha)).status)
+        assertEquals(
+            listOf(EventTypes.FIELD_GOTCHA),
+            decode<List<StoredEvent>>(get("/me/events?type=field_*", s.token).bodyText()).map { it.type },
+        )
+        val invalid = event(EventTypes.FIELD_GOTCHA, clock.now(), "send_id" to "send-1", "lesson_id" to "email-01", "answer" to "maybe")
+        assertEquals("invalid_field_gotcha", decode<ApiError>(post("/me/events", s.token, listOf(invalid)).bodyText()).error)
+        val serverOnly = event(EventTypes.FIELD_CLICKED, clock.now())
+        assertEquals(HttpStatusCode.BadRequest, post("/me/events", s.token, listOf(serverOnly)).status)
+    }
+
+    @Test
     fun masteryIsLastWriteWins() = teaTest {
         val s = register()
         val t0 = clock.now()

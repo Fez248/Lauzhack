@@ -36,4 +36,5 @@ class GalleryRenderTest {
     @Test fun galleryLight() = gallery("gallery_light", dark = false, widthDp = 760)
     @Test fun galleryDark() = gallery("gallery_dark", dark = true, widthDp = 760)
     @Test fun galleryCompact() = gallery("gallery_compact", dark = false, widthDp = 380, largeText = true)
+    @Test fun galleryCompactDark() = gallery("gallery_compact_dark", dark = true, widthDp = 380, largeText = true)
 }

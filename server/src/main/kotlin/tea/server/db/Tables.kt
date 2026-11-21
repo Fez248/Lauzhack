@@ -156,6 +156,8 @@ object FieldSends : Table("field_sends") {
     val reportedAt = timestampWithTimeZone("reported_at").nullable()
     val cancelledAt = timestampWithTimeZone("cancelled_at").nullable()
     val lessonId = varchar("lesson_id", 64)
+    val remindAt = timestampWithTimeZone("remind_at").nullable()
+    val remindedAt = timestampWithTimeZone("reminded_at").nullable()
     override val primaryKey = PrimaryKey(id)
 }
 

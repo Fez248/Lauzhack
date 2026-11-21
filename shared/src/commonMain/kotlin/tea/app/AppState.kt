@@ -27,6 +27,8 @@ import tea.model.AboutEntry
 import tea.model.AppEvent
 import tea.model.Attempt
 import tea.model.EventTypes
+import tea.model.GotchaResponse
+import tea.model.LESSON_1_ID
 import tea.model.LeaderboardResponse
 import tea.model.LoginResponse
 import tea.model.MasteryState
@@ -242,21 +244,50 @@ class AppState(
     override fun navigate(screen: Screen) {
         if (screen is Screen.Lesson) rememberLessonSection(screen)
         val s = _stack.value
-        if (s.last() == screen) return
-        setStack(s + screen)
+        val target = resolveTarget(screen)
+        if (s.last() == target) return
+        setStack(s + target)
     }
 
     override fun navigateRoot(screen: Screen) {
         if (screen is Screen.Lesson) rememberLessonSection(screen)
-        setStack(listOf(screen))
+        setStack(listOf(resolveTarget(screen)))
     }
 
     override fun back() {
         val s = _stack.value
+        if (s.last() is Screen.Gotcha) return
         if (s.size > 1) setStack(s.dropLast(1))
     }
 
-    val canGoBack: Boolean get() = _stack.value.size > 1
+    val canGoBack: Boolean get() = _stack.value.size > 1 && _stack.value.last() !is Screen.Gotcha
+
+    fun replaceTop(screen: Screen) {
+        if (screen is Screen.Lesson) rememberLessonSection(screen)
+        val s = _stack.value
+        setStack(if (s.isEmpty()) listOf(screen) else s.dropLast(1) + screen)
+    }
+
+    /** Mark the interview locally before queuing its event, then continue without a back-loop. */
+    fun finishGotcha(sendId: String, lessonId: String, answer: String, reason: String? = null) {
+        if (_session.value == null || answer !in setOf("yes", "no")) return
+        val current = _field.value
+        setField(
+            current.copy(
+                pendingGotchas = current.pendingGotchas.filterValues { it != sendId },
+                resolvedGotchaSendIds = current.resolvedGotchaSendIds + sendId,
+            ),
+        )
+        val payload = buildJsonObject {
+            put("send_id", JsonPrimitive(sendId))
+            put("lesson_id", JsonPrimitive(lessonId))
+            put("answer", JsonPrimitive(answer))
+            reason?.let { put("reason", JsonPrimitive(it)) }
+        }
+        queue.addEvent(AppEvent(newId(), EventTypes.FIELD_GOTCHA, payload, now()))
+        requestFlush()
+        replaceTop(Screen.Lesson(lessonId, 0))
+    }
 
     override fun openUrl(url: String) = platform.openUrl(url)
 
@@ -266,9 +297,21 @@ class AppState(
 
     /** Called when the web URL hash changes (back/forward buttons, a typed or followed link). */
     fun onHashChanged(hash: String) {
-        val target = Routes.parse(hash, local.pendingEmail) ?: return
+        val parsed = Routes.parse(hash, local.pendingEmail, _field.value.pendingGotchas)
+        if (parsed == null) {
+            if (Routes.isGotchaRoute(hash)) navigateRoot(Screen.Home)
+            return
+        }
+        if (parsed is Screen.Gotcha && _session.value == null) {
+            navigateRoot(Screen.Home)
+            return
+        }
+        val target = resolveTarget(parsed)
         val s = _stack.value
-        if (target == s.last()) return
+        if (target == s.last()) {
+            if (parsed != target) platform.hash = Routes.toHash(target)
+            return
+        }
         if (!allowedByLink(target)) {
             platform.hash = Routes.toHash(s.last())
             return
@@ -316,14 +359,26 @@ class AppState(
 
     private fun allowedByLink(target: Screen): Boolean = when {
         target is Screen.Reveal || target == Screen.Gallery -> true
+        target is Screen.Gotcha -> _session.value != null && _field.value.pendingGotchas[target.lessonId] == target.sendId
         Routes.isRegistration(target) -> !hasStarted()
         else -> hasStarted()
     }
 
     private fun initialStack(): List<Screen> {
         val start = startScreen()
-        val deep = Routes.parse(platform.hash, local.pendingEmail)
+        val deep = Routes.parse(platform.hash, local.pendingEmail, _field.value.pendingGotchas)
+            ?.let(::resolveTarget)
         return if (deep != null && deep != start && allowedByLink(deep)) listOf(start, deep) else listOf(start)
+    }
+
+    private fun resolveTarget(screen: Screen): Screen = when (screen) {
+        is Screen.Lesson -> if (_session.value != null) {
+            _field.value.pendingGotchas[screen.id]?.let { Screen.Gotcha(it, screen.id) } ?: screen
+        } else screen
+        is Screen.Gotcha -> if (_session.value != null && _field.value.pendingGotchas[screen.lessonId] == screen.sendId) {
+            screen
+        } else Screen.Home
+        else -> screen
     }
 
     // =============================================================================================
@@ -476,7 +531,14 @@ class AppState(
     suspend fun refreshField() {
         if (_session.value == null) return
         when (val r = api.getEvents(EventTypes.FIELD_PREFIX + "*")) {
-            is ApiResult.Ok -> setField(fieldCacheFrom(r.value, _field.value.revealToken))
+            is ApiResult.Ok -> {
+                setField(fieldCacheFrom(r.value, _field.value.revealToken, _field.value.resolvedGotchaSendIds))
+                val current = _screen.value
+                if (current is Screen.Lesson) {
+                    val target = resolveTarget(current)
+                    if (target != current) replaceTop(target)
+                }
+            }
             is ApiResult.Err -> if (r.status == 401) onUnauthorized()
             ApiResult.Offline -> Unit
         }
@@ -495,6 +557,9 @@ class AppState(
         }
         return r
     }
+
+    suspend fun gotcha(sendId: String): ApiResult<GotchaResponse> =
+        api.gotcha(sendId).also { checkAuth(it) }
 
     /** "Got a suspicious email?": `POST /me/field/report` when possible. The UI answers the same either way. */
     suspend fun reportSuspicious(): Boolean {
@@ -652,9 +717,38 @@ class AppState(
         }
 
         /** Field status from server events (newest first): see [FieldCache]. */
-        fun fieldCacheFrom(events: List<StoredEvent>, revealToken: String?): FieldCache {
+        fun fieldCacheFrom(
+            events: List<StoredEvent>,
+            revealToken: String?,
+            resolvedGotchaSendIds: Set<String> = emptySet(),
+        ): FieldCache {
             val clicked = events.any { it.type == EventTypes.FIELD_CLICKED }
-            val newest = events.maxByOrNull { it.createdAt } ?: return FieldCache(clicked, "none", revealToken)
+            val doneSendIds = events.asSequence()
+                .filter { it.type == EventTypes.FIELD_GOTCHA }
+                .mapNotNull { it.payload["send_id"]?.jsonPrimitive?.contentOrNull }
+                .toSet()
+            val locallyResolved = resolvedGotchaSendIds - doneSendIds
+            val pending = linkedMapOf<String, String>()
+            events.asSequence()
+                .filter { it.type == EventTypes.FIELD_CLICKED }
+                .mapNotNull { event ->
+                    val sendId = event.payload["send_id"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
+                    sendId to event
+                }
+                .groupBy({ it.first }, { it.second })
+                .mapNotNull { (sendId, clicks) ->
+                    val click = clicks.maxByOrNull { it.createdAt } ?: return@mapNotNull null
+                    Triple(
+                        sendId,
+                        click.payload["lesson_id"]?.jsonPrimitive?.contentOrNull ?: LESSON_1_ID,
+                        click.createdAt,
+                    )
+                }
+                .filter { it.first !in doneSendIds && it.first !in locallyResolved }
+                .sortedBy { it.third }
+                .forEach { (sendId, lessonId, _) -> pending[lessonId] = sendId }
+            val newest = events.maxByOrNull { it.createdAt }
+                ?: return FieldCache(clicked, "none", revealToken, pending, locallyResolved)
             val sendId = newest.payload["send_id"]?.jsonPrimitive?.contentOrNull
             val ofSend = if (sendId == null) listOf(newest) else events.filter { it.payload["send_id"]?.jsonPrimitive?.contentOrNull == sendId }
             val types = ofSend.map { it.type }.toSet()
@@ -666,7 +760,7 @@ class AppState(
                 EventTypes.FIELD_SCHEDULED in types -> "pending"
                 else -> "none"
             }
-            return FieldCache(clicked, status, revealToken)
+            return FieldCache(clicked, status, revealToken, pending, locallyResolved)
         }
 
         /** Local answers win; the server fills what this device does not know. */

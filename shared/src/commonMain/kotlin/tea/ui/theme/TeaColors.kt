@@ -37,6 +37,7 @@ object TeaColors {
     val webLine = Color(0xFF4A3560)
     val webInk = Color(0xFFF6E9FF)
     val webSoft = Color(0xFFB9A3CC)
+    val gotchaCard = Color(0xFF4A1425)
 
     /** `.domain-row.real` on the night palette. */
     val webOk = Color(0xFF9CF0CD)

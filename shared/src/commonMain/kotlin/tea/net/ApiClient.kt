@@ -46,6 +46,7 @@ import tea.model.PasswordAttemptResponse
 import tea.model.Profile
 import tea.model.ReadinessRequest
 import tea.model.ReadinessResponse
+import tea.model.GotchaResponse
 import tea.model.RevealResponse
 import tea.model.SettingsRequest
 import tea.model.SettingsResponse
@@ -155,6 +156,9 @@ class ApiClient(
 
     override suspend fun reveal(token: String): ApiResult<RevealResponse> =
         get("/field/reveal/" + token.filter { it.isLetterOrDigit() || it == '-' || it == '_' })
+
+    override suspend fun gotcha(sendId: String): ApiResult<GotchaResponse> =
+        get("/me/field/sends/" + sendId.filter { it.isLetterOrDigit() || it == '-' })
 
     /** `{ "api": "..." }` from the web build's `config.json` (absolute [url]); null if missing. */
     suspend fun fetchConfigApi(url: String): String? = try {
