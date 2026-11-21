@@ -93,11 +93,11 @@ fun Route.leaderboardRoutes() {
             var prev: Int? = null
             val rows = ranked.mapIndexed { i, e ->
                 if (e.value != prev) { rank = i + 1; prev = e.value }
-                e.key to LeaderboardRow(names.getValue(e.key), e.value, rank)
+                e.key to LeaderboardRow(names.getValue(e.key), e.value, rank, isMe = e.key == me?.userId)
             }
             val meRow = me?.let { m ->
                 rows.firstOrNull { it.first == m.userId }?.second
-                    ?: names[m.userId]?.let { LeaderboardRow(it, xp[m.userId] ?: 0, rows.size + 1) }
+                    ?: names[m.userId]?.let { LeaderboardRow(it, xp[m.userId] ?: 0, rows.size + 1, isMe = true) }
             }
             LeaderboardResponse(top = rows.take(20).map { it.second }, me = meRow)
         }

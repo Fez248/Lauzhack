@@ -98,7 +98,13 @@ data class SettingsRequest(val practiceEmails: String? = null)
 data class SettingsResponse(val practiceEmails: String = "off", val pending: Boolean = false)
 
 @Serializable
-data class LeaderboardRow(val displayName: String, val xp: Int, val rank: Int)
+data class LeaderboardRow(
+    val displayName: String,
+    val xp: Int,
+    val rank: Int,
+    /** The signed-in learner's own row (added: display names and ranks are not unique, so the app cannot tell from them). */
+    val isMe: Boolean = false,
+)
 
 @Serializable
 data class LeaderboardResponse(val top: List<LeaderboardRow> = emptyList(), val me: LeaderboardRow? = null)

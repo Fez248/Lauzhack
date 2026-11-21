@@ -104,10 +104,9 @@ fun LeaderboardList(data: LeaderboardResponse?, loggedIn: Boolean) {
             Text(stringResource(Res.string.leaderboard_empty), style = TeaTheme.type.body, color = TeaTheme.colors.inkSoft)
         }
         val me = data.me
-        data.top.forEach { row ->
-            RankRow(row, isMe = me != null && row.rank == me.rank && row.displayName == me.displayName)
-        }
-        if (loggedIn && me != null && data.top.none { it.rank == me.rank && it.displayName == me.displayName }) {
+        // Only the row the server marks as ours: two learners can share a name and a rank.
+        data.top.forEach { row -> RankRow(row, isMe = row.isMe) }
+        if (loggedIn && me != null && data.top.none { it.isMe }) {
             DashedDivider()
             RankRow(me, isMe = true)
         }

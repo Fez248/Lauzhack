@@ -4,6 +4,7 @@ import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.serialization.json.JsonObject
@@ -80,17 +81,35 @@ class LeaderboardTest {
         post("/me/attempts", b.token, listOf(attempt("p-1", now)))   // 17
 
         val week = decode<LeaderboardResponse>(get("/leaderboard?period=week", a.token).bodyText())
-        assertEquals(listOf(LeaderboardRow("Ada L.", 157, 1), LeaderboardRow("Learner", 17, 2)), week.top)
-        assertEquals(LeaderboardRow("Ada L.", 157, 1), week.me)
+        assertEquals(listOf(LeaderboardRow("Ada L.", 157, 1, isMe = true), LeaderboardRow("Learner", 17, 2)), week.top)
+        assertEquals(LeaderboardRow("Ada L.", 157, 1, isMe = true), week.me)
 
         val all = decode<LeaderboardResponse>(get("/leaderboard?period=all").bodyText())
         assertEquals(157 + 17 + 20, all.top.first().xp)
         assertNull(all.me)
+        assertTrue(all.top.none { it.isMe }, "anonymous: no row is mine")
 
         // a user with no XP still sees themselves
         val c = register("c@x.example")
         val withC = decode<LeaderboardResponse>(get("/leaderboard?period=week", c.token).bodyText())
-        assertEquals(LeaderboardRow("Learner", 0, 3), withC.me)
+        assertEquals(LeaderboardRow("Learner", 0, 3, isMe = true), withC.me)
         assertEquals(2, withC.top.size)
+        assertTrue(withC.top.none { it.isMe })
+    }
+
+    /** Regression (UI run): two learners with the same name and XP were both shown as "You". */
+    @Test
+    fun onlyTheCallersRowIsMarkedEvenWithTwins() = teaTest(contentDir = content) {
+        val a = register("twin1@x.example")
+        val b = register("twin2@x.example")
+        for (t in listOf(a, b)) {
+            put("/me/profile", t.token, Profile(firstName = "Uma", lastName = "Ito"))
+            post("/me/attempts", t.token, listOf(attempt("p-1", clock.now())))
+        }
+        val board = decode<LeaderboardResponse>(get("/leaderboard?period=week", a.token).bodyText())
+        assertEquals(listOf(1, 1), board.top.map { it.rank })
+        assertEquals(listOf("Uma I.", "Uma I."), board.top.map { it.displayName })
+        assertEquals(1, board.top.count { it.isMe })
+        assertTrue(board.me!!.isMe)
     }
 }
