@@ -194,8 +194,13 @@ class VaultService(
         if (pwnedCount > 0) return refuse(userId, siteId, VaultReason.BREACHED, pwnedCount = pwnedCount)
 
         // 4. Strength, as a guesser sees it rather than as a composition rule.
+        //    nbvcxz's basic score is coarse: `zzzzzxzzzzzz` earns a 2 on length alone, so a floor on
+        //    distinct characters goes with it. Without this the server accepts passwords the client's
+        //    meter calls weak, and the learner is warned and then waved through.
         val estimate = PasswordAnalyzer.estimate(raw)
-        if (estimate.score < MIN_SCORE) return refuse(userId, siteId, VaultReason.WEAK)
+        if (estimate.score < MIN_SCORE || raw.toSet().size < MIN_DISTINCT) {
+            return refuse(userId, siteId, VaultReason.WEAK)
+        }
 
         // 5. Reuse, across their own drill sites and their ThisIsTea account password. The account
         //    password is checked against its argon2id hash, so nothing extra is stored for it.
@@ -441,6 +446,12 @@ class VaultService(
 
         /** A guesser's view, not a composition rule: nbvcxz 0–4, and 2 is the floor. */
         const val MIN_SCORE = 2
+
+        /**
+         * Distinct characters a password must have, alongside [MIN_SCORE]. Mirrors the client meter,
+         * which treats three or fewer distinct characters as a pattern however long the password is.
+         */
+        const val MIN_DISTINCT = 5
         const val FOLLOW_UP_MANAGER = "manager"
         const val FOLLOW_UP_RECALL = "recall"
         const val FOLLOW_UP_MISSED = "missed"

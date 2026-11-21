@@ -135,7 +135,7 @@ fun VaultChallengeScreen(app: AppState) {
         // the learner's own answer: the only one of the three signals that is not a guess
         if (won || spent) {
             when {
-                won && r?.followUp == "manager" -> Banner(stringResource(Res.string.vault_login_ok_manager), kind = BannerKind.Info)
+                won && r.followUp == "manager" -> Banner(stringResource(Res.string.vault_login_ok_manager), kind = BannerKind.Info)
                 won -> Banner(stringResource(Res.string.vault_login_ok_recall), kind = BannerKind.Info)
                 else -> TeaCard(background = TeaTheme.colors.badSoft) {
                     Text(stringResource(Res.string.vault_login_missed), style = TeaTheme.type.body, color = TeaTheme.colors.ink)

@@ -94,6 +94,16 @@ class VaultTest {
     }
 
     @Test
+    fun refusesALongPasswordMadeOfTwoCharacters() = teaTest {
+        val s = register()
+        // nbvcxz scores this a 2 on length alone; the distinct-character floor is what catches it,
+        // and it is what keeps the server's verdict and the client's meter saying the same thing.
+        assertEquals(VaultReason.WEAK, create(s.token, "catland", "zzzzzxzzzzzz").reason)
+        assertEquals(VaultReason.WEAK, create(s.token, "catland", "ababababababab").reason)
+        assertTrue(create(s.token, "catland", PW["catland"]!!).accepted)
+    }
+
+    @Test
     fun refusesExactReuseAcrossTheirOwnSitesAndNamesTheOne() = teaTest {
         val s = register()
         assertTrue(create(s.token, "catland", PW["catland"]!!).accepted)
