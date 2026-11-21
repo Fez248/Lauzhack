@@ -5,6 +5,10 @@ Branch: `nathann` · Last updated: 2026-11-21
 ## Done
 - Set up team coordination: AGENTS.md, CLAUDE.md, docs/idea.md, docs/decisions.md, TASKS.md,
   handoff template, draft scenario format, .gitignore.
+- Brainstorm written up: [docs/scenario-engine.md](../scenario-engine.md) (slots, operators,
+  seeds incl. Swiss pack), [docs/localization.md](../localization.md) (languages, theme, resource
+  cards), [content/resources/resources.json](../../content/resources/resources.json) (all links unverified).
+- Scenario format extended: category, language, country, slots, variant_of, operators.
 
 ## In progress
 - Getting team agreement on the idea (TASKS.md #1).
@@ -17,5 +21,8 @@ Branch: `nathann` · Last updated: 2026-11-21
 
 ## Questions for others
 - To everyone: does the idea in docs/idea.md work for you? Which area do you want to own (TASKS.md)?
+- To everyone: claim your language in TASKS.md #21 (fr, en, hi, te, ur, de, it, es, ca).
+- To everyone: Swiss facts marked ⚠ in scenario-engine.md (2024 cold-call ban, commission caps,
+  30 Nov deadline, 2nd-pillar central office) need checking against official sources.
 
 ## Answers

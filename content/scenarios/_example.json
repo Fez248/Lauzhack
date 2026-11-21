@@ -1,9 +1,23 @@
 {
-  "_comment": "DRAFT contract between content, engine and phone UI. Change the shape only with a decision entry. Fictional names only.",
+  "_comment": "DRAFT contract between content, engine and phone UI. Change the shape only with a decision entry. Fictional names only. Slot values and categories: docs/scenario-engine.md. 'category': scam | legit | misaligned_incentive. 'variant_of': id of the seed this was generated from (null for human-written seeds). 'operators': variation operators applied.",
   "id": "seniors-fake-bank-sms-01",
   "pack": "seniors",
-  "pattern": "impersonation-urgency-credentials",
+  "category": "scam",
+  "language": "en",
+  "country": "CH",
+  "variant_of": null,
+  "operators": [],
   "held_out": false,
+  "slots": {
+    "identity": "bank",
+    "channel": "sms",
+    "emotion": ["fear", "urgency"],
+    "ask": "click_login",
+    "isolation": null,
+    "surface_clues": ["odd_sender", "lookalike_link"],
+    "length": "single",
+    "verify": "official_app_or_card_number"
+  },
   "channel": "sms",
   "sender": { "display": "SwissAlpBank", "address": "+41 79 000 00 00" },
   "messages": [

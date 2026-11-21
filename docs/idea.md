@@ -48,6 +48,13 @@ Research to cite: 4C/ID (van Merriënboer), faded worked examples (Renkl & Atkin
 apprenticeship (Collins, Brown & Newman), expertise reversal effect (Kalyuga), analogical comparison
 (Gentner).
 
+## Detailed design docs
+
+- [scenario-engine.md](scenario-engine.md): slots, variation operators, legitimate twins,
+  combination grid for the transfer test, shortcut breaker, all seed scenarios (general, NGO, Switzerland).
+- [localization.md](localization.md): 9 languages, scams adapted per country, right-to-left,
+  dark theme and accessibility, "what to do now" resource cards.
+
 ## Content packs
 
 - **Seniors:** fake bank SMS, fake parcel fee, remote job offer that steals identity or asks for
@@ -56,6 +63,10 @@ apprenticeship (Collins, Brown & Newman), expertise reversal effect (Kalyuga), a
 - **NGO staff/volunteers:** fake donor or grant offer, changed invoice bank details, phishing on a
   shared Google/Microsoft account, volunteer forwarding beneficiary data in a group chat.
   Catching an NGO scam after training on senior scams is a second transfer demonstration.
+- **Switzerland:** health insurance cold calls (now restricted) and brokers paid by sign-up
+  commissions; call centres collecting appointments to sell to brokers; LPP/3a "recovery" and
+  "optimisation" services. A third category, **misaligned incentive**: legal or grey, but the advice
+  serves the adviser's bonus. Key question: "Who pays this person, and for what?"
 
 ## Where AI is used (behind the scenes, never as a chat window)
 

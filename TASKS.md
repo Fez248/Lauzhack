@@ -2,7 +2,7 @@
 
 Claim a task by putting your name in the Owner column **before** starting, then commit that
 change on your branch. Status: `todo` · `doing` · `review` (PR open) · `done`.
-Areas: engine, phone-ui, content-seniors, content-ngo, ai-pipeline, pitch.
+Areas: engine, phone-ui, content-seniors, content-ngo, content-ch, ai-pipeline, localization, resources, pitch.
 
 | # | Task | Area | Owner | Status |
 |---|---|---|---|---|
@@ -22,3 +22,12 @@ Areas: engine, phone-ui, content-seniors, content-ngo, ai-pipeline, pitch.
 | 14 | Contact CyberPeace Institute / Pro Senectute for quick validation | pitch | | todo |
 | 15 | Demo script + slides (Scholé "click" moment, IMC impact story) | pitch | | todo |
 | 16 | Optional (AXA): screenshot → OCR → rules → small model → four-step walkthrough | ai-pipeline | | todo |
+| 17 | Variation engine: slots, operators, selection logic ([docs/scenario-engine.md](docs/scenario-engine.md)) | engine | | todo |
+| 18 | "Shortcut breaker": track which surface features drive the learner's answers, pick counter-examples | engine | | todo |
+| 19 | Write legitimate twins for the main seeds | content-seniors | | todo |
+| 20 | Swiss pack: health insurance cold call, broker visit, LPP recovery/withdrawal, 3a policy (CH1–CH6); check every fact marked ⚠ | content-ch | | todo |
+| 21 | Interface translations (`i18n/<lang>.json`): each native speaker claims a language (fr, en, hi, te, ur, de, it, es, ca) | localization | | todo |
+| 22 | Right-to-left layout test with Urdu; Devanagari/Telugu fonts | localization | | todo |
+| 23 | Dark/light theme + large text + high contrast | phone-ui | | todo |
+| 24 | Check every link in `content/resources/resources.json`, set `verified: true` | resources | | todo |
+| 25 | "What to do now" cards: pick resources by ask × country | engine | | todo |
