@@ -33,6 +33,8 @@ dependencies {
     implementation(libs.exposed.java.time)
     implementation(libs.postgresql)
     implementation(libs.hikaricp)
+    // H2: the zero-setup fallback when DATABASE_URL is unset (and the test database)
+    implementation(libs.h2)
 
     implementation(libs.bouncycastle.bcprov)
     implementation(libs.nbvcxz)
@@ -41,7 +43,7 @@ dependencies {
 
     testImplementation(libs.kotlin.test)
     testImplementation(libs.ktor.server.test.host)
-    testImplementation(libs.h2)
+    testImplementation(libs.ktor.client.content.negotiation)
 }
 
 tasks.test {
