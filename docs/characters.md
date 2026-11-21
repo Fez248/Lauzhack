@@ -1,4 +1,7 @@
 # This Is Tea [DCST]
+
+> **Satellite file.** What to build for MVP 0 is defined only in [docs/mvp0-plan.md](mvp0-plan.md). This file is the characters' backstory and personality. The app name is now **ThisIsTea**. If this file disagrees with the plan, **the plan wins**.
+
 This is Tea [DCST] --> Name of our app
 
 In order to make our application funny and easy to use we plan to have

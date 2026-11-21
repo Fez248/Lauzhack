@@ -22,8 +22,9 @@ Target challenges: **Scholé** (main), **IMC** (secondary), **AXA** (optional, o
 
 1. Confirm you are on your human's branch (see Git rules), then:
    `git fetch origin && git merge origin/main`
-2. Read: this file → [docs/idea.md](docs/idea.md) → [docs/decisions.md](docs/decisions.md)
-   → [TASKS.md](TASKS.md) → every file in [docs/handoff/](docs/handoff/).
+2. Read: this file → **[docs/mvp0-plan.md](docs/mvp0-plan.md) (the single source of truth for what
+   to build; every other doc is a satellite and the plan wins on conflict)** →
+   [docs/decisions.md](docs/decisions.md) → [TASKS.md](TASKS.md) → every file in [docs/handoff/](docs/handoff/).
 3. Look for questions addressed to your human in other people's handoff files and answer them.
 
 ## Git rules: one branch per person, never `main`

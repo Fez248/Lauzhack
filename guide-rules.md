@@ -1,5 +1,7 @@
 # Tea [DCST] — Design Guide Rules
 
+> **Satellite file.** What to build for MVP 0 is defined only in [docs/mvp0-plan.md](docs/mvp0-plan.md) (§8 ports these rules to Compose). This file and `static/` are the **design reference only**; the HTML is not shipped and the app is named **ThisIsTea**. If this file disagrees with the plan, **the plan wins**.
+
 Audience: designers and coding agents building or editing lesson pages.
 Source of truth: [static/tea-theme.css](static/tea-theme.css) (tokens + components) and the reference page [static/lesson-01-phishing.html](static/lesson-01-phishing.html).
 If this file and the CSS disagree, the CSS wins. Then fix this file.

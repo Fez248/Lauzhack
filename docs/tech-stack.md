@@ -1,5 +1,7 @@
 # Tech stack and platform split
 
+> **Satellite file.** What to build for MVP 0 is defined only in [docs/mvp0-plan.md](mvp0-plan.md). This file is the longer-term platform split (simulated phone on web/desktop, iOS); MVP 0 has no simulator. If this file disagrees with the plan, **the plan wins**.
+
 Status: **requirement** set by nathann on 2026-11-21 (see [decisions.md](decisions.md)).
 
 ## Requirement: Kotlin

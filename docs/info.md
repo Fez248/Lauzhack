@@ -1,5 +1,7 @@
 ## Introduction
 
+> **Satellite file.** What to build for MVP 0 is defined only in [docs/mvp0-plan.md](mvp0-plan.md). This file is the storytelling pitch and ideas for later. If this file disagrees with the plan, **the plan wins**.
+
 Cybersecurity has always been a big thing, but now even more, especially
 after "the dark october", where we have seen organizations getting attacked
 like we haven't seen before.

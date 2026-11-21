@@ -1,5 +1,7 @@
 # Localization, accessibility and resources
 
+> **Satellite file.** What to build for MVP 0 is defined only in [docs/mvp0-plan.md](mvp0-plan.md). This file covers languages and resource cards beyond MVP 0 (which ships en/fr/es only). If this file disagrees with the plan, **the plan wins**.
+
 > Status: **proposal** (brainstorm 2026-11-21).
 
 ## Languages

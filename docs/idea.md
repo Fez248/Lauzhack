@@ -1,5 +1,7 @@
 # The idea
 
+> **Satellite file.** What to build for MVP 0 is defined only in [docs/mvp0-plan.md](mvp0-plan.md). This file is the long-term vision, research basis and content packs (ideas for later). If this file disagrees with the plan, **the plan wins**.
+
 > Status: **proposal**, pending team agreement (see [decisions.md](decisions.md)).
 
 ## One-liner

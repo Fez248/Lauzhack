@@ -1,5 +1,7 @@
 # Onboarding, placement test and field mode
 
+> **Satellite file.** What to build for MVP 0 is defined only in [docs/mvp0-plan.md](mvp0-plan.md). This file is the background research and the later field-mode ideas (SMS, calls, NGO campaigns). If this file disagrees with the plan, **the plan wins**.
+
 > Status: **proposal** (nathann, 2026-11-21), pending team agreement (see [decisions.md](decisions.md)).
 > Facts marked ⚠ need checking before they go on a slide.
 

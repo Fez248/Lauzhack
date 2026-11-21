@@ -1,5 +1,7 @@
 # Press-to-complete trigger (first loop)
 
+> **Satellite file.** What to build for MVP 0 is defined only in [docs/mvp0-plan.md](../mvp0-plan.md) (part 5: §9.6, §10.6, §12). This file is a **later-loop design**: the resend series, look-alike domain and landing page are **out of scope for MVP 0** (decisions 3 and 4: click-only, plain Gmail sender, no sign-in page). If this file disagrees with the plan, **the plan wins**.
+
 > Status: **proposal** (krishna, 2026-11-21). Owner: krishna.
 > This is one piece of the first loop. Build comes later; this doc is the design to agree on first.
 > **Stack (decided for loop 1 onward): Kotlin** (Ktor server endpoint + Compose button), matching
