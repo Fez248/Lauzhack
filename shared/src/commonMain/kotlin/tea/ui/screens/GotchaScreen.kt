@@ -178,123 +178,130 @@ fun GotchaContent(
         Voice(Persona.SPIDER) {
             CompositionLocalProvider(LocalOnSpiderPanel provides true) {
                 val scroll = rememberScrollState()
-                val bodyModifier = Modifier
-                    .fillMaxWidth()
-                    .widthIn(max = TeaSize.maxContentWidth)
-                    .align(Alignment.TopCenter)
-                    .then(if (scrollEnabled) Modifier.fillMaxHeight().verticalScroll(scroll) else Modifier)
-                    .padding(horizontal = TeaSpacing.s2, vertical = TeaSpacing.s3)
-                    .alpha(contentAlpha)
-                Column(bodyModifier, verticalArrangement = Arrangement.spacedBy(TeaSpacing.s2)) {
-                    Row(
-                        Modifier.fillMaxWidth().padding(bottom = TeaSpacing.s1),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .then(if (scrollEnabled) Modifier.fillMaxHeight().verticalScroll(scroll) else Modifier)
+                        .alpha(contentAlpha),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Column(
+                        Modifier
+                            .widthIn(max = TeaSize.maxContentWidth)
+                            .fillMaxWidth()
+                            .padding(horizontal = TeaSpacing.s2, vertical = TeaSpacing.s3),
+                        verticalArrangement = Arrangement.spacedBy(TeaSpacing.s2),
                     ) {
-                        Text(
-                            stringResource(Res.string.gotcha_header),
-                            style = TeaTheme.type.smallStrong,
-                            color = TeaColors.webInk,
-                        )
-                        val art = personaFullArt(Persona.SPIDER)
-                        if (art != null) {
-                            Image(
-                                painterResource(art),
-                                contentDescription = null,
-                                modifier = Modifier.size(84.dp),
-                                contentScale = ContentScale.Fit,
+                        Row(
+                            Modifier.fillMaxWidth().padding(bottom = TeaSpacing.s1),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                stringResource(Res.string.gotcha_header),
+                                style = TeaTheme.type.smallStrong,
+                                color = TeaColors.webInk,
                             )
-                        }
-                    }
-                    SectionHeading(
-                        stringResource(Res.string.gotcha_title),
-                        large = true,
-                        intro = stringResource(Res.string.gotcha_intro),
-                    )
-                    PersonaNameTag(
-                        Persona.SPIDER,
-                        role = stringResource(Res.string.gotcha_role),
-                        mood = Mood.SMUG,
-                    )
-                    when {
-                        loading -> Text(stringResource(Res.string.gotcha_loading), color = TeaColors.webInk, style = TeaTheme.type.body)
-                        data == null -> {
-                            PersonaBubble(
-                                Persona.SPIDER,
-                                Mood.SMUG,
-                                stringResource(if (notFound) Res.string.gotcha_not_found else if (loadFailed) Res.string.gotcha_load_failed else Res.string.gotcha_not_found),
-                            )
-                            if (!notFound) {
-                                TeaButton(
-                                    stringResource(Res.string.gotcha_retry),
-                                    onRetry,
-                                    variant = TeaButtonVariant.Secondary,
+                            val art = personaFullArt(Persona.SPIDER)
+                            if (art != null) {
+                                Image(
+                                    painterResource(art),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(84.dp),
+                                    contentScale = ContentScale.Fit,
                                 )
                             }
-                            TeaButton(
-                                stringResource(Res.string.gotcha_continue),
-                                onClick = { leaving = true },
-                            )
                         }
-                        else -> {
-                            when (answer) {
-                                "yes" -> {
-                                    PersonaBubble(Persona.SPIDER, Mood.SMUG, stringResource(Res.string.gotcha_yes_spider))
-                                    GotchaFactsCard(data, clickedWhen)
-                                    GotchaStepsCard(data)
-                                }
-                                "no" -> {
-                                    if (reason == null) {
-                                        PersonaBubble(
-                                            Persona.SPIDER,
-                                            Mood.SMUG,
-                                            stringResource(Res.string.gotcha_no_spider, clickedWhen),
-                                        )
-                                        SectionHeading(stringResource(Res.string.gotcha_reason_question))
-                                        listOf(
-                                            Res.string.gotcha_reason_who to "who",
-                                            Res.string.gotcha_reason_emotion to "emotion",
-                                            Res.string.gotcha_reason_ask to "ask",
-                                            Res.string.gotcha_reason_verify to "verify",
-                                        ).forEach { (label, key) ->
-                                            ChoiceRow(
-                                                stringResource(label),
-                                                state = ChoiceState.Idle,
-                                                onClick = { onReason(key) },
-                                            )
-                                        }
-                                    } else {
-                                        PersonaBubble(
-                                            Persona.SPIDER,
-                                            Mood.SMUG,
-                                            stringResource(reasonLine(reason)),
-                                        )
-                                        GotchaFactsCard(data, clickedWhen)
-                                        GotchaStepsCard(data)
-                                    }
-                                }
-                                else -> {
-                                    PersonaBubble(Persona.SPIDER, Mood.SMUG, stringResource(Res.string.gotcha_spider_open))
-                                    GotchaEmailCard(data)
-                                    SectionHeading(stringResource(Res.string.gotcha_recognition_question))
-                                    ChoiceRow(
-                                        stringResource(Res.string.gotcha_yes),
-                                        state = ChoiceState.Idle,
-                                        onClick = { onAnswer("yes") },
-                                    )
-                                    ChoiceRow(
-                                        stringResource(Res.string.gotcha_no),
-                                        state = ChoiceState.Idle,
-                                        onClick = { onAnswer("no") },
+                        SectionHeading(
+                            stringResource(Res.string.gotcha_title),
+                            large = true,
+                            intro = stringResource(Res.string.gotcha_intro),
+                        )
+                        PersonaNameTag(
+                            Persona.SPIDER,
+                            role = stringResource(Res.string.gotcha_role),
+                            mood = Mood.SMUG,
+                        )
+                        when {
+                            loading -> Text(stringResource(Res.string.gotcha_loading), color = TeaColors.webInk, style = TeaTheme.type.body)
+                            data == null -> {
+                                PersonaBubble(
+                                    Persona.SPIDER,
+                                    Mood.SMUG,
+                                    stringResource(if (notFound) Res.string.gotcha_not_found else if (loadFailed) Res.string.gotcha_load_failed else Res.string.gotcha_not_found),
+                                )
+                                if (!notFound) {
+                                    TeaButton(
+                                        stringResource(Res.string.gotcha_retry),
+                                        onRetry,
+                                        variant = TeaButtonVariant.Secondary,
                                     )
                                 }
-                            }
-                            if (answer != null && (answer == "yes" || reason != null)) {
                                 TeaButton(
                                     stringResource(Res.string.gotcha_continue),
                                     onClick = { leaving = true },
-                                    modifier = Modifier.fillMaxWidth(),
                                 )
+                            }
+                            else -> {
+                                when (answer) {
+                                    "yes" -> {
+                                        PersonaBubble(Persona.SPIDER, Mood.SMUG, stringResource(Res.string.gotcha_yes_spider))
+                                        GotchaFactsCard(data, clickedWhen)
+                                        GotchaStepsCard(data)
+                                    }
+                                    "no" -> {
+                                        if (reason == null) {
+                                            PersonaBubble(
+                                                Persona.SPIDER,
+                                                Mood.SMUG,
+                                                stringResource(Res.string.gotcha_no_spider, clickedWhen),
+                                            )
+                                            SectionHeading(stringResource(Res.string.gotcha_reason_question))
+                                            listOf(
+                                                Res.string.gotcha_reason_who to "who",
+                                                Res.string.gotcha_reason_emotion to "emotion",
+                                                Res.string.gotcha_reason_ask to "ask",
+                                                Res.string.gotcha_reason_verify to "verify",
+                                            ).forEach { (label, key) ->
+                                                ChoiceRow(
+                                                    stringResource(label),
+                                                    state = ChoiceState.Idle,
+                                                    onClick = { onReason(key) },
+                                                )
+                                            }
+                                        } else {
+                                            PersonaBubble(
+                                                Persona.SPIDER,
+                                                Mood.SMUG,
+                                                stringResource(reasonLine(reason)),
+                                            )
+                                            GotchaFactsCard(data, clickedWhen)
+                                            GotchaStepsCard(data)
+                                        }
+                                    }
+                                    else -> {
+                                        PersonaBubble(Persona.SPIDER, Mood.SMUG, stringResource(Res.string.gotcha_spider_open))
+                                        GotchaEmailCard(data)
+                                        SectionHeading(stringResource(Res.string.gotcha_recognition_question))
+                                        ChoiceRow(
+                                            stringResource(Res.string.gotcha_yes),
+                                            state = ChoiceState.Idle,
+                                            onClick = { onAnswer("yes") },
+                                        )
+                                        ChoiceRow(
+                                            stringResource(Res.string.gotcha_no),
+                                            state = ChoiceState.Idle,
+                                            onClick = { onAnswer("no") },
+                                        )
+                                    }
+                                }
+                                if (answer != null && (answer == "yes" || reason != null)) {
+                                    TeaButton(
+                                        stringResource(Res.string.gotcha_continue),
+                                        onClick = { leaving = true },
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
+                                }
                             }
                         }
                     }
