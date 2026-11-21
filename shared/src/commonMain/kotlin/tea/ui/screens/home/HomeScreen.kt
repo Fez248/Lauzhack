@@ -23,7 +23,9 @@ import tea.app.Screen
 import tea.engine.Streak
 import tea.engine.StreakState
 import tea.generated.resources.*
+import tea.net.ApiResult
 import tea.model.LESSON_1_ID
+import tea.model.LESSON_2_ID
 import tea.model.Mood
 import tea.model.Persona
 import tea.store.FieldCache
@@ -51,6 +53,13 @@ data class HomeUi(
     val lessonDone: Boolean = false,
     val online: Boolean = true,
     val loggedIn: Boolean = false,
+    /** Lesson 2 (passwords) and its drill. */
+    val lesson2Started: Boolean = false,
+    val lesson2Done: Boolean = false,
+    /** A drill account is due to be logged back in to; we never say which one here. */
+    val vaultChallengeDue: Boolean = false,
+    val vaultGraduated: Int = 0,
+    val vaultTotal: Int = 0,
     val sessionExpired: Boolean = false,
     val field: FieldCache = FieldCache(),
 )
@@ -67,6 +76,9 @@ class HomeActions(
     val signIn: () -> Unit = {},
     val openReveal: () -> Unit = {},
     val practiseFocus: () -> Unit = {},
+    val lesson2: () -> Unit = {},
+    val vaultDrill: () -> Unit = {},
+    val vaultChallenge: () -> Unit = {},
 )
 
 @Composable
@@ -83,6 +95,21 @@ fun HomeScreen(app: AppState) {
 
     LaunchedEffect(loggedIn) { if (loggedIn) app.refreshField() }
 
+    // The drill's own state: how many of the five exist, how many have been logged back in, and
+    // whether one is due now. Read once per visit; a null challenge simply means nothing is due.
+    var vaultTotal by remember { mutableStateOf(0) }
+    var vaultGraduated by remember { mutableStateOf(0) }
+    var vaultDue by remember { mutableStateOf(false) }
+    LaunchedEffect(loggedIn, online) {
+        if (loggedIn && online) {
+            (app.vaultAccounts() as? ApiResult.Ok)?.let { r ->
+                vaultTotal = r.value.accounts.size
+                vaultGraduated = r.value.accounts.count { it.graduated }
+            }
+            vaultDue = (app.vaultChallenge() as? ApiResult.Ok)?.value?.siteId != null
+        }
+    }
+
     val streakState = remember(xp, flags) { app.load("streak", StreakState.serializer()) ?: StreakState() }
     val ui = HomeUi(
         firstName = profile.firstName,
@@ -91,6 +118,11 @@ fun HomeScreen(app: AppState) {
         dailyMinutes = profile.dailyMinutes,
         lessonStarted = LESSON_1_ID in flags.lessonSections,
         lessonDone = LESSON_1_ID in flags.lessonsDone,
+        lesson2Started = LESSON_2_ID in flags.lessonSections,
+        lesson2Done = LESSON_2_ID in flags.lessonsDone,
+        vaultChallengeDue = vaultDue,
+        vaultGraduated = vaultGraduated,
+        vaultTotal = vaultTotal,
         online = online,
         loggedIn = loggedIn,
         sessionExpired = expired,
@@ -112,6 +144,9 @@ fun HomeScreen(app: AppState) {
             signIn = { app.navigate(Screen.Email) },
             openReveal = { field.revealToken?.let { app.navigate(Screen.Reveal(it)) } },
             practiseFocus = { app.navigate(Screen.Practice(focusWeakest = true)) },
+            lesson2 = { app.navigate(Screen.Lesson(LESSON_2_ID, app.savedSection(LESSON_2_ID))) },
+            vaultDrill = { app.navigate(Screen.VaultDrill(0)) },
+            vaultChallenge = { app.navigate(Screen.VaultChallenge) },
         ),
     )
     if (showSuspicious) {
@@ -157,6 +192,40 @@ fun HomeContent(ui: HomeUi, actions: HomeActions) {
                     Modifier.fillMaxWidth(),
                 )
                 TeaButton(stringResource(Res.string.home_practise), actions.practise, Modifier.fillMaxWidth(), variant = TeaButtonVariant.Secondary)
+            }
+        }
+        // One of the five is due: the test of whether the manager habit stuck. Shown above lesson 2,
+        // because it is time-sensitive and the lesson is not.
+        if (ui.vaultChallengeDue) {
+            TeaCard(Modifier.fillMaxWidth()) {
+                Text(stringResource(Res.string.home_vault_title), style = TeaTheme.type.h3, color = TeaTheme.colors.ink)
+                Text(stringResource(Res.string.home_vault_body), style = TeaTheme.type.body, color = TeaTheme.colors.inkSoft)
+                TeaButton(stringResource(Res.string.home_vault_action), actions.vaultChallenge, Modifier.fillMaxWidth())
+            }
+        }
+        if (ui.lessonDone) {
+            TeaCard(Modifier.fillMaxWidth()) {
+                Text(stringResource(Res.string.home_lesson2_title), style = TeaTheme.type.h3, color = TeaTheme.colors.ink)
+                if (ui.vaultTotal > 0) {
+                    Text(
+                        stringResource(Res.string.home_vault_done, ui.vaultGraduated, ui.vaultTotal),
+                        style = TeaTheme.type.body,
+                        color = TeaTheme.colors.inkSoft,
+                    )
+                }
+                TeaButton(
+                    stringResource(
+                        if (ui.lesson2Started) Res.string.home_lesson2_continue else Res.string.home_lesson2_start,
+                    ),
+                    actions.lesson2,
+                    Modifier.fillMaxWidth(),
+                )
+                TeaButton(
+                    stringResource(Res.string.home_lesson2_drill),
+                    actions.vaultDrill,
+                    Modifier.fillMaxWidth(),
+                    variant = TeaButtonVariant.Secondary,
+                )
             }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(TeaSpacing.s2)) {

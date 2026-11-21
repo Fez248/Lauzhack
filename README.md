@@ -36,6 +36,9 @@ You need JDK 21 (`JAVA_HOME` must point to it). Gradle comes with the wrapper.
 # 1. Backend on http://localhost:8080 (in-memory database, emails printed to the console)
 RATE_LIMITS=off ./gradlew :server:run
 
+# 1b. Same, but the database survives a restart (keeps accounts and Vault drill progress)
+RATE_LIMITS=off DATABASE_URL='jdbc:h2:file:./build/tea-dev;AUTO_SERVER=TRUE' ./gradlew :server:run
+
 # 2a. Web app on http://localhost:8081
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
 # 2b. or desktop app

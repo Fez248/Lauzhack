@@ -198,6 +198,28 @@ class VaultTest {
     }
 
     @Test
+    fun anUnreachableBreachListIsRecordedNotAssumedClean() = teaTest(pwned = FakePwned(unavailable = true)) {
+        val s = register()
+        val r = create(s.token, "catland", PW["catland"]!!)
+        // the learner is not blocked by our network...
+        assertTrue(r.accepted)
+        // ...but nothing may imply the password was checked and found clean
+        assertEquals(false, r.findings?.breachChecked)
+        services.db.tx {
+            assertFalse(VaultFindings.selectAll().single()[VaultFindings.breachChecked])
+        }
+        val about = get("/me/about", s.token).bodyText()
+        assertTrue("not checked" in about, "About must say the breach check did not run")
+    }
+
+    @Test
+    fun aReachableBreachListIsRecordedAsChecked() = teaTest {
+        val s = register()
+        assertEquals(true, create(s.token, "catland", PW["catland"]!!).findings?.breachChecked)
+        assertFalse("not checked" in get("/me/about", s.token).bodyText())
+    }
+
+    @Test
     fun debriefIsBuiltFromFindingsOnly() = teaTest {
         val s = register()
         createAll(s.token)

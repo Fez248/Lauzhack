@@ -86,6 +86,11 @@ data class VaultFindingsDto(
     @SerialName("contains_year") val containsYear: Boolean = false,
     @SerialName("contains_site") val containsSite: Boolean = false,
     @SerialName("keyboard_pattern") val keyboardPattern: String? = null,
+    /**
+     * False when HIBP could not be reached, so `pwned = false` means "not checked", not "not
+     * breached". Without this the learner is told nothing and quietly keeps a breached password.
+     */
+    @SerialName("breach_checked") val breachChecked: Boolean = true,
 )
 
 /** One row of the drill list: no secrets, no fingerprints. */

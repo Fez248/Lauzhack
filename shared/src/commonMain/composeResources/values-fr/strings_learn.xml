@@ -204,4 +204,5 @@
     <string name="summary_practise_again">S'entraîner encore</string>
     <string name="summary_continue">Continuer</string>
     <string name="summary_empty">Il n'y a pas encore de bilan d'entraînement.</string>
+    <string name="lesson_to_drill">Ouvrir cinq comptes</string>
 </resources>

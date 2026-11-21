@@ -365,4 +365,13 @@
     <string name="vault_self_report_remembered">La recordaba</string>
     <string name="vault_self_report_written">La tenia apuntada</string>
     <string name="vault_graduated">%1$d de %2$d con sesion recuperada</string>
+    <string name="vault_breach_unchecked">No pudimos consultar la lista de filtraciones, asi que esta no se comprobo. Conviene cambiarla si se entera de una filtracion.</string>
+    <string name="home_lesson2_title">Leccion 2: contrasenas</string>
+    <string name="home_lesson2_start">Empezar la leccion 2</string>
+    <string name="home_lesson2_continue">Seguir con la leccion 2</string>
+    <string name="home_lesson2_drill">Abrir sus cinco cuentas</string>
+    <string name="home_vault_title">Una de sus cinco cuentas espera</string>
+    <string name="home_vault_body">Hora de comprobar que el habito cuajo: vuelva a entrar en una de las cinco cuentas que creo. No le diremos cual hasta que empiece.</string>
+    <string name="home_vault_action">Volver a entrar</string>
+    <string name="home_vault_done">%1$d de %2$d con sesion recuperada</string>
 </resources>

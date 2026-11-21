@@ -365,4 +365,13 @@
     <string name="vault_self_report_remembered">Je m'en souvenais</string>
     <string name="vault_self_report_written">Je l'avais note</string>
     <string name="vault_graduated">%1$d sur %2$d reconnectes</string>
+    <string name="vault_breach_unchecked">Nous n'avons pas pu joindre la liste des fuites : celui-ci n'a pas ete verifie. A changer plus tard si vous entendez parler d'une fuite.</string>
+    <string name="home_lesson2_title">Lecon 2 : mots de passe</string>
+    <string name="home_lesson2_start">Commencer la lecon 2</string>
+    <string name="home_lesson2_continue">Continuer la lecon 2</string>
+    <string name="home_lesson2_drill">Ouvrir vos cinq comptes</string>
+    <string name="home_vault_title">Un de vos cinq comptes vous attend</string>
+    <string name="home_vault_body">Le moment de verifier que l'habitude a pris : reconnectez-vous a l'un des cinq comptes que vous avez crees. Nous ne vous dirons pas lequel avant de commencer.</string>
+    <string name="home_vault_action">Se reconnecter</string>
+    <string name="home_vault_done">%1$d sur %2$d reconnectes</string>
 </resources>

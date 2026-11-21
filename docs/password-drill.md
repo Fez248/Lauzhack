@@ -36,6 +36,12 @@ Three rules make it honest, and they are requirements, not options:
 
 ## Where this fits
 
+Lesson 2 is `content/lessons/password-01/lesson.<lang>.json` (en, fr, es): two of Cat's rule cards,
+then Dog's tool section with five password managers, then the status question. Its last button opens
+the drill rather than returning to Home, the way lesson 1's last section is the practice-email
+opt-in. Home shows a lesson 2 card once lesson 1 is done, plus a separate card when one of the five
+is due to be logged back in.
+
 ```
 lesson 2: passwords (Cat's rules → Dog's tools: install a password manager)
    → Vault drill: "Let's open five accounts. Spider will try to guess every one."
@@ -148,7 +154,13 @@ one cached HTTP request, which is what [AGENTS.md](../AGENTS.md) means by frugal
    `PasswordAnalyzer` rules so the account password and the drill are graded identically.
 2. **Breached**, server-side: the HIBP Pwned Passwords range API exactly as
    [§10.4](mvp0-plan.md) specifies it — SHA-1, send the **first five hex characters only**, with
-   `Add-Padding: true`, match the suffix locally, 2 s timeout, on failure `pwned = false` and log it.
+   `Add-Padding: true`, match the suffix locally, 2 s timeout.
+   When HIBP cannot be reached we still let the password through — a learner should not be blocked by
+   our network — but we record `breach_checked = false`, and the drill says so on the spot and in
+   "What we know about you". `pwned = false` must never read as "we checked and it was clean" when we
+   did not check at all; that is the honesty test applied to a network failure. (§10.4's own
+   account-password path still stores a bare `pwned` boolean with the same ambiguity. It deserves the
+   same treatment, but that table is nathann's.)
    Answers are cached in memory for an hour, keyed by the full SHA-1 (which never leaves the process),
    so a demo room full of learners reaching for the same obvious password costs one request rather
    than thirty.
@@ -167,7 +179,10 @@ The **ThisIsTea account password** needs neither: it already has an argon2id has
 verifies the new password against it. No column is added to `password_findings`, which keeps contract
 C1 untouched.
 
-**Accept a password iff** `length >= 10`, `score >= 2`, `!pwned`, the site's own name is absent, and
+**Accept a password iff** `length >= 10`, `score >= 2` **with at least 5 distinct characters**
+(nbvcxz's basic score is coarse — `zzzzzxzzzzzz` earns a 2 on length alone, and without the floor the
+server accepted passwords the client's meter called weak), `!pwned`, the site's own name is absent,
+and
 there is no exact reuse. The site-name check is a refusal rather than a mere finding because it is
 specific, teachable and trivially fixed. A **family** match is *not* a rejection — it is accepted with the lesson attached, because "you built a family" is a better
 teaching moment delivered after the fact than a wall that makes people type `qwerty` variants until
@@ -216,6 +231,7 @@ memory for the whole creation request. Everything we will ever want to know is m
 | Stored in `vault_findings` | Answers later, without the password |
 |---|---|
 | `score` (nbvcxz 0–4) | "was this weak?" — drives XP and the debrief forever |
+| `breach_checked` | "did the check actually run?" — so a network failure is never shown as a clean result |
 | `pwned`, `pwned_count` | "was it in breach lists, how often?" — the count is why the debrief can say "seen 3.7 million times" |
 | `length`, `classes`, `keyboard_pattern` | "what kind of password was it?" |
 | `contains_name` / `_email` / `_year` / `_site` | "was it built out of guessable facts?" |

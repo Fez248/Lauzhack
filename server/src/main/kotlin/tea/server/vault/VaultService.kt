@@ -189,9 +189,14 @@ class VaultService(
         }
 
         // 3. Known breached passwords. Only the first five hex chars of the SHA-1 leave the server.
+        //    A null answer means HIBP could not be reached. We still let the password through — a
+        //    learner should not be blocked by our network — but we record that the check did not run,
+        //    so neither the debrief nor "What we know about you" can imply it was clean.
         val sha1 = sha1Of(password)
-        val pwnedCount = services.pwned.pwnedCount(sha1) ?: 0 // unavailable -> not pwned, logged there
+        val breachAnswer = services.pwned.pwnedCount(sha1)
+        val pwnedCount = breachAnswer ?: 0
         if (pwnedCount > 0) return refuse(userId, siteId, VaultReason.BREACHED, pwnedCount = pwnedCount)
+        if (breachAnswer == null) log.warn("vault: breach check skipped for site {} (hibp unavailable)", siteId)
 
         // 4. Strength, as a guesser sees it rather than as a composition rule.
         //    nbvcxz's basic score is coarse: `zzzzzxzzzzzz` earns a 2 on length alone, so a floor on
@@ -236,6 +241,7 @@ class VaultService(
             containsYear = YEAR.containsMatchIn(raw),
             containsSite = false,
             keyboardPattern = PasswordAnalyzer.rowWalk(raw.lowercase()) ?: if (estimate.spatial) "spatial" else null,
+            breachChecked = breachAnswer != null,
         )
         val hash = PasswordHasher.hash(password)
         val now = services.clock.now()
@@ -262,6 +268,7 @@ class VaultService(
                 it[VaultFindings.containsYear] = findings.containsYear
                 it[VaultFindings.containsSite] = false
                 it[VaultFindings.keyboardPattern] = findings.keyboardPattern
+                it[VaultFindings.breachChecked] = findings.breachChecked
                 it[VaultFindings.reuseFp] = exactFp
                 it[VaultFindings.familyFp] = familyFp
                 it[VaultFindings.analysedAt] = now.toOdt()
@@ -488,6 +495,7 @@ class VaultService(
             containsYear = this[VaultFindings.containsYear],
             containsSite = this[VaultFindings.containsSite],
             keyboardPattern = this[VaultFindings.keyboardPattern],
+            breachChecked = this[VaultFindings.breachChecked],
         )
     }
 }

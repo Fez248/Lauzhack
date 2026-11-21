@@ -204,4 +204,5 @@
     <string name="summary_practise_again">Practicar otra vez</string>
     <string name="summary_continue">Continuar</string>
     <string name="summary_empty">Todavía no hay resumen de práctica.</string>
+    <string name="lesson_to_drill">Abrir cinco cuentas</string>
 </resources>

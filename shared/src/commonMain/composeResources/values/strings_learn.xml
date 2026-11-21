@@ -205,4 +205,5 @@
     <string name="summary_practise_again">Practise again</string>
     <string name="summary_continue">Continue</string>
     <string name="summary_empty">There's no practice summary yet.</string>
+    <string name="lesson_to_drill">Open five accounts</string>
 </resources>

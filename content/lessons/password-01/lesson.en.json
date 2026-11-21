@@ -1,0 +1,113 @@
+{
+  "id": "password-01",
+  "language": "en",
+  "title": "Passwords: stop remembering them",
+  "subtitle": "Four rules, then five accounts to prove it",
+  "minutes": 6,
+  "sections": [
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Personal security",
+          "title": "Length is the only thing that buys time",
+          "say": "People hand me punctuation and think they've done something. A guesser's machine doesn't care about your exclamation mark. It cares how much there is to get through.",
+          "rules": [
+            {
+              "headline": "Long beats clever.",
+              "body": "Four or five unrelated words. A short password with symbols in it is still short."
+            },
+            {
+              "headline": "Never the same one twice.",
+              "body": "One leaked site becomes five leaked sites by itself: attackers replay the pairs they already have."
+            }
+          ],
+          "sign_off": "Four unrelated words beat P@ssw0rd! by a distance no punctuation closes."
+        },
+        {
+          "persona": "cat",
+          "role": "Personal security",
+          "title": "The part nobody wants to hear",
+          "say": "You are not supposed to remember them. That is not a failure of yours, it is arithmetic. Nobody holds forty unrelated passwords in their head, so people reuse one, and that is the whole problem in one move.",
+          "rules": [
+            {
+              "headline": "Don't make it about you.",
+              "body": "Your name, your year of birth, your pet, your team. All of it is already online, and all of it is what anyone guessing tries first."
+            },
+            {
+              "headline": "You are not supposed to remember them.",
+              "body": "That is the manager's job. You remember one strong passphrase and let it hold the rest."
+            }
+          ],
+          "sign_off": "One strong passphrase, a manager for the rest, and two-factor login where it is offered."
+        }
+      ]
+    },
+    {
+      "type": "tools",
+      "intro": "Right, this is the bit that actually fixes it. Pick one of these now, not later. They're all better than your memory, and four of the five cost nothing.",
+      "tools": [
+        {
+          "resource_id": "bitwarden",
+          "name": "Bitwarden",
+          "what": "Free, open-source, audited, syncs to every device.",
+          "dog_says": "My oldest pal. He remembers every password for you, and he won't fill one in on a fake site. If he stays quiet, that's your warning.",
+          "button": "Open Bitwarden"
+        },
+        {
+          "resource_id": "proton-pass",
+          "name": "Proton Pass",
+          "what": "Swiss, free tier, same account as Proton Mail.",
+          "dog_says": "Younger than the others, and run here in Switzerland. Good pick if you already use their mail.",
+          "button": "Open Proton Pass"
+        },
+        {
+          "resource_id": "keepassxc",
+          "name": "KeePassXC",
+          "what": "Keeps everything in a file on your own device. No company involved.",
+          "dog_says": "For the sort who trusts nobody. Fair enough, friend. Just remember the backups are yours too.",
+          "button": "Open KeePassXC"
+        },
+        {
+          "resource_id": "1password",
+          "name": "1Password",
+          "what": "Paid, and the easiest to set up for a whole family.",
+          "dog_says": "Costs money, I'll say it plainly. Worth it if you're sorting this out for your parents as well.",
+          "button": "Open 1Password"
+        },
+        {
+          "resource_id": "builtin-manager",
+          "name": "The one already on your phone",
+          "what": "Apple Passwords, Google Password Manager or Firefox.",
+          "dog_says": "Already there, already backed up, nothing to install. Tied to one ecosystem, so it's awkward if you switch. Still far better than reusing one.",
+          "button": "How to turn it on"
+        }
+      ]
+    },
+    {
+      "type": "status",
+      "question": "How are you feeling about this?",
+      "levels": [
+        {
+          "key": "LOW",
+          "label": "Still unsure",
+          "persona": "turtle",
+          "reply": "That's quite all right, dear. You only need to do one thing today: install one of Dog's managers. The rest follows from that, and we'll go slowly."
+        },
+        {
+          "key": "MEDIUM",
+          "label": "Getting there",
+          "persona": "cat",
+          "reply": "Good. Now prove it on five accounts in a row, because that is where remembering stops working."
+        },
+        {
+          "key": "HIGH",
+          "label": "Confident",
+          "persona": "spider",
+          "reply": "Confident, are we? Then five accounts should be no trouble at all. I'll be waiting at the end to show you which one I'd have cracked first."
+        }
+      ]
+    }
+  ]
+}

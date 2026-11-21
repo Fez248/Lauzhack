@@ -200,6 +200,8 @@ object VaultFindings : Table("vault_findings") {
     val containsYear = bool("contains_year")
     val containsSite = bool("contains_site")
     val keyboardPattern = varchar("keyboard_pattern", 32).nullable()
+    /** False when HIBP was unreachable: `pwned = false` then means "not checked". */
+    val breachChecked = bool("breach_checked").default(true)
     val reuseFp = varchar("reuse_fp", 64).index()
     val familyFp = varchar("family_fp", 64).index()
     val analysedAt = timestampWithTimeZone("analysed_at")

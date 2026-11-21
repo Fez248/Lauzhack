@@ -41,6 +41,21 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
     gained my three rows (that assertion exists to catch exactly this), and `POST /me/events` now
     refuses the three server-only `vault_*` types the way it already refused `field_*`.
 
+- Fixed three problems found by running the drill against a live server rather than only in tests:
+  - **nbvcxz passed `zzzzzxzzzzzz`** (basic score 2 on length alone) while the client meter called it
+    weak, so the server accepted what the UI had just warned about. Added `MIN_DISTINCT = 5`.
+  - **An unreachable HIBP was silent.** `pwned = false` read as "clean" when the check had not run.
+    Findings now carry `breach_checked`; the drill says so on the spot, and "What we know about you"
+    says how many were not checked. §10.4's account-password path has the same ambiguity — nathann's
+    table, so I left it and noted it in the design doc.
+  - **The dev database vanished on restart**, taking the five accounts with it. The capability was
+    there, just undiscoverable: the warning now names the file-backed URL, and README has a 1b line.
+    Verified by restarting on the same file — accounts, session and argon2id logins all survived.
+- Wired the drill into the lesson flow: `content/lessons/password-01/lesson.{en,fr,es}.json` (Cat's
+  four rules across two cards, Dog's five managers, the status question), lesson 2's last button opens
+  the drill, and Home gained a lesson 2 card plus a "one of your five is waiting" card. Added the four
+  manager entries to `resources.json` (TASKS #33), all `verified: false` pending #24.
+
 ## In progress
 
 - Nothing. The code is on my branch and all three `decisions.md` entries are AGREED, including the
@@ -53,7 +68,7 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
   three fields from `VaultLoginRequest` and graduation rate still measures the same habit.
 - Lesson 2's copy (Cat's four rules, Spider's lines, Dog's tool cards) is still placeholder-free only
   in structure: the words need a human writer, per §17.
-- TASKS #33: the password-manager entries for `resources.json` are not written yet.
+- TASKS #33 is written but every link is `verified: false` until a person opens each one (#24).
 
 ## Next
 

@@ -61,4 +61,7 @@ object EventTypes {
 
 const val TERMS_VERSION = "2026-11-21"
 const val LESSON_1_ID = "email-01"
+
+/** Lesson 2: passwords, ending in the Vault drill (docs/password-drill.md). */
+const val LESSON_2_ID = "password-01"
 const val FIELD_TEMPLATE_ID = "practice-email-01"

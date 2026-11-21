@@ -250,16 +250,25 @@ fun aboutEntries(userId: String): List<AboutEntry> {
         for (k in listOf("vault_accounts", "vault_passwords", "vault_logins")) add(k, NONE.of(lang))
     } else {
         add("vault_accounts", vaultRows.joinToString(", ") { "${it[VaultAccounts.siteId]} (${it[VaultAccounts.username]})" })
-        val lengths = vaultRows.mapNotNull { row ->
-            VaultFindings.selectAll().where { VaultFindings.accountId eq row[VaultAccounts.id] }
-                .singleOrNull()?.get(VaultFindings.length)
+        val vaultFindings = vaultRows.mapNotNull { row ->
+            VaultFindings.selectAll().where { VaultFindings.accountId eq row[VaultAccounts.id] }.singleOrNull()
         }
-        val shape = lengths.joinToString(", ") { "$it" }
-        add("vault_passwords", l(
-            "Not stored. Lengths of the ones you chose: $shape characters.",
-            "Non conservés. Longueurs de ceux que vous avez choisis : $shape caractères.",
-            "No se guardan. Longitudes de las que elegiste: $shape caracteres.",
-        ))
+        val shape = vaultFindings.joinToString(", ") { "${it[VaultFindings.length]}" }
+        val unchecked = vaultFindings.count { !it[VaultFindings.breachChecked] }
+        // `l` already resolves to the learner's language, so the caveat is appended after it
+        val caveat = if (unchecked == 0) "" else l(
+            " We could not reach the breach list for $unchecked of them, so those were not checked.",
+            " Nous n'avons pas pu joindre la liste des fuites pour $unchecked d'entre eux : ceux-là n'ont pas été vérifiés.",
+            " No pudimos consultar la lista de filtraciones para $unchecked de ellas, así que esas no se comprobaron.",
+        )
+        add(
+            "vault_passwords",
+            l(
+                "Not stored. Lengths of the ones you chose: $shape characters.",
+                "Non conservés. Longueurs de ceux que vous avez choisis : $shape caractères.",
+                "No se guardan. Longitudes de las que elegiste: $shape caracteres.",
+            ) + caveat,
+        )
         val logins = VaultLogins.selectAll().where { VaultLogins.userId eq userId }.toList()
         val back = vaultRows.count { it[VaultAccounts.graduatedAt] != null }
         val methods = logins.mapNotNull { it[VaultLogins.inputMethod] }.groupingBy { it }.eachCount()

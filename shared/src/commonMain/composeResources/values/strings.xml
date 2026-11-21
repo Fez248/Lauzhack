@@ -369,4 +369,13 @@
     <string name="vault_self_report_remembered">I remembered it</string>
     <string name="vault_self_report_written">I had it written down</string>
     <string name="vault_graduated">%1$d of %2$d logged back in</string>
+    <string name="vault_breach_unchecked">We could not reach the breach list just now, so this one was not checked against it. Worth changing later if you hear of a leak.</string>
+    <string name="home_lesson2_title">Lesson 2: passwords</string>
+    <string name="home_lesson2_start">Start lesson 2</string>
+    <string name="home_lesson2_continue">Carry on with lesson 2</string>
+    <string name="home_lesson2_drill">Open your five accounts</string>
+    <string name="home_vault_title">One of your five is waiting</string>
+    <string name="home_vault_body">Time to prove the habit stuck: log back in to one of the five accounts you made. We will not tell you which until you start.</string>
+    <string name="home_vault_action">Log back in</string>
+    <string name="home_vault_done">%1$d of %2$d logged back in</string>
 </resources>

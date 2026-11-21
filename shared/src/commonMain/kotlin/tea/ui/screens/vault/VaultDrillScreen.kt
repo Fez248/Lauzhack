@@ -126,6 +126,9 @@ fun VaultDrillScreen(app: AppState, siteIndex: Int) {
                 Banner(reasonText(r), kind = tea.ui.components.BannerKind.Info)
             } else {
                 Banner(stringResource(Res.string.vault_saved), kind = tea.ui.components.BannerKind.Info)
+                if (r.findings?.breachChecked == false) {
+                    Banner(stringResource(Res.string.vault_breach_unchecked), kind = tea.ui.components.BannerKind.Info)
+                }
                 if (r.familyMatch) {
                     TeaCard(background = TeaTheme.colors.badSoft) {
                         SectionHeading(stringResource(Res.string.vault_family_title))

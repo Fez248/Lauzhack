@@ -54,11 +54,12 @@ class FakeClock(var now: Instant = Instant.parse("2026-11-18T10:00:00Z")) : Cloc
     fun advance(d: Duration) { now += d }
 }
 
-/** SHA-1 (upper hex) → breach count. Everything else: 0. */
-class FakePwned(private val known: Map<String, Int> = emptyMap()) : PwnedClient {
+/** SHA-1 (upper hex) → breach count. Everything else: 0. [unavailable] answers null, like a timeout. */
+class FakePwned(private val known: Map<String, Int> = emptyMap(), var unavailable: Boolean = false) : PwnedClient {
     val calls = java.util.Collections.synchronizedList(mutableListOf<String>())
     override suspend fun pwnedCount(sha1Hex: String): Int? {
         calls += sha1Hex
+        if (unavailable) return null
         return known[sha1Hex.uppercase()] ?: 0
     }
 
