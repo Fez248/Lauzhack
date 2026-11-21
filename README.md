@@ -63,6 +63,10 @@ Tests and checks:
 ```bash
 ./gradlew :shared:jvmTest :server:test          # unit, content validation, end-to-end against a real server
 ./gradlew :shared:jvmTest -Pstrict=true         # missing translations become errors
+
+# The server suite against another database (the schema is otherwise only ever built on H2).
+# {id} is replaced per test, so they do not share rows.
+./gradlew :server:test -Dtea.test.db.url='jdbc:h2:mem:pg-{id};MODE=PostgreSQL;DB_CLOSE_DELAY=-1'
 ./gradlew :androidApp:assembleDebug             # needs an Android SDK (local.properties sdk.dir or ANDROID_HOME)
 ```
 

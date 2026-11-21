@@ -56,6 +56,19 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
   the drill, and Home gained a lesson 2 card plus a "one of your five is waiting" card. Added the four
   manager entries to `resources.json` (TASKS #33), all `verified: false` pending #24.
 
+- Merged `origin/main` again (PR #4: the tunnel dropped, Docker Compose split into dev and prod).
+  Two conflicts, both additive: `decisions.md` kept both sides, and `deploy/.env.example` kept my
+  Vault block alongside nathann's `DEV_VERIFY_CODE=off`, with `PASSWORD_FP_PEPPER=changeme` to match
+  his new convention that every secret carries a placeholder.
+- Could not run `docker compose -f deploy/docker-compose.dev.yml up --build` here: this machine has
+  no container runtime at all (no Docker, no podman, no colima, no socket) and no local Postgres, so
+  the vault schema had still only ever been created on H2. Closed that gap instead:
+  `-Dtea.test.db.url=` now points the whole server suite at another database, with `{id}` in the URL
+  for per-test isolation. All 57 server tests pass on H2's PostgreSQL dialect as well as its default
+  one, so the new DDL survives it — `vault_logins.at` as a column name, `breach_checked BOOL DEFAULT
+  true`, and the `(user_id, site_id)` unique index. Someone with Docker should still run the compose
+  stack against real Postgres before the demo; the command is in the README.
+
 ## In progress
 
 - Nothing. The code is on my branch and all three `decisions.md` entries are AGREED, including the
