@@ -1,0 +1,35 @@
+# Secrets (OpenRouter key etc.): never commit
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+
+# Personal agent settings
+.claude/settings.local.json
+
+# Dependencies / builds
+node_modules/
+dist/
+build/
+.next/
+.vite/
+coverage/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.gradle/
+.kotlin/
+out/
+
+# IDEs / OS
+.idea/workspace.xml
+.idea/shelf/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+*.log
