@@ -441,6 +441,157 @@ fieldset { margin: 0; min-width: 0; }
 .score .num { font-family: var(--font-display); font-weight: 800; font-size: 2.2rem; line-height: 1; white-space: nowrap; }
 .score .say { flex: 1; }
 
+/* Expandable lesson card: click to read it larger in a dialog */
+.lesson-card { position: relative; }
+.lesson-card.is-expandable { cursor: zoom-in; transition: transform .15s, box-shadow .15s; }
+.lesson-card.is-expandable:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+.expand-btn {
+    position: absolute; top: .9rem; right: .9rem; z-index: 1;
+    width: 2.2rem; height: 2.2rem; border-radius: 50%; border: var(--border);
+    background: var(--card); color: var(--ink); box-shadow: var(--stick-sm);
+    display: grid; place-items: center; font-size: 1.05rem; font-weight: 700; line-height: 1; cursor: zoom-in;
+    transition: transform .12s, box-shadow .12s;
+}
+.lesson-card.is-expandable:hover .expand-btn { transform: scale(1.08); }
+.lesson-card.is-expandable .char-tag { padding-right: 2.5rem; }
+
+.card-dialog {
+    padding: 0; border: 0; background: transparent; color: var(--ink); overflow: visible;
+    width: min(46rem, calc(100vw - 2rem)); max-width: none; max-height: none;
+}
+.card-dialog::backdrop { background: rgba(17, 27, 58, .6); backdrop-filter: blur(4px); }
+.card-dialog[open] { animation: dialog-pop .28s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes dialog-pop { from { opacity: 0; transform: translateY(1.5rem) scale(.94); } }
+html:has(.card-dialog[open]) { overflow: hidden; }
+.dialog-close {
+    position: absolute; top: .9rem; right: .9rem; z-index: 2;
+    width: 2.6rem; height: 2.6rem; border-radius: 50%; border: var(--border);
+    background: var(--card); color: var(--ink); box-shadow: var(--stick-sm);
+    display: grid; place-items: center; font-size: 1.5rem; line-height: 1; cursor: pointer;
+}
+.dialog-close:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+
+.lesson-card.is-big { max-height: calc(100dvh - 2rem); overflow-y: auto; box-shadow: 8px 8px 0 var(--ink); }
+.lesson-card.is-big .top { padding: 2rem 4.5rem 1.6rem 2.2rem; gap: 1.3rem; }
+.lesson-card.is-big .char-tag .avatar { width: 4.2rem; height: 4.2rem; font-size: 2.2rem; }
+.lesson-card.is-big .char-tag .name { font-size: 1.35rem; }
+.lesson-card.is-big .char-tag .role { font-size: 1rem; }
+.lesson-card.is-big .char-title { font-size: clamp(1.8rem, 4.5vw, 2.5rem); }
+.lesson-card.is-big .say { font-size: calc(var(--v-size) * 1.25); padding: 1.1rem 1.4rem; }
+.lesson-card.is-big .rules { padding: 1.8rem 2.2rem; }
+.lesson-card.is-big .rules li { font-size: 1.2rem; padding-left: 3rem; margin-bottom: 1.4rem; }
+.lesson-card.is-big .rules li::before { width: 2.1rem; height: 2.1rem; font-size: 1.05rem; }
+.lesson-card.is-big .rules li b { font-size: 1.3rem; margin-bottom: .15rem; }
+.lesson-card.is-big .sign-off { padding: 0 2.2rem 2rem; font-size: calc(var(--v-size) * 1.2); }
+
+/* Corner guide: the character for the section in view pops up and speaks */
+.buddy {
+    position: fixed; z-index: 30;
+    right: calc(1rem + env(safe-area-inset-right, 0px));
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    display: flex; align-items: flex-end; gap: .9rem;
+    pointer-events: none; visibility: hidden; opacity: 0;
+    transform: translateY(1.5rem) scale(.9); transform-origin: bottom right;
+    transition: opacity .22s, transform .3s cubic-bezier(.3, 1.6, .5, 1), visibility 0s linear .3s;
+}
+.buddy.is-in { opacity: 1; transform: none; visibility: visible; pointer-events: auto; transition-delay: 0s; }
+.buddy-bubble {
+    width: min(20rem, calc(100vw - 7rem)); padding-right: 2.2rem;
+    box-shadow: var(--stick);
+}
+.buddy-bubble::after {   /* tail pointing at the avatar */
+    content: ""; position: absolute; right: -10px; bottom: 1.4rem; width: 16px; height: 16px;
+    background: inherit; border-top: var(--border); border-right: var(--border); transform: rotate(45deg);
+}
+.buddy-name { display: block; font-family: var(--v-font); font-style: normal; font-weight: 700; font-size: var(--t-sm); color: var(--v-deep); margin-bottom: .15rem; }
+[data-voice="spider"] .buddy-name { color: var(--web-soft); }
+.buddy-text { display: grid; }
+.buddy-text > span { grid-area: 1 / 1; }          /* ghost reserves the final size, typed text sits on top */
+.buddy-text .ghost { visibility: hidden; }
+.buddy.is-talking .typed::after { content: "▍"; opacity: .45; }
+.buddy-close {
+    position: absolute; top: .35rem; right: .45rem; width: 1.7rem; height: 1.7rem;
+    border: 0; background: none; color: inherit; opacity: .55; cursor: pointer;
+    font-size: 1.15rem; line-height: 1; border-radius: 50%;
+}
+.buddy-close:hover { opacity: 1; }
+.buddy-avatar {
+    width: 3.6rem; height: 3.6rem; flex: none; border-radius: 50%; border: var(--border);
+    background: var(--v-accent); box-shadow: var(--stick-sm);
+    display: grid; place-items: center; font-size: 1.9rem;
+}
+.buddy.is-talking .buddy-avatar { animation: buddy-talk .18s ease-in-out infinite alternate; }
+@keyframes buddy-talk { to { transform: translateY(-4px) rotate(-5deg); } }
+
+
+/* ---------------------------------------------------------------------
+   Active learning: hunt, spot check, recovery plan, quiz retries
+   --------------------------------------------------------------------- */
+
+/* Spider's hunt: click the tricks in the email before he explains them */
+[data-decoy] { transition: background .2s, box-shadow .2s; border-radius: 4px; }
+.email.hunting [data-flag], .email.hunting [data-decoy] { cursor: pointer; }
+.email.hunting [data-flag]:not(.is-found):hover, .email.hunting [data-decoy]:hover { background: #fff6bf; box-shadow: 0 0 0 3px #fff6bf; }
+.email [data-flag].is-found { background: var(--highlight); box-shadow: 0 0 0 3px var(--highlight); color: #000; }
+.email [data-flag].is-missed { background: #ffd0d7; box-shadow: 0 0 0 3px #ffd0d7, 0 0 0 5px var(--spider); color: #000; }
+.email [data-decoy].is-nope { background: #ffd0d7; box-shadow: 0 0 0 3px #ffd0d7; }
+.hunt-bar { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-bottom: .8rem; color: var(--web-soft); font-size: var(--t-sm); }
+.hunt-bar .spacer { flex: 1; }
+.hunt-msg { font-family: var(--font-spider); font-style: italic; font-weight: 600; font-size: 1.25rem; line-height: 1.35; color: var(--web-ink); min-height: 2.7em; margin-bottom: .8rem; }
+.flag-btn.is-locked { cursor: default; border-style: dashed; opacity: .8; }
+.flag-btn.is-locked:hover { border-color: var(--web-line); }
+.trap-link { display: inline-block; margin-top: .6rem; font-family: var(--font-body); font-weight: 700; font-size: var(--t-sm); color: #fff; }
+
+/* Spot check: two fresh emails, safe or phish */
+.practice { margin-top: var(--s-4); padding: var(--s-3); }
+.practice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--s-3); margin-top: 1.25rem; align-items: start; }
+.spot .email { margin-bottom: .9rem; }
+.spot-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+.btn.is-right { background: var(--turtle-soft); border-color: var(--ok); }
+.btn.is-wrong { background: var(--spider-soft); border-color: var(--bad); }
+.btn:disabled { cursor: default; transform: none; }
+.btn:disabled:hover { box-shadow: var(--stick-sm); }
+
+/* Recovery plan (Turtle) */
+.recovery { margin-top: var(--s-4); }
+.recovery .top { padding: 1.4rem 1.5rem 1.2rem; background: var(--v-soft); display: grid; gap: 1rem; }
+.checklist { list-style: none; margin: 0; padding: 1.2rem 1.5rem; border-top: 2px dashed var(--rule); display: grid; gap: .7rem; }
+.checklist label { display: flex; gap: .85rem; align-items: flex-start; cursor: pointer; padding: .8rem 1rem; border: 2px solid var(--rule); border-radius: var(--r-md); transition: border-color .15s, background .15s; }
+.checklist label:hover { border-color: var(--ink); }
+.checklist label:has(input:checked) { border-color: var(--ok); background: var(--turtle-soft); }
+.checklist input { margin-top: .3rem; accent-color: var(--turtle-deep); width: 1.15rem; height: 1.15rem; flex: none; }
+.checklist b { display: block; font-family: var(--font-turtle); font-size: 1.08rem; }
+.recovery-progress { padding: 0 1.5rem 1.4rem; color: var(--v-deep); font-weight: 600; }
+
+/* Quiz artifacts: the thing being judged, shown as it would really look */
+.q-artifact { margin-bottom: 1.1rem; }
+.q-artifact .email { max-width: 34rem; }
+.q-note { color: var(--ink-soft); font-size: var(--t-sm); font-weight: 600; margin: -.4rem 0 .8rem; }
+.chat-mock { display: flex; gap: .8rem; max-width: 34rem; padding: .8rem 1rem; background: #fff; border: 2px solid #000; border-radius: var(--r-md); box-shadow: 3px 3px 0 #000; }
+.chat-mock .pic { width: 2.4rem; height: 2.4rem; flex: none; border-radius: 8px; background: #7c3aed; color: #fff; display: grid; place-items: center; font-weight: 800; font-size: .85rem; }
+.chat-mock .role-tag { font-size: var(--t-xs); font-weight: 700; background: var(--rule); border-radius: 4px; padding: 0 .35rem; margin-left: .25rem; }
+.chat-mock time { color: var(--ink-soft); font-size: var(--t-xs); margin-left: .5rem; }
+.sms-mock { max-width: 22rem; background: #e7ebf4; border: 2px solid #000; border-radius: 18px 18px 18px 4px; padding: .8rem 1rem; font-size: .98rem; }
+.option-row.opt-mono span { font-family: var(--font-mono); font-size: .95rem; word-break: break-all; }
+.option-row:has(input:disabled) { cursor: default; }
+.option-row:has(input:disabled):hover { border-color: var(--rule); }
+.option-row.is-right:hover, .option-row.is-right:has(input:disabled):hover { border-color: var(--ok); }
+.option-row.is-wrong:hover, .option-row.is-wrong:has(input:disabled):hover { border-color: var(--bad); }
+.option-row.is-wrong span { text-decoration: line-through; text-decoration-color: var(--bad); }
+.q-warn { color: var(--bad-deep); font-weight: 700; font-size: var(--t-sm); margin-top: .6rem; }
+
+/* Hints, review links and the quiz buttons */
+.feedback.is-hint .verdict { color: var(--cat-deep); }
+.review-row { display: block; margin-top: .6rem; }
+.review-link {
+    font-family: var(--font-body); font-style: normal; font-weight: 700; font-size: var(--t-sm); cursor: pointer;
+    color: var(--ink); background: var(--card); border: 2px solid var(--line); border-radius: 999px; padding: .25rem .8rem;
+}
+.review-link:hover { background: var(--highlight); }
+.rules li.is-ref { background: var(--highlight); box-shadow: 0 0 0 6px var(--highlight); border-radius: 4px; }
+.quiz-actions { display: flex; gap: .8rem; flex-wrap: wrap; }
+.quiz-actions .btn { flex: 1; font-size: 1.1rem; padding: 1rem; }
+
 
 /* ---------------------------------------------------------------------
    7. Utilities, motion, responsive
@@ -463,6 +614,13 @@ fieldset { margin: 0; min-width: 0; }
     .guide .role { display: none; }
     .guide { padding: .8rem; }
     .speaker .char-tag .avatar { width: 2.4rem; height: 2.4rem; font-size: 1.25rem; }
+    .lesson-card.is-big .top { padding: 1.4rem 4rem 1.2rem 1.3rem; }
+    .lesson-card.is-big .rules { padding: 1.3rem; }
+    .lesson-card.is-big .rules li { font-size: 1.08rem; padding-left: 2.6rem; }
+    .lesson-card.is-big .sign-off { padding: 0 1.3rem 1.4rem; }
+    .buddy-avatar { width: 3rem; height: 3rem; font-size: 1.55rem; }
+    .buddy-bubble { width: calc(100vw - 6rem); }
+    .buddy .say { font-size: calc(var(--v-size) * .92); }
 }
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
