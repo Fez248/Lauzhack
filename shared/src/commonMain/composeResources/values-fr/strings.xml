@@ -1,0 +1,19 @@
+<resources>
+    <!-- French: first screen only for now (proves the language switch). Full translation: later task.
+         Missing keys fall back to values/strings.xml (English). -->
+    <string name="shell_continue">Continuer</string>
+    <string name="language_title">Choisissez votre langue</string>
+    <string name="language_intro">Vous pourrez la changer plus tard dans les réglages.</string>
+    <string name="language_label">Langue</string>
+    <string name="language_country">Pays</string>
+    <string name="language_country_help">Il nous sert à proposer de l'aide qui existe là où vous vivez.</string>
+    <string name="country_CH">Suisse</string>
+    <string name="country_FR">France</string>
+    <string name="country_ES">Espagne</string>
+    <string name="country_DE">Allemagne</string>
+    <string name="country_IT">Italie</string>
+    <string name="country_GB">Royaume-Uni</string>
+    <string name="country_IN">Inde</string>
+    <string name="country_PK">Pakistan</string>
+    <string name="country_OTHER">Autre</string>
+</resources>
