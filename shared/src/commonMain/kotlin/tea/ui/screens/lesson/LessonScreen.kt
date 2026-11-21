@@ -27,7 +27,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,14 +38,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import tea.app.Screen
 import tea.app.TeaApp
-import tea.content.Placeholders
 import tea.content.ResourceCatalog
 import tea.generated.resources.Res
 import tea.generated.resources.lesson_complete
@@ -393,91 +389,32 @@ private fun PracticeSectionView(app: TeaApp, lesson: Lesson, index: Int, s: Prac
     }
 }
 
-// ---- readiness: the opt-in card (plan §9.6) ----------------------------------------------------
+// ---- readiness: the automatic practice-email trigger (plan §9.6) ----------------------------------------------------
 
-private const val READINESS_DISMISSED = "dismissed"
 private const val READINESS_SCHEDULED = "scheduled"
 private const val READINESS_REASON = "reason:"
 
 @Composable
 private fun ColumnScope.ReadinessSectionView(app: TeaApp, lessonId: String, s: ReadinessSection) {
-    val profile by app.profile.collectAsState()
-    val email by app.email.collectAsState()
     val online by app.online.collectAsState()
     val loggedIn by app.loggedIn.collectAsState()
     val key = LearnKeys.lessonReadiness(lessonId)
     var status by remember { mutableStateOf(app.load(key, LearnKeys.STRING)) }
-    var busy by remember { mutableStateOf(false) }
-    var failed by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-
     SectionHeading(stringResource(Res.string.lesson_complete), large = true, intro = stringResource(Res.string.lesson_complete_body))
 
-    val current = status
-    when {
-        current == READINESS_DISMISSED -> Text(stringResource(Res.string.lesson_readiness_dismissed), style = TeaTheme.type.body, color = TeaTheme.colors.inkSoft)
-        current == READINESS_SCHEDULED -> PersonaBubble(Persona.CAT, Mood.HAPPY, s.done, onSoft = true)
-        else -> TeaCard(Modifier.fillMaxWidth()) {
-            Text(stringResource(Res.string.lesson_readiness_title), style = TeaTheme.type.h3, color = TeaTheme.colors.ink)
-            // A guest has no registered address: never show the placeholder address as if mail went there.
-            val values = if (loggedIn && email != null) Placeholders.values(profile, email)
-            else Placeholders.values(profile, null) + ("email" to stringResource(Res.string.lesson_readiness_guest_address))
-            Text(boldMarkdown(Placeholders.fill(s.prompt, values)), style = TeaTheme.type.body, color = TeaTheme.colors.ink)
-            if (current != null && current.startsWith(READINESS_REASON)) {
-                PersonaBubble(Persona.TURTLE, Mood.NEUTRAL, stringResource(reasonText(current.removePrefix(READINESS_REASON))), onSoft = true)
-            }
-            if (failed) {
-                Text(stringResource(Res.string.lesson_readiness_failed), style = TeaTheme.type.small, color = TeaTheme.colors.badText)
-            }
-            if (!loggedIn) {
-                Text(stringResource(Res.string.lesson_readiness_guest), style = TeaTheme.type.small, color = TeaTheme.colors.inkSoft)
-            }
-            val canPress = online && loggedIn && !busy
-            Row(horizontalArrangement = Arrangement.spacedBy(TeaSpacing.s2), verticalAlignment = Alignment.CenterVertically) {
-                TeaButton(
-                    when {
-                        busy -> stringResource(Res.string.lesson_readiness_sending)
-                        !online -> stringResource(Res.string.lesson_readiness_offline)
-                        else -> s.button
-                    },
-                    {
-                        busy = true
-                        failed = false
-                        app.emit(EventTypes.PRACTICE_EMAIL_OPTED_IN, JsonObject(mapOf("lesson_id" to JsonPrimitive(lessonId))))
-                        scope.launch {
-                            val answer = runCatching { app.requestReadiness(lessonId) }.getOrNull()
-                            busy = false
-                            if (answer == null) {
-                                failed = true
-                            } else {
-                                val next = if (answer.scheduled) READINESS_SCHEDULED else READINESS_REASON + (answer.reason ?: "")
-                                status = next
-                                app.save(key, LearnKeys.STRING, next)
-                            }
-                        }
-                    },
-                    enabled = canPress,
-                )
-                TeaButton(
-                    stringResource(Res.string.lesson_readiness_not_now),
-                    {
-                        status = READINESS_DISMISSED
-                        app.save(key, LearnKeys.STRING, READINESS_DISMISSED)
-                    },
-                    variant = TeaButtonVariant.Text,
-                )
-            }
+    // No opt-in card: finishing the lesson always queues the practice email (the Terms carry the consent;
+    // the server still refuses when terms are missing, paused, stopped, unverified or already done).
+    LaunchedEffect(loggedIn, online) {
+        if (status == null && loggedIn && online) {
+            app.emit(EventTypes.PRACTICE_EMAIL_OPTED_IN, JsonObject(mapOf("lesson_id" to JsonPrimitive(lessonId))))
+            val answer = runCatching { app.requestReadiness(lessonId) }.getOrNull() ?: return@LaunchedEffect
+            val next = if (answer.scheduled) READINESS_SCHEDULED else READINESS_REASON + (answer.reason ?: "")
+            status = next
+            app.save(key, LearnKeys.STRING, next)
         }
     }
-}
 
-private fun reasonText(reason: String): StringResource = when (reason) {
-    "paused" -> Res.string.lesson_readiness_reason_paused
-    "stopped" -> Res.string.lesson_readiness_reason_stopped
-    "not_verified" -> Res.string.lesson_readiness_reason_not_verified
-    "already_done" -> Res.string.lesson_readiness_reason_already_done
-    "terms_missing" -> Res.string.lesson_readiness_reason_terms_missing
-    else -> Res.string.lesson_readiness_reason_other
+    if (status == READINESS_SCHEDULED) PersonaBubble(Persona.CAT, Mood.HAPPY, s.done, onSoft = true)
 }
 
 /** `**bold**` spans (used by the lesson's readiness prompt) to an AnnotatedString. */
