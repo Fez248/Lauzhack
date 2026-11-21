@@ -18,6 +18,7 @@ import tea.generated.resources.Res
 import tea.generated.resources.practice_title
 import tea.model.Item
 import tea.ui.components.TopBar
+import tea.ui.screens.challenge.ChallengeContent
 import tea.ui.screens.lesson.LessonContent
 import tea.ui.screens.placement.PlacementContent
 import tea.ui.screens.placement.PlacementIntroContent
@@ -55,6 +56,12 @@ fun PlacementResultScreen(app: TeaApp) {
 @Composable
 fun LessonScreen(app: TeaApp, id: String, section: Int) {
     LessonContent(app, id, section)
+}
+
+/** Section [section] of challenge [id]: briefing, playbook, decisions, fallout (docs/challenge-boardroom-crisis.md). */
+@Composable
+fun ChallengeScreen(app: TeaApp, id: String, section: Int) {
+    ChallengeContent(app, id, section)
 }
 
 /** "Practise again": one practice section from the selector, outside a lesson. */

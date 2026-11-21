@@ -929,12 +929,13 @@
             function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
             function stop() { timers.forEach(clearTimeout); timers = []; el.classList.remove('is-talking'); }
 
-            function hide() { stop(); el.classList.remove('is-in'); }
+            function hide() { stop(); el.classList.remove('is-in'); delete document.body.dataset.bg; }
 
             // Pop in and type out one line, then call done after a pause long enough to read it
             function say(line, done) {
                 const c = CHARACTERS[line.voice];
                 el.dataset.voice = line.voice;
+                document.body.dataset.bg = line.voice;   // the page takes the speaker's tint
                 avatar.textContent = c.emoji;
                 nameEl.textContent = c.name;
                 ghost.textContent = line.text;
@@ -962,7 +963,7 @@
                 stop();
                 let i = 0;
                 (function next() {
-                    if (i >= lines.length) { el.classList.remove('is-in'); return; }
+                    if (i >= lines.length) { el.classList.remove('is-in'); delete document.body.dataset.bg; return; }
                     const line = lines[i++];
                     const visible = el.classList.contains('is-in');
                     if (visible) {

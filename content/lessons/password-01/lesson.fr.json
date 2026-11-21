@@ -108,6 +108,32 @@
           "reply": "Confiant ? Alors cinq comptes ne seront rien du tout. J'attendrai a la fin pour vous montrer lequel j'aurais casse en premier."
         }
       ]
+    },
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Securite personnelle",
+          "title": "La partie qui le prouve",
+          "say": "Connaitre les regles ne coute rien. Cinq comptes d'affilee, si : des le troisieme votre memoire abandonne et le gestionnaire devient le seul passage. C'est cela, la lecon, et on ne peut pas la lire, il faut la vivre.",
+          "rules": [
+            {
+              "headline": "Cinq sites, cinq nouveaux mots de passe.",
+              "body": "Tous fictifs, tous a nous, et ils n'ouvrent rien. N'utilisez pas un mot de passe que vous avez vraiment, pas une seule fois."
+            },
+            {
+              "headline": "Enregistrez chacun au fur et a mesure.",
+              "body": "Dans le gestionnaire que vous venez d'installer. Pas dans une note, pas dans votre tete."
+            },
+            {
+              "headline": "Nous en redemanderons un.",
+              "body": "Dans une prochaine session, l'un des cinq tire au hasard. Nous ne dirons pas lequel : le seul moyen est de les avoir tous enregistres. Nous ne pourrons pas vous aider, nous ne les avons jamais gardes."
+            }
+          ],
+          "sign_off": "Cinq comptes. Ensuite on verra si l'habitude est reelle."
+        }
+      ]
     }
   ]
 }

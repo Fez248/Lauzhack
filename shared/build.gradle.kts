@@ -126,11 +126,13 @@ val contentLanguagesFile: File = File(contentRoot, "languages.txt")
 
 val syncContent = tasks.register<Sync>("syncContent") {
     group = "build"
-    description = "Copies /content items, lessons and resources.json into composeResources/files/content."
+    description = "Copies /content items, lessons, challenges, chapters and resources.json into composeResources/files/content."
     val outDir = layout.projectDirectory.dir("src/commonMain/composeResources/files/content").asFile
     into(outDir)
     from(File(contentRoot, "items")) { into("items") }
     from(File(contentRoot, "lessons")) { into("lessons") }
+    from(File(contentRoot, "challenges")) { into("challenges") }
+    from(File(contentRoot, "chapters")) { into("chapters") }
     from(File(contentRoot, "resources/resources.json"))
     inputs.file(contentLanguagesFile).withPropertyName("languages")
     doLast {

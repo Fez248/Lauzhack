@@ -39,7 +39,7 @@ import tea.ui.screens.OkLine
 import tea.ui.theme.TeaShapes
 import tea.ui.theme.TeaTheme
 
-private val PERIODS = listOf("week", "all")
+internal val PERIODS = listOf("week", "all")
 
 /**
  * Leaderboard (plan §9.5): weekly / all-time XP, top 20 + you. Hidden when offline. "Invite a
@@ -114,7 +114,7 @@ fun LeaderboardList(data: LeaderboardResponse?, loggedIn: Boolean) {
 }
 
 @Composable
-private fun RankRow(row: LeaderboardRow, isMe: Boolean) {
+internal fun RankRow(row: LeaderboardRow, isMe: Boolean) {
     val colors = TeaTheme.colors
     Row(
         Modifier

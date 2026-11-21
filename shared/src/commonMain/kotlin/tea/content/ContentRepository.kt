@@ -7,6 +7,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import tea.generated.resources.Res
+import tea.model.Challenge
+import tea.model.Chapter
+import tea.model.ChapterCatalog
 import tea.model.ContentIndex
 import tea.model.Item
 import tea.model.Lesson
@@ -30,6 +33,8 @@ class ContentRepository(
     private var resources: ResourceCatalog? = null
     private val itemsByLang = mutableMapOf<String, List<Item>>()
     private val lessons = mutableMapOf<Pair<String, String>, Lesson?>()
+    private val challenges = mutableMapOf<Pair<String, String>, Challenge?>()
+    private val chaptersByLang = mutableMapOf<String, List<Chapter>>()
 
     suspend fun index(): ContentIndex = mutex.withLock { indexLocked() }
 
@@ -61,6 +66,26 @@ class ContentRepository(
         lesson
     }
 
+    /** Challenge [id] in [lang] (fallback `en`), or null when it does not exist. */
+    suspend fun challenge(id: String, lang: String): Challenge? = mutex.withLock {
+        val key = id to lang
+        if (key in challenges) return@withLock challenges[key]
+        val effective = effectiveLang(lang, indexLocked())
+        val challenge = loadWithFallback(effective) { l -> challengePath(id, l) }?.let(::parseChallenge)
+        challenges[key] = challenge
+        challenge
+    }
+
+    /** Home's chapter list in [lang] (fallback `en`), file order; empty when the file is missing. */
+    suspend fun chapters(lang: String): List<Chapter> = mutex.withLock {
+        chaptersByLang[lang]?.let { return@withLock it }
+        val effective = effectiveLang(lang, indexLocked())
+        val list = loadWithFallback(effective) { l -> "$root/chapters/chapters.$l.json" }
+            ?.let { parseChapters(it).chapters }.orEmpty()
+        chaptersByLang[lang] = list
+        list
+    }
+
     suspend fun resources(): ResourceCatalog = mutex.withLock {
         resources ?: parseResources(loadBytes("$root/resources.json")).also { resources = it }
     }
@@ -79,6 +104,8 @@ class ContentRepository(
         resources = null
         itemsByLang.clear()
         lessons.clear()
+        challenges.clear()
+        chaptersByLang.clear()
     }
 
     // ------------------------------------------------------------------------------------------
@@ -91,6 +118,7 @@ class ContentRepository(
 
     private fun itemPath(entry: String, lang: String) = "$root/items/$entry.$lang.json"
     private fun lessonPath(id: String, lang: String) = "$root/lessons/$id/lesson.$lang.json"
+    private fun challengePath(id: String, lang: String) = "$root/challenges/$id/challenge.$lang.json"
 
     /** Bytes for [lang], else for `en`, else null. */
     private suspend fun loadWithFallback(lang: String, path: (String) -> String): ByteArray? {
@@ -114,6 +142,8 @@ class ContentRepository(
         fun parseIndex(bytes: ByteArray): ContentIndex = TeaJson.decodeFromString(ContentIndex.serializer(), bytes.decodeToString())
         fun parseItem(bytes: ByteArray): Item = TeaJson.decodeFromString(Item.serializer(), bytes.decodeToString())
         fun parseLesson(bytes: ByteArray): Lesson = TeaJson.decodeFromString(Lesson.serializer(), bytes.decodeToString())
+        fun parseChallenge(bytes: ByteArray): Challenge = TeaJson.decodeFromString(Challenge.serializer(), bytes.decodeToString())
+        fun parseChapters(bytes: ByteArray): ChapterCatalog = TeaJson.decodeFromString(ChapterCatalog.serializer(), bytes.decodeToString())
         fun parseResources(bytes: ByteArray): ResourceCatalog =
             TeaJson.decodeFromString(ResourceCatalog.serializer(), bytes.decodeToString())
     }

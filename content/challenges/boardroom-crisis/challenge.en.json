@@ -1,0 +1,275 @@
+{
+  "id": "boardroom-crisis",
+  "language": "en",
+  "title": "Boardroom crisis",
+  "pill": "Challenge: Boardroom crisis",
+  "headline": "The first six hours",
+  "subtitle": "A breach is under way and the board is looking at you. Decide what happens next, then see what each choice costs.",
+  "minutes": 12,
+  "deadline": "14:00",
+  "start_meters": { "trust": 70, "cash": 75, "systems": 30, "legal": 70 },
+  "dials": [
+    { "key": "trust", "label": "Trust" },
+    { "key": "cash", "label": "Cash" },
+    { "key": "systems", "label": "Systems" },
+    { "key": "legal", "label": "Legal standing" }
+  ],
+  "advisers": [
+    { "persona": "cat", "role": "Facts first", "say": "Pull the cable. Keep the evidence." },
+    { "persona": "turtle", "role": "Chair of the room", "say": "Breathe, dear. We do this in order." },
+    { "persona": "dog", "role": "Locks and keys", "say": "I know a second lock for that!" },
+    { "persona": "spider", "role": "The attacker", "say": "I'm already in the building..." }
+  ],
+  "section_lines": {
+    "briefing": [
+      { "persona": "spider", "text": "Do take your time... I have all day. You have until 14:00." }
+    ],
+    "playbook": [
+      { "persona": "cat", "text": "Two minutes here saves hours later. Tap a card if you want to read it up close." }
+    ],
+    "decisions": [],
+    "fallout": [
+      { "persona": "spider", "text": "Ah, the ledger. Let's see what you cost yourselves..." }
+    ]
+  },
+  "briefing": {
+    "turtle_intro": "Welcome to the room, dear. It's 08:10 on a Friday and nobody here has had breakfast. Read what we know, and what we don't know yet. In a crisis, the second list matters more.",
+    "roster_title": "Who is at the table",
+    "roster": [
+      { "initials": "SM", "name": "You (Sam)", "role": "COO, in the chair", "you": true },
+      { "initials": "AM", "name": "Alex Morgan", "role": "CEO, in the air until 12:00", "away": true },
+      { "initials": "DK", "name": "Dana Keller", "role": "Head of IT" },
+      { "initials": "LM", "name": "Luc Marchand", "role": "General Counsel" },
+      { "initials": "MS", "name": "Mira Sato", "role": "Communications" }
+    ],
+    "timeline_title": "What has happened so far",
+    "timeline": [
+      { "time": "07:40", "text": "The security tool flags 40 GB leaving a file server for an unknown address. The alert waits in a queue." },
+      { "time": "07:55", "text": "Files begin to encrypt. Every screen shows the same note." },
+      { "time": "08:00", "text": "Dana confirms nine servers are locked. She doesn't know how it started." },
+      { "time": "08:10", "text": "**Now.** The board is called into the crisis room, and you take the chair.", "now": true }
+    ],
+    "known_title": "What we know",
+    "known": [
+      "Files on several servers are encrypted, and it is still spreading.",
+      "A large upload left the network at 07:40.",
+      "A note demands payment by 14:00."
+    ],
+    "unknown_title": "What we don't know yet",
+    "unknown": [
+      "How they got in, and whether they are still inside.",
+      "Whether customer data was copied, and whose.",
+      "Whether last night's backups are safe."
+    ],
+    "spider_line": "Six hours. Plenty of time to make mistakes... I do hope you make some.",
+    "note_title": "A little note for the board",
+    "note": [
+      "Dear board...",
+      "Your files are mine now. So is a copy of your customers.",
+      "Pay me €1.2 million in crypto before 14:00 and I will send the key. Refuse, and at 14:00 the copy goes online and the key is destroyed.",
+      "Do not call the police. Do not tell your customers. I will know..."
+    ],
+    "note_sign": "S.",
+    "chips": ["Deadline: 14:00", "Demand: €1.2 million"]
+  },
+  "playbook": {
+    "intro": "Six rules cover most of a first day. Cat keeps the facts straight; Turtle keeps the right people in the right order. Tap a card to read it up close. The decisions will point you back here.",
+    "cards": [
+      {
+        "persona": "cat",
+        "role": "Facts before moves",
+        "title": "Contain, then think",
+        "say": "A panicking board makes the attacker's job easy. Do the boring things first, in the right order, and keep the evidence.",
+        "rules": [
+          { "headline": "Cut the cable, keep the power.", "body": "Disconnect affected machines from the network, but don't switch them off or wipe them. The evidence lives in memory and on disk." },
+          { "headline": "Assume they are reading your mail.", "body": "Move the crisis team to phones and a separate chat until you know the attacker is out." },
+          { "headline": "Say only what you can prove.", "body": "\"No data was affected\" is a promise. Break it once and nobody believes your next update." }
+        ],
+        "sign_off": "Calm isn't a feeling. It's an order of operations."
+      },
+      {
+        "persona": "turtle",
+        "role": "Right people, right order",
+        "title": "Nobody does this alone",
+        "say": "I have seen many storms, dear. The boards that came through them well were never the cleverest. They simply called the right people early and told the truth.",
+        "rules": [
+          { "headline": "Call the experts before you decide anything big.", "body": "Legal, your insurer, the police and an incident response team come first. That includes the ransom: paying guarantees nothing and funds the next attack." },
+          { "headline": "Tell the right people, on time.", "body": "A regulator's clock starts when you become aware: 72 hours under GDPR, \"as soon as possible\" in Switzerland. Customers need clear steps before the attacker leaks the data." },
+          { "headline": "Fix the door, not the person.", "body": "Reset credentials, add multi-factor authentication, restore clean. Punishing whoever clicked teaches everyone to hide the next mistake." }
+        ],
+        "sign_off": "A team that stays calm in the storm was looked after long before it."
+      }
+    ]
+  },
+  "reviews": {
+    "cat0": { "card": 0, "rule": 0, "label": "Cat's first rule: cut the cable" },
+    "cat1": { "card": 0, "rule": 1, "label": "Cat's second rule: assume they're reading" },
+    "cat2": { "card": 0, "rule": 2, "label": "Cat's third rule: say only what you can prove" },
+    "turtle0": { "card": 1, "rule": 0, "label": "Turtle's first rule: call the experts" },
+    "turtle1": { "card": 1, "rule": 1, "label": "Turtle's second rule: tell the right people" },
+    "turtle2": { "card": 1, "rule": 2, "label": "Turtle's third rule: fix the door, not the person" }
+  },
+  "decisions_intro": {
+    "persona": "cat",
+    "text": "Five decisions. Lock each one in and I'll check it. No takebacks, because real crises don't offer them. Watch the four dials: they are what the company has left."
+  },
+  "decisions": [
+    {
+      "id": "d1",
+      "time": "08:15",
+      "voice": "cat",
+      "type": "single",
+      "title": "Stop the spread",
+      "text": "The encryption is moving from server to server. Dana is on the line and needs an order right now. What do you tell her?",
+      "artifact": { "initials": "DK", "name": "Dana Keller", "role": "Head of IT", "time": "08:14", "text": "It's spreading. Fourteen servers in ten minutes, and the backup server is next on its list. Tell me what to do, Sam." },
+      "options": [
+        { "text": "Cut the affected machines off from the network, but leave them switched on. Nobody wipes anything.", "short": "Isolate, keep power on", "ok": true },
+        { "text": "Switch everything off and wipe it, then rebuild from scratch. A clean slate.", "short": "Wipe and rebuild", "ok": false,
+          "fx": { "legal": -20, "systems": -10 }, "rv": "cat0",
+          "why": "You wiped the evidence along with the problem. Now nobody can show which door I used or what I took, so you must assume I took everything... and I still have the key to that door." },
+        { "text": "Wait until IT has the full picture, then act in one go.", "short": "Waiting for the full picture", "ok": false,
+          "fx": { "systems": -25, "cash": -10 }, "rv": "cat0",
+          "why": "While the board waited for a full picture, I finished the painting. By 09:00 the backup server was locked too, and your best way out had gone." },
+        { "text": "Tell every employee to reboot their computer, which usually clears this sort of thing.", "short": "Rebooting every machine", "ok": false,
+          "fx": { "systems": -20, "legal": -10 }, "rv": "cat0",
+          "why": "Rebooting wiped the traces held in memory, the ones investigators wanted most. And my encryption simply woke up again with each machine." }
+      ],
+      "gain": { "systems": 15 },
+      "explain": "Isolate first, ask questions later. Pulling the network cable stops the spread, and leaving the power on keeps the evidence in memory and on disk. Investigators need it to find the way in and to learn what was copied.",
+      "spider_ok": "Hm. A cable pulled and the evidence untouched. I had nine more servers on my list... and now no way to reach them.",
+      "best": "Disconnect the affected machines from the network, leave them powered on, and wipe nothing."
+    },
+    {
+      "id": "d2",
+      "time": "08:50",
+      "voice": "turtle",
+      "type": "multi",
+      "title": "Set up the room",
+      "text": "The room is full and everyone has an idea. Choose every move you would make in the first hour.",
+      "artifact": { "initials": "MS", "name": "Mira Sato", "role": "Communications", "time": "08:48", "text": "Two reporters have already asked why our customer portal is down, and half the room wants to start fixing things. Where do we begin, Sam?" },
+      "options": [
+        { "text": "Move the crisis team to phones and a separate chat. Assume company email is being read.", "short": "Out-of-band channels", "ok": true,
+          "fx": { "systems": -15, "trust": -5 }, "rv": "cat1",
+          "why": "I read the board's emails over breakfast. Every plan you wrote down, I read first. By the time your people moved, I had already moved the data somewhere else." },
+        { "text": "Call legal counsel and the cyber insurer.", "short": "Legal and the insurer", "ok": true,
+          "fx": { "legal": -15, "cash": -15 }, "rv": "turtle0",
+          "why": "Nobody phoned the insurer, so nobody noticed the clause that asks for fast notice. Late, they found a reason to pay less. Nobody watched the regulator's clock either... it started without you." },
+        { "text": "Bring in an external incident response team.", "short": "An external response team", "ok": true,
+          "fx": { "systems": -15, "legal": -5 }, "rv": "turtle0",
+          "why": "Your IT team is clever and exhausted, and it was learning to fight me on the job. It cleaned one machine at a time. Nobody found my back door." },
+        { "text": "Tell the press that 'no customer data is affected', to calm things down.", "short": "Telling the press all is well", "ok": false,
+          "fx": { "trust": -25, "legal": -15 }, "rv": "cat2",
+          "why": "You said it before you knew it. By eleven, your own responders had found the copied files, and every journalist held two quotes: yours, and the truth." },
+        { "text": "Let each department restore its own systems now, to save time.", "short": "Everyone restores their own systems", "ok": false,
+          "fx": { "systems": -20, "cash": -10 }, "rv": "turtle0",
+          "why": "Six teams restored six systems into the same network, with me still inside. How kind. I locked each one again as it came back." }
+      ],
+      "gain": { "legal": 10 },
+      "explain": "In the first hour you aren't fixing anything, dear. You are setting up the room: a way to talk that the attacker can't read, the people who know the law and the policy, and people who have done this before. Say nothing you can't prove, and restore nothing while he is still inside.",
+      "spider_ok": "Phones, lawyers, specialists... You called the very people I was hoping you'd forget.",
+      "best": "Use out-of-band channels, call legal and the insurer, and bring in an external response team. Say nothing you can't prove."
+    },
+    {
+      "id": "d3",
+      "time": "09:40",
+      "voice": "cat",
+      "type": "single",
+      "title": "The ransom",
+      "text": "The note demands €1.2 million in crypto before 14:00. After that the stolen copy goes online and the key is destroyed. Where does the board stand?",
+      "artifact": { "initials": "DK", "name": "Dana Keller", "role": "Head of IT", "time": "09:38", "text": "Last night's backup sits on the same network, so I can't promise it's clean. The board needs a position on the note before the press finds it." },
+      "options": [
+        { "text": "Don't pay yet. Call the police, and let legal and the response team check the backups and the options first.", "short": "Not yet, with experts", "ok": true },
+        { "text": "Pay now, before the clock runs down. It's the fastest way to get the files back.", "short": "Paying at once", "ok": false,
+          "fx": { "cash": -30, "legal": -10 }, "rv": "turtle0",
+          "why": "Thank you for the money... My key opened a third of your files. I kept my copy of your data, naturally. And now I know that this board pays." },
+        { "text": "Reply from the CEO's mailbox and haggle the price down yourselves.", "short": "Negotiating it yourselves", "ok": false,
+          "fx": { "cash": -15, "legal": -15 }, "rv": "turtle0",
+          "why": "How brave... You wrote like frightened amateurs, and I am no amateur. Each reply told me how badly you needed those files, so each reply raised the price." },
+        { "text": "Refuse, and tell nobody outside this room. Fewer people knowing means fewer leaks.", "short": "Telling no one outside the room", "ok": false,
+          "fx": { "legal": -20, "trust": -10 }, "rv": "turtle0",
+          "why": "Silence. My favourite. No police, no one who has met me before... You made yourselves quite alone." }
+      ],
+      "gain": { "cash": 10, "legal": 5 },
+      "explain": "Paying is never a reflex. It buys no promise of a working key, no promise the stolen copy is deleted, and it funds the next attack. Call the police, bring in legal and the responders, test what your backups can really restore, and decide on facts, not on a countdown.",
+      "spider_ok": "No payment. No panic. I do hate a patient board.",
+      "best": "Don't pay yet. Involve the police, legal and the responders, and test the backups first."
+    },
+    {
+      "id": "d4",
+      "time": "11:15",
+      "voice": "turtle",
+      "type": "single",
+      "title": "Customers and the regulator",
+      "text": "The responders confirm it: about 40 GB were copied, including the names, emails and hashed passwords of 120,000 customers. The attacker says it goes public at 14:00. What do you do about the regulator and your customers?",
+      "artifact": { "initials": "LM", "name": "Luc Marchand", "role": "General Counsel", "time": "11:12", "text": "Under GDPR the clock to tell the authority is 72 hours from when we became aware. Swiss law says as soon as possible. Our clock started at 07:40, whatever we decide." },
+      "options": [
+        { "text": "Notify the data protection authority now, and prepare a plain message for customers: what happened, what was taken, and what to do.", "short": "Tell the regulator and customers", "ok": true },
+        { "text": "Wait until the investigation is finished, then decide who to tell.", "short": "Waiting for the final report", "ok": false,
+          "fx": { "legal": -25, "trust": -10 }, "rv": "turtle1",
+          "why": "An investigation takes weeks. The legal deadline takes three days. The regulator will ask why you knew on Friday and spoke on Tuesday... and fines are written in percentages." },
+        { "text": "Say nothing unless the data actually appears online.", "short": "Staying silent unless it leaks", "ok": false,
+          "fx": { "trust": -30, "legal": -20 }, "rv": "turtle1",
+          "why": "At 14:00 I published. Your customers learnt it from a stranger on a forum, with no warning and no chance to change a password. Several accounts fell by evening." },
+        { "text": "Email every customer now: 'your data is safe'. Investigate afterwards.", "short": "Telling customers they are safe", "ok": false,
+          "fx": { "trust": -30, "legal": -10 }, "rv": "cat2",
+          "why": "'Your data is safe.' Such a lovely sentence to send an hour before I proved it false. Trust takes years to build, and one sentence to spend." }
+      ],
+      "gain": { "trust": 15, "legal": 10 },
+      "explain": "Be early, be plain, be true, dear. The regulator's clock started when you became aware, and customers need to change passwords and watch for phishing before the attacker gets to them. Never promise safety you can't prove.",
+      "spider_ok": "You told them yourselves, and plainly. That leaves me nothing to threaten with.",
+      "best": "Tell the regulator on time, and tell customers plainly what happened and what to do."
+    },
+    {
+      "id": "d5",
+      "time": "13:10",
+      "voice": "dog",
+      "type": "multi",
+      "title": "Coming back online",
+      "text": "Clean backups are ready. The responders found the way in: one employee's password, used on a VPN with no second factor. What do you do next?",
+      "artifact": { "initials": "DK", "name": "Dana Keller", "role": "Head of IT", "time": "13:08", "text": "Jo, from Finance, typed her password into a fake ThisIsTea login page on Thursday night. She is mortified. She also came to us within minutes of the first ransom screen, and that gave us the timeline." },
+      "options": [
+        { "text": "Reset every password, starting with admin and service accounts, and require multi-factor authentication on the VPN and all remote access.", "short": "Reset passwords, add MFA", "ok": true,
+          "fx": { "systems": -20, "legal": -10 }, "rv": "turtle2",
+          "why": "The old passwords still worked, and so did the old door. At 02:00 on Saturday I simply walked back in. Nobody had added a second lock." },
+        { "text": "Restore from verified clean backups, in steps, into a monitored network.", "short": "Restoring clean, in steps", "ok": true,
+          "fx": { "systems": -20, "cash": -10 }, "rv": "turtle2",
+          "why": "One of your backups already held a little something of mine. You restored it with great care... and I was awake before breakfast." },
+        { "text": "Thank Jo for reporting quickly, and make speaking up easy and blame-free for everyone.", "short": "Thanking the person who reported", "ok": true,
+          "fx": { "trust": -10, "legal": -5 }, "rv": "turtle2",
+          "why": "Nobody thanked Jo. She told her friends how the day felt, and the next person who spotted one of my tricks kept quiet for two days. I do love a quiet office." },
+        { "text": "Reconnect everything right now. The business loses money by the hour.", "short": "Reconnecting everything at once", "ok": false,
+          "fx": { "systems": -25, "cash": -15 }, "rv": "turtle2",
+          "why": "Everything, all at once, with the old passwords. You hurried me back in... I have rarely felt so welcome." },
+        { "text": "Dismiss Jo. A message has to be sent that mistakes have consequences.", "short": "Dismissing the employee", "ok": false,
+          "fx": { "trust": -20, "legal": -10 }, "rv": "turtle2",
+          "why": "Every employee learnt the same lesson that day: hide your mistakes. So the next time someone clicks one of my links, you'll hear about it from me, long before you hear about it from them." }
+      ],
+      "gain": { "systems": 45, "trust": 5 },
+      "explain": "That's the whole shape of it, buddy! Restore clean, lock the door with a second factor, and keep people talking. And Bitwarden can make those fresh passwords long and different for every account, and it won't fill them in on a fake site!",
+      "spider_ok": "A second lock, a clean restore and a thanked colleague... I'll try another house.",
+      "best": "Reset credentials and add MFA, restore clean in steps, and thank the person who reported."
+    }
+  ],
+  "outcome_thresholds": { "bruised": 3 },
+  "outcomes": {
+    "contained": {
+      "voice": "turtle",
+      "title": "Hm. You closed every door I tried.",
+      "body": "Isolated, informed, patient, honest and kind. I did not enjoy that at all. I'll look for a house with a quieter board... and fewer second factors.",
+      "score": "Five out of five, dear. Notice that none of it needed a clever tool, only the right order. Now go and ask your own team whether the VPN has a second lock."
+    },
+    "bruised": {
+      "voice": "cat",
+      "title": "You're still standing... but I left marks.",
+      "body": "Most of it, you handled. A few of your choices were gifts, and I kept them. The ledger below shows exactly which.",
+      "score": "Mostly sound. The ones that went wrong are in the recap, each with the rule that would have saved you. Read them, then replay."
+    },
+    "wrecked": {
+      "voice": "turtle",
+      "title": "What a lovely mess we made together.",
+      "body": "Every one of those choices felt reasonable at the time. That is exactly why they work on people. Try again, and this time, think about the order.",
+      "score": "That was a hard morning, dear, and it was meant to be. Real boards get these wrong too, which is why we practise. Read the recap, then try again."
+    }
+  },
+  "footer": "Until next time... the next note won't come by email. Do ask whether your VPN has a second lock."
+}

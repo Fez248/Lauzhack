@@ -1,7 +1,7 @@
 package tea.app
 
 /**
- * Screen <-> URL hash (plan §9.1), e.g. `#/home`, `#/lesson/email-01/2`, `#/reveal/<token>`.
+ * Screen <-> URL hash (plan §9.1), e.g. `#/home`, `#/lesson/email-01/2`, `#/challenge/boardroom-crisis/2`, `#/reveal/<token>`.
  * The email address of [Screen.Code] is never put in the URL: `#/code` maps back to the address
  * waiting for its code.
  */
@@ -19,6 +19,7 @@ object Routes {
         Screen.PlacementResult -> "/placement/result"
         Screen.Home -> "/home"
         is Screen.Lesson -> "/lesson/${screen.id}/${screen.section}"
+        is Screen.Challenge -> "/challenge/${screen.id}/${screen.section}"
         is Screen.Practice -> if (screen.focusWeakest) "/practice/focus" else "/practice"
         Screen.PracticeSummary -> "/practice/summary"
         is Screen.Reveal -> "/reveal/${screen.token}"
@@ -52,6 +53,7 @@ object Routes {
             }
             "home" -> Screen.Home
             "lesson" -> rest.firstOrNull()?.let { Screen.Lesson(it, rest.getOrNull(1)?.toIntOrNull()?.coerceAtLeast(0) ?: 0) }
+            "challenge" -> rest.firstOrNull()?.let { Screen.Challenge(it, rest.getOrNull(1)?.toIntOrNull()?.coerceAtLeast(0) ?: 0) }
             "practice" -> when (rest.firstOrNull()) {
                 null -> Screen.Practice()
                 "focus" -> Screen.Practice(focusWeakest = true)

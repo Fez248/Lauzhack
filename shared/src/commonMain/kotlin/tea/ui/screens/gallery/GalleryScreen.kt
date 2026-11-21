@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -259,9 +260,12 @@ private fun NoticeSection() {
     Banner("Your progress is saved on this device.")
     var open by remember { mutableStateOf(false) }
     TeaButton("Open a dialog", { open = true }, variant = TeaButtonVariant.Secondary)
+    // The card scrolls vertically itself: inside the gallery's scrolling column it needs a height
+    // bound, or it is measured with infinite height and crashes the Gallery screen.
     TeaDialogCard(
         "Delete my account?",
         {},
+        modifier = Modifier.heightIn(max = 480.dp),
         confirmText = "Delete",
         dismissText = "Keep it",
         destructive = true,

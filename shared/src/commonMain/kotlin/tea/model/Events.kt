@@ -34,6 +34,12 @@ object EventTypes {
     const val LESSON_COMPLETED = "lesson_completed"
     const val PRACTICE_EMAIL_OPTED_IN = "practice_email_opted_in"
 
+    /** payload {challenge_id}. Once per challenge. */
+    const val CHALLENGE_STARTED = "challenge_started"
+
+    /** payload {challenge_id, good, total, outcome}. Worth +50 XP (local), once per challenge_id. */
+    const val CHALLENGE_COMPLETED = "challenge_completed"
+
     // server-emitted, part 5. Clients may never post types starting with "field_".
     const val FIELD_SCHEDULED = "field_scheduled"
     const val FIELD_SENT = "field_sent"
@@ -64,4 +70,5 @@ const val LESSON_1_ID = "email-01"
 
 /** Lesson 2: passwords, ending in the Vault drill (docs/password-drill.md). */
 const val LESSON_2_ID = "password-01"
+const val BOARDROOM_CHALLENGE_ID = "boardroom-crisis"
 const val FIELD_TEMPLATE_ID = "practice-email-01"

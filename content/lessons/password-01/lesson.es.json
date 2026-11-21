@@ -108,6 +108,32 @@
           "reply": "Con confianza? Entonces cinco cuentas no seran nada. Esperare al final para mostrarle cual habria roto primero."
         }
       ]
+    },
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Seguridad personal",
+          "title": "Ahora la parte que lo demuestra",
+          "say": "Saberse las reglas no cuesta nada. Cinco cuentas seguidas si: en la tercera su memoria se rinde y el gestor es la unica salida. Esa es la leccion, y no se puede leer, hay que vivirla.",
+          "rules": [
+            {
+              "headline": "Cinco sitios, cinco contrasenas nuevas.",
+              "body": "Todos ficticios, todos nuestros, y no abren nada. No use una contrasena que tenga de verdad, ni una sola vez."
+            },
+            {
+              "headline": "Guarde cada una sobre la marcha.",
+              "body": "En el gestor que acaba de instalar. No en una nota, no en su cabeza."
+            },
+            {
+              "headline": "Le pediremos una de vuelta.",
+              "body": "En una sesion posterior, una de las cinco elegida al azar. No diremos cual, asi que la unica salida es haberlas guardado todas. No podremos ayudarle: nunca las guardamos."
+            }
+          ],
+          "sign_off": "Cinco cuentas. Luego veremos si el habito es real."
+        }
+      ]
     }
   ]
 }

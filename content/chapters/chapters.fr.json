@@ -1,0 +1,44 @@
+{
+  "chapters": [
+    {
+      "id": "phishing",
+      "kind": "lesson",
+      "target": "email-01",
+      "persona": "cat",
+      "title": "Repérer un e-mail d'hameçonnage",
+      "blurb": "Lisez l'expéditeur, le lien et la pression. Quatre étapes, un e-mail à la fois.",
+      "minutes": 10,
+      "status": "available"
+    },
+    {
+      "id": "passwords",
+      "kind": "lesson",
+      "target": "password-01",
+      "persona": "dog",
+      "title": "Mots de passe : arretez de les retenir",
+      "blurb": "Quatre regles, puis cinq comptes pour le prouver.",
+      "minutes": 6,
+      "status": "available"
+    },
+    {
+      "id": "boardroom-crisis",
+      "kind": "challenge",
+      "target": "boardroom-crisis",
+      "persona": "turtle",
+      "title": "Crise au conseil",
+      "blurb": "Une attaque est en cours et le conseil vous regarde. Cinq décisions, six heures.",
+      "minutes": 12,
+      "status": "available"
+    },
+    {
+      "id": "scam-calls",
+      "kind": "lesson",
+      "target": null,
+      "persona": "spider",
+      "title": "Appels et messages frauduleux",
+      "blurb": "La fausse banque, le petit-fils en difficulté, le groupe qui a « déménagé ».",
+      "minutes": 10,
+      "status": "soon"
+    }
+  ]
+}

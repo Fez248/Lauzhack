@@ -298,7 +298,10 @@ class AppUiFlowTest {
         click("I accept the terms of use")
         click("Start")
 
-        // 5. Placement.
+        // 5. Registration lands on Home; the placement test is an optional card there.
+        waitScreen(app) { it == Screen.Home }
+        waitText("Boardroom crisis")
+        click("Start the test")
         waitScreen(app) { it == Screen.PlacementIntro }
         waitText("About 3 minutes. No score.")
         shot("05-placement-intro")
@@ -326,7 +329,7 @@ class AppUiFlowTest {
         waitScreen(app) { it == Screen.Lesson("email-01", 3) }
         app.navigateRoot(Screen.Home)
         waitScreen(app) { it == Screen.Home }
-        waitText("Continue lesson 1")
+        waitText("Spot a phishing email")
         shot("08-home-guest-offline")
 
         // 7. Settings: dark mode + large text apply app-wide; French switches the UI.
@@ -416,6 +419,8 @@ class AppUiFlowTest {
         waitScreen(app) { it == Screen.Terms }
         click("I accept the terms of use")
         click("Start")
+        waitScreen(app) { it == Screen.Home }
+        click("Start the test")
         waitScreen(app) { it == Screen.PlacementIntro }
         click("Start")
         val pool = runBlocking { app.content.items("en") }

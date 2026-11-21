@@ -18,6 +18,9 @@ object Xp {
     const val LESSON_COMPLETED = 50
     const val PLACEMENT_COMPLETED = 20
 
+    /** First completion of a challenge. Local only: the server leaderboard does not count it yet. */
+    const val CHALLENGE_COMPLETED = 50
+
     /**
      * XP for one attempt. Placement attempts earn nothing (the placement bonus is an event bonus).
      * `item` may be null when the item is unknown (e.g. removed content): then only the verdict counts.

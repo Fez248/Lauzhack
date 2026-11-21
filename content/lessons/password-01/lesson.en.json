@@ -108,6 +108,32 @@
           "reply": "Confident, are we? Then five accounts should be no trouble at all. I'll be waiting at the end to show you which one I'd have cracked first."
         }
       ]
+    },
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Personal security",
+          "title": "Now the part that proves it",
+          "say": "Knowing the rules is free. Five accounts in a row is where it costs something, because by the third one your memory gives up and the manager is the only way through. That is the lesson, and you cannot read it, you have to feel it.",
+          "rules": [
+            {
+              "headline": "Five sites, five new passwords.",
+              "body": "All pretend, all ours, and they unlock nothing. Do not use a password you really have, not even once."
+            },
+            {
+              "headline": "Save each one as you go.",
+              "body": "In the manager you just installed. Not in a note, not in your head."
+            },
+            {
+              "headline": "We will ask for one of them back.",
+              "body": "In a later session, one of the five picked at random. We will not say which, so the only way through is to have saved all five. We cannot remind you: we never kept them."
+            }
+          ],
+          "sign_off": "Five accounts. Then we find out whether the habit is real."
+        }
+      ]
     }
   ]
 }

@@ -52,6 +52,21 @@ object LearnKeys {
     /** List<Int>: ticked recovery steps (plan §9.4). */
     fun recovery(lessonId: String) = "tea.recovery.$lessonId"
 
+    /** [tea.engine.ChallengeRun]: the challenge run in progress, or the last finished one. */
+    fun challengeRun(challengeId: String) = "challenge.$challengeId.run"
+
+    /** Int: the challenge section the learner is on. */
+    fun challengeSection(challengeId: String) = "challenge.$challengeId.section"
+
+    /** [tea.engine.ChallengeBest]: best finished run (kept across replays). */
+    fun challengeBest(challengeId: String) = "challenge.$challengeId.best"
+
+    /** Boolean: `challenge_started` already emitted. */
+    fun challengeStarted(challengeId: String) = "challenge.$challengeId.started"
+
+    /** Boolean: `challenge_completed` already emitted and its XP added. */
+    fun challengeCompleted(challengeId: String) = "challenge.$challengeId.completed"
+
     val BOOL: KSerializer<Boolean> = Boolean.serializer()
     val INT: KSerializer<Int> = Int.serializer()
     val STRING: KSerializer<String> = String.serializer()

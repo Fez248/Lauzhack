@@ -87,6 +87,30 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
   behave correctly. The debrief reads "We cannot show you the passwords, because we did not keep
   them" over two rows of findings and the family link, which is the lesson landing as intended.
 
+- Merged `origin/main` again (PRs #5-#7: the boardroom challenge, the screenshot workflow, and the
+  Home rewrite around a chapter catalog) and **adapted the drill to main's model instead of keeping
+  my own**:
+  - Home no longer gets hand-rolled cards from me. Main drives it from
+    `content/chapters/chapters.<lang>.json`, and that catalog already had a `passwords` chapter
+    sitting at `status: soon, target: null` — so I pointed it at `password-01`, set it available,
+    and matched its title, blurb and minutes to the lesson. I took main's `HomeScreen` wholesale.
+  - Its blurb promised "a second factor", which this lesson does not teach. Reworded rather than
+    left over-promising; 2FA is the natural lesson 3.
+  - nathann's lesson-end change (no opt-in card, the test fires automatically) needed nothing from
+    me: lesson 2's test is the drill, reached by its last button, and my `goToSection` handover
+    survived the merge untouched.
+  - Added the lesson's closing card: five accounts now, save each one as you go, and **one of them
+    comes back at random later**. Main's model lets a test arrive unannounced; saying the second
+    half is coming is what keeps that honest here.
+- Fixed two things that were **already broken on `origin/main`**, both confirmed by running them on a
+  clean worktree of main before touching anything:
+  - `PanesRenderTest` does not compile: main added `Screen.Challenge` without adding it to the
+    exhaustive `when` that the file's own comment says guards it. My three vault screens needed
+    adding too, so I did all four and put lesson 2 and the drill in the screenshot doc.
+  - `EndToEndTest.definitionOfDone` fails: main changed `nextAfterSignIn` so registration ends on
+    Home with placement as an optional card, and the comment says so, but the test still expected
+    `PlacementIntro`. Updated the assertion to match the intent, not the other way round.
+
 ## In progress
 
 - Nothing. The code is on my branch and all three `decisions.md` entries are AGREED, including the

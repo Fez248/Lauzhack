@@ -305,7 +305,9 @@ class EndToEndTest {
         app.updateDevice(DeviceSnapshot(dark = false, fontScale = 1f, widthDp = 1024))
         app.acceptTerms()
         waitFor("signals sent") { app.flags.value.signalsSent }
-        assertEquals(Screen.PlacementIntro, app.nextAfterSignIn())
+        // Registration now ends on Home, with the placement test as an optional card there
+        // (AppState.nextAfterSignIn). The placement itself still runs, just below.
+        assertEquals(Screen.Home, app.nextAfterSignIn())
 
         // ---- §16.3 placement
         val pool = app.content.items("en")
