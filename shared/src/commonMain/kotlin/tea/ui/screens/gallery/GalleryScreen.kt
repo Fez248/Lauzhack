@@ -119,7 +119,10 @@ fun ColumnScope.GalleryContent(now: Instant = Clock.System.now()) {
 
 @Composable
 private fun GotchaSection(now: Instant) {
-    SectionHeading("Gotcha interview", intro = "Both answer branches, shown without the reminder-email flow.")
+    SectionHeading(
+        "Gotcha interview",
+        intro = "Recognition, reason choices, and both completed answer branches, shown without the reminder-email flow.",
+    )
     val sample = GotchaResponse(
         sendId = "gallery-send",
         lessonId = "email-01",
@@ -139,6 +142,14 @@ private fun GotchaSection(now: Instant) {
         data = sample,
         clickedWhen = "just now",
         answer = "yes",
+        scrollEnabled = false,
+        animateTransition = false,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    GotchaContent(
+        data = sample,
+        clickedWhen = "just now",
+        answer = "no",
         scrollEnabled = false,
         animateTransition = false,
         modifier = Modifier.fillMaxWidth(),

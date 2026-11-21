@@ -73,7 +73,7 @@ fun SectionHeading(
                 intro,
                 Modifier.widthIn(max = 560.dp),
                 style = TeaTheme.type.body,
-                color = if (night) TeaColors.webSoft else colors.inkSoft,
+                color = if (night) TeaColors.webInk.copy(alpha = 0.85f) else colors.inkSoft,
             )
         }
     }

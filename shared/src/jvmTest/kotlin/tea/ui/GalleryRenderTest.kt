@@ -16,8 +16,14 @@ import kotlin.time.Instant
 class GalleryRenderTest {
     private val now = Instant.parse("2026-11-21T14:05:00Z")
 
-    private fun gallery(name: String, dark: Boolean, widthDp: Int, largeText: Boolean = false) {
-        val files = Screenshots.render(name, widthDp = widthDp, heightDp = 12000, density = 1.25f, cropToContent = true) {
+    private fun gallery(
+        name: String,
+        dark: Boolean,
+        widthDp: Int,
+        largeText: Boolean = false,
+        heightDp: Int = 12000,
+    ) {
+        val files = Screenshots.render(name, widthDp = widthDp, heightDp = heightDp, density = 1.25f, cropToContent = true) {
             TeaTheme(dark = dark, largeText = largeText) {
                 Column(
                     androidx.compose.ui.Modifier
@@ -35,6 +41,6 @@ class GalleryRenderTest {
 
     @Test fun galleryLight() = gallery("gallery_light", dark = false, widthDp = 760)
     @Test fun galleryDark() = gallery("gallery_dark", dark = true, widthDp = 760)
-    @Test fun galleryCompact() = gallery("gallery_compact", dark = false, widthDp = 380, largeText = true)
-    @Test fun galleryCompactDark() = gallery("gallery_compact_dark", dark = true, widthDp = 380, largeText = true)
+    @Test fun galleryCompact() = gallery("gallery_compact", dark = false, widthDp = 380, largeText = true, heightDp = 16000)
+    @Test fun galleryCompactDark() = gallery("gallery_compact_dark", dark = true, widthDp = 380, largeText = true, heightDp = 16000)
 }

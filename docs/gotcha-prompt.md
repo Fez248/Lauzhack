@@ -137,22 +137,20 @@ Practice), the lesson's first screen is **intercepted once** before the first qu
     or flashing.
   - Leaving: on "Continue", fade back to `paper` and open the lesson. The lesson keeps its normal
     look; the red is only for the intercept.
-- Spider's lines use `PersonaBubble(Persona.SPIDER, Mood.SMUG, …)`; facts go in a `gotchaCard`
-  with `SectionHeading`.
+- Spider's lines use `PersonaBubble(Persona.SPIDER, Mood.SMUG, …)`. The practice email and facts
+  use `gotchaCard` surfaces; the email heading uses `SectionHeading`.
 - The interview, in order, choices via `ChoiceRow`/`TeaButton` (never free text):
-  1. **Recognition.** Show the practice email he sent (fetch it through the existing
-     `/field/reveal/{token}` path or embed the template's rendered text via a new
-     `GET /field/send/{token}` DTO if the reveal payload isn't enough — prefer reusing `RevealResponse`
-     data; render it with `EmailView`/`TeaCard`). Spider asks: "Do you know this email? Does it
-     look valid to you?" — Yes / No.
-  2. **"Yes" branch:** Spider (SMUG) reveals the gotcha: "You clicked it — that was us, and it
-     worked." Show **only** facts we stored: that the link was clicked and when
-     (`field_clicked.createdAt`, shown in plain words like "yesterday evening"), and the template
-     name. Never claim credentials, forms or data we don't record.
-  3. **"No" branch:** follow-up question — "Then why did you click?" with multiple-choice answers
-     mapped to the four steps (sender looked real / it felt urgent / the request seemed normal / it
-     just looked legitimate). Whatever they pick, Spider's line names the step that would have
-     caught it, then shows the existing four-steps card (`FourStepsList`) for that email.
+  1. **Recognition.** Fetch the caller's clicked send through the authenticated
+     `GET /me/field/sends/{sendId}` endpoint. Show its subject and safe rendered text in a
+     `gotchaCard`. Spider first says, "I sent you a little something. Take a good look." Then ask
+     "Do you know this email?" and "Does it sound familiar? Did it look real to you?" — Yes / No.
+  2. **"Yes" branch:** Spider reveals that the learner fell for the practice trap. Show a facts card
+     with the click time, email subject, and the fact that the scammer learned the link worked;
+     don't claim credentials, forms or data that we don't record. Follow with the four-steps card.
+  3. **"No" branch:** Spider notes that the email landed in the learner's inbox and the link was
+     clicked at the shown time, then asks why it worked. Offer the localized reason choices (who
+     seemed to send it / urgency / a normal-looking request / no alternate verification). After a
+     choice, show Spider's mapped reply, the same facts card, then the four-steps card.
   4. **Continue** → `Screen.Lesson(lessonId, 0)`, which now runs normally.
 - On completion (or dismiss), persist that the gotcha is done **server-side**: emit a
   `field_gotcha` event for the same `send_id` so the pending state clears on every device (that's
@@ -164,7 +162,7 @@ Practice), the lesson's first screen is **intercepted once** before the first qu
 ### D. Tone and safety (non-negotiable)
 
 - Spider **teases, never shames** (see `docs/characters.md`): smug about his own trick, never "you
-  failed". Every gotcha line ends in something the learner can do next time.
+  failed". The four-steps card points to what the learner can do next time.
 - The reveal facts are honest: only `clicked` + timestamp + which email. If any of that is missing
   (unknown token/send), show the generic reveal, never claim "you clicked".
 - Guests (no session) get no reminder and no gotcha; the lesson behaves exactly as today.

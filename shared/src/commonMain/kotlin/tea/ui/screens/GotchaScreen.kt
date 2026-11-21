@@ -52,7 +52,6 @@ import tea.generated.resources.*
 import tea.model.GotchaResponse
 import tea.model.Mood
 import tea.model.Persona
-import tea.model.StepKey
 import tea.net.ApiResult
 import tea.ui.components.ChoiceRow
 import tea.ui.components.ChoiceState
@@ -238,42 +237,45 @@ fun GotchaContent(
                             )
                         }
                         else -> {
-                            GotchaEmailCard(data)
                             when (answer) {
                                 "yes" -> {
                                     PersonaBubble(Persona.SPIDER, Mood.SMUG, stringResource(Res.string.gotcha_yes_spider))
-                                    Text(
-                                        stringResource(Res.string.gotcha_fact_clicked, clickedWhen),
-                                        style = TeaTheme.type.body,
-                                        color = TeaColors.webInk,
-                                    )
-                                    Text(
-                                        stringResource(Res.string.gotcha_fact_email, data.subject),
-                                        style = TeaTheme.type.body,
-                                        color = TeaColors.webInk,
-                                    )
+                                    GotchaFactsCard(data, clickedWhen)
+                                    GotchaStepsCard(data)
                                 }
                                 "no" -> {
-                                    PersonaBubble(
-                                        Persona.SPIDER,
-                                        Mood.SMUG,
-                                        stringResource(if (reason == null) Res.string.gotcha_spider_open else reasonLine(reason)),
-                                    )
                                     if (reason == null) {
+                                        PersonaBubble(
+                                            Persona.SPIDER,
+                                            Mood.SMUG,
+                                            stringResource(Res.string.gotcha_no_spider, clickedWhen),
+                                        )
                                         SectionHeading(stringResource(Res.string.gotcha_reason_question))
-                                        StepKey.entries.forEach { step ->
+                                        listOf(
+                                            Res.string.gotcha_reason_who to "who",
+                                            Res.string.gotcha_reason_emotion to "emotion",
+                                            Res.string.gotcha_reason_ask to "ask",
+                                            Res.string.gotcha_reason_verify to "verify",
+                                        ).forEach { (label, key) ->
                                             ChoiceRow(
-                                                stringResource(step.questionRes),
+                                                stringResource(label),
                                                 state = ChoiceState.Idle,
-                                                onClick = { onReason(reasonKey(step)) },
+                                                onClick = { onReason(key) },
                                             )
                                         }
                                     } else {
+                                        PersonaBubble(
+                                            Persona.SPIDER,
+                                            Mood.SMUG,
+                                            stringResource(reasonLine(reason)),
+                                        )
+                                        GotchaFactsCard(data, clickedWhen)
                                         GotchaStepsCard(data)
                                     }
                                 }
                                 else -> {
                                     PersonaBubble(Persona.SPIDER, Mood.SMUG, stringResource(Res.string.gotcha_spider_open))
+                                    GotchaEmailCard(data)
                                     SectionHeading(stringResource(Res.string.gotcha_recognition_question))
                                     ChoiceRow(
                                         stringResource(Res.string.gotcha_yes),
@@ -299,6 +301,42 @@ fun GotchaContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun GotchaFactsCard(data: GotchaResponse, clickedWhen: String) {
+    val shape = TeaShapes.panel
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .hardShadow(TeaColors.spider, shape, TeaSize.shadowLg)
+            .clip(shape)
+            .background(TeaColors.gotchaCard)
+            .border(TeaSize.border, TeaColors.spider, shape)
+            .padding(TeaSpacing.s2),
+        verticalArrangement = Arrangement.spacedBy(TeaSpacing.s2),
+    ) {
+        Text(
+            stringResource(Res.string.gotcha_fact_clicked, clickedWhen),
+            Modifier
+                .fillMaxWidth()
+                .clip(TeaShapes.sm)
+                .background(TeaColors.spider)
+                .padding(TeaSpacing.s1),
+            style = TeaTheme.type.body,
+            color = TeaColors.spiderSoft,
+        )
+        Text(
+            stringResource(Res.string.gotcha_fact_email, data.subject),
+            style = TeaTheme.type.body,
+            color = TeaColors.webInk,
+        )
+        Text(
+            stringResource(Res.string.gotcha_fact_gave),
+            style = TeaTheme.type.body,
+            color = TeaColors.webInk,
+        )
     }
 }
 
@@ -349,13 +387,6 @@ private fun reasonLine(reason: String) = when (reason) {
     "emotion" -> Res.string.gotcha_no_spider_emotion
     "ask" -> Res.string.gotcha_no_spider_ask
     else -> Res.string.gotcha_no_spider_verify
-}
-
-private fun reasonKey(step: StepKey): String = when (step) {
-    StepKey.WHO -> "who"
-    StepKey.EMOTION -> "emotion"
-    StepKey.ASK -> "ask"
-    StepKey.VERIFY -> "verify"
 }
 
 @Composable

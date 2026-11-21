@@ -97,7 +97,7 @@ fun BulletList(lines: List<String>, modifier: Modifier = Modifier) {
 fun FourStepsList(answers: Map<StepKey, String> = emptyMap(), modifier: Modifier = Modifier) {
     val spider = LocalOnSpiderPanel.current
     val ink = if (spider) TeaColors.webInk else TeaTheme.colors.ink
-    val softInk = if (spider) TeaColors.webSoft else TeaTheme.colors.inkSoft
+    val softInk = if (spider) TeaColors.webInk.copy(alpha = 0.85f) else TeaTheme.colors.inkSoft
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(TeaSpacing.s2)) {
         StepKey.entries.forEachIndexed { i, step ->
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
