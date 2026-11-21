@@ -33,6 +33,7 @@ import tea.ui.screens.about.AboutScreen
 import tea.ui.screens.gallery.GalleryScreen
 import tea.ui.screens.home.HomeScreen
 import tea.ui.screens.leaderboard.LeaderboardScreen
+import tea.ui.screens.learn.ChallengeScreen
 import tea.ui.screens.learn.FreePracticeScreen
 import tea.ui.screens.learn.LessonScreen
 import tea.ui.screens.learn.PlacementIntroScreen
@@ -116,6 +117,7 @@ fun Router(app: AppState, screen: Screen) {
         Screen.PlacementResult -> PlacementResultScreen(app)
         Screen.Home -> HomeScreen(app)
         is Screen.Lesson -> LessonScreen(app, screen.id, screen.section)
+        is Screen.Challenge -> ChallengeScreen(app, screen.id, screen.section)
         is Screen.Practice -> FreePracticeScreen(app, screen.focusWeakest)
         Screen.PracticeSummary -> PracticeSummaryScreen(app)
         is Screen.Reveal -> RevealScreen(app, screen.token)

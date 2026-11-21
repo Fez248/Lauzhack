@@ -79,7 +79,7 @@ import tea.ui.theme.TeaTheme
 @Composable
 fun PlacementIntroContent(app: TeaApp) {
     val inProgress = remember { app.load(LearnKeys.PLACEMENT_STATE, PlacementState.serializer())?.answers?.isNotEmpty() == true }
-    ScreenColumn {
+    ScreenColumn(onBack = app::back) {
         SectionHeading(
             stringResource(Res.string.placement_intro_title),
             large = true,

@@ -96,7 +96,7 @@ class AppStateTest {
 
         val termsOnly = InMemoryKeyValueStore()
         LocalState(termsOnly).flags = LocalFlags(termsVersion = TERMS_VERSION)
-        assertEquals(Screen.PlacementIntro, env(store = termsOnly).app.screen.value)
+        assertEquals(Screen.Home, env(store = termsOnly).app.screen.value)
     }
 
     @Test
@@ -114,6 +114,19 @@ class AppStateTest {
         assertEquals(Screen.Home, app.screen.value)
         app.navigate(Screen.Lesson("email-01", 3))
         assertEquals(3, app.savedSection("email-01"))
+    }
+
+    @Test
+    fun placementFromHomeGoesBackToHome() = runTest {
+        val store = InMemoryKeyValueStore()
+        LocalState(store).flags = LocalFlags(termsVersion = TERMS_VERSION)
+        val app = env(store = store).app
+        assertEquals(Screen.Home, app.screen.value)
+        app.navigate(Screen.PlacementIntro)
+        app.back()
+        assertEquals(Screen.Home, app.screen.value)
+        app.navigate(Screen.Challenge("boardroom-crisis", 2))
+        assertEquals(listOf(Screen.Home, Screen.Challenge("boardroom-crisis", 2)), app.stack.value)
     }
 
     @Test
@@ -187,7 +200,7 @@ class AppStateTest {
         app.updateDevice(DeviceSnapshot(dark = true, fontScale = 1.25f, widthDp = 390))
         app.acceptTerms()
         settle()
-        assertEquals(Screen.PlacementIntro, app.nextAfterSignIn())
+        assertEquals(Screen.Home, app.nextAfterSignIn())
 
         val types = e.api.events.values.map { it.type }
         assertEquals(listOf(EventTypes.ONBOARDING_COMPLETED, EventTypes.TERMS_ACCEPTED), types)

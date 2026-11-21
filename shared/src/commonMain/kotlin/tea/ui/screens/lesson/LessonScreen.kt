@@ -257,15 +257,26 @@ fun RuleCardView(card: RuleCard, tilt: Float, modifier: Modifier = Modifier, onC
     )
 }
 
+/** Rules of [card], numbered. [highlightRule] marks the rule a review link points to (challenge). */
 @Composable
-private fun ColumnScope.RuleCardBody(card: RuleCard, large: Boolean) {
+fun ColumnScope.RuleCardBody(card: RuleCard, large: Boolean, highlightRule: Int? = null) {
     if (large) PersonaSpeech(card.persona, card.say, onSoft = true)
     card.rules.forEachIndexed { i, rule ->
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        val marked = i == highlightRule
+        Row(
+            if (marked) {
+                Modifier.fillMaxWidth().clip(TeaShapes.sm).background(TeaTheme.colors.highlight)
+                    .border(TeaSize.border, TeaTheme.colors.line, TeaShapes.sm).padding(10.dp)
+            } else {
+                Modifier
+            },
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
             NumberDot(i + 1, card.persona)
             Column(Modifier.weight(1f)) {
-                Text(rule.headline, style = if (large) TeaTheme.type.title else TeaTheme.type.bodyStrong, color = TeaTheme.colors.ink)
-                Text(rule.body, style = TeaTheme.type.body, color = TeaTheme.colors.ink)
+                val ink = if (marked) TeaTheme.colors.onHighlight else TeaTheme.colors.ink
+                Text(rule.headline, style = if (large) TeaTheme.type.title else TeaTheme.type.bodyStrong, color = ink)
+                Text(rule.body, style = TeaTheme.type.body, color = ink)
             }
         }
     }

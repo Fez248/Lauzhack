@@ -75,7 +75,7 @@ fun TermsScreen(app: AppState) {
             stringResource(Res.string.terms_start),
             onClick = {
                 app.acceptTerms()
-                app.goNext(if (app.profile.value.placement == null) Screen.PlacementIntro else Screen.Home)
+                app.goNext(Screen.Home)
             },
             enabled = accepted,
             modifier = Modifier.fillMaxWidth(),
