@@ -31,3 +31,4 @@ Areas: engine, phone-ui, content-seniors, content-ngo, content-ch, ai-pipeline, 
 | 23 | Dark/light theme + large text + high contrast | phone-ui | | todo |
 | 24 | Check every link in `content/resources/resources.json`, set `verified: true` | resources | | todo |
 | 25 | "What to do now" cards: pick resources by ask × country | engine | | todo |
+| 26 | AI & sensitive data pack (AI1–AI6) + simulated chatbot screen with "Send / edit / other way"; check facts marked ⚠ | content-ai | ferran? | todo |

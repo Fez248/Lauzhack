@@ -13,10 +13,10 @@ A scenario is therefore a set of **slots**, not a block of text:
 
 | Slot | Example values |
 |---|---|
-| `identity` (who they claim to be) | bank, parcel service, relative, recruiter, police/tax office, tech support, group admin, donor, NGO director, partner organisation, "neutral comparison service", insurance broker, pension advisor |
+| `identity` (who they claim to be) | bank, parcel service, relative, recruiter, police/tax office, tech support, group admin, donor, NGO director, partner organisation, "neutral comparison service", insurance broker, pension advisor, ai_assistant (public chatbot), ai_app (unknown "AI helper" app, bot or extension) |
 | `channel` | sms, whatsapp, email, phone_call, voicemail, telegram_group, marketplace, qr_code, letter, home_visit |
 | `emotion` | fear, urgency, greed, love, authority, shame, helpfulness, curiosity, social_proof |
-| `ask` | click_login, give_code, pay_fee, install_app, send_documents, move_money, forward_message, share_data, switch_channel, give_appointment, sign_contract |
+| `ask` | click_login, give_code, pay_fee, install_app, send_documents, move_money, forward_message, share_data, switch_channel, give_appointment, sign_contract, paste_data (into an AI tool), share_chat_link |
 | `isolation` (optional) | "don't tell anyone", "stay on the line", "your bank advisor is involved" |
 | `surface_clues` | typos, odd_sender, generic_greeting, or none (perfect language, real name, known contact) |
 | `length` | single message, short exchange, slow build over days |
@@ -33,6 +33,10 @@ however much text is generated.
 - `misaligned_incentive`: legal or grey area, where the caller is paid by a commission that isn't
   in your interest (Swiss health insurance brokers, pension "optimisation"). Same four steps; the
   check is a **neutral official source**.
+- `data_exposure`: **nobody is attacking**; the learner is about to leak sensitive data themselves,
+  e.g. pasting patient or beneficiary data into an AI chatbot (idea from Ferran). The four steps
+  still apply, which makes this the **furthest transfer test**: "Who receives this? What pressure am
+  I under? What exactly am I giving? Is there a safer, approved way?"
 
 ## The concept that should "click"
 
@@ -121,6 +125,40 @@ Swiss context to verify and cite ⚠:
 - **Timing:** basic insurance can be switched for 1 January if the cancellation letter **arrives by
   30 November**. Cold-calling peaks in autumn, so that's when the seniors pack is most relevant
   (good hook for the pitch: the hackathon is in that window).
+
+### AI and sensitive data pack (idea from Ferran; category mostly `data_exposure`)
+
+Here the "message" is the learner's own action: the simulated phone or laptop shows an AI chatbot
+with text pasted in and the cursor on "Send". The learner decides: send, edit first, or use another way.
+(This is a scenario *object* the learner judges, not a chat with a tutor, so it respects the Scholé rule.)
+
+Key questions to teach: **"Whose data is this?"** (yours: your informed choice; someone else's: not
+yours to share) and **"Would I write this on a postcard?"**
+
+| # | Seed | Who receives it / where | Pressure | What is given away | Safer way |
+|---|---|---|---|---|---|
+| AI1 | NGO volunteer pastes case notes (names, social-security/AVS number, residence status, health issues) into a free chatbot to write a support letter | public AI service, servers possibly abroad | time pressure, wanting to help | sensitive data **of beneficiaries** | remove identifying details first ("Client A", age instead of birth date, no AVS number); use the organisation's approved tool; follow the NGO's data policy |
+| AI2 | Home-care worker or caregiver pastes a patient's name, diagnosis and medication list to build a schedule | public AI service | workload, convenience | health data of a patient (professional secrecy) | anonymise; use an approved tool; ask the supervisor |
+| AI3 | Senior pastes **their own** lab results to understand them | public AI service | worry, curiosity | own health data | their choice, if informed: remove name and ID numbers, check the privacy settings (training opt-out, temporary chat), still confirm with the doctor. Teaches nuance, not fear |
+| AI4 | **Scam crossover:** "free AI tax helper" website or Telegram bot asks you to upload your ID, payslip and tax return | unknown ai_app | greed (save time and money), authority | send_documents (identity theft) | official tax-office tools; check who runs the app. Same rule as the scams: valuable ask, no channel you control |
+| AI5 | Volunteer shares a "link to the chat" in the team group so others can reuse the letter | anyone who gets the link | helpfulness | share_chat_link (the chat contains beneficiary data) | copy the anonymised final text only; shared links may be visible to anyone who has them ⚠ |
+| AI6 | AI note-taker or transcription app joins a counselling call with a beneficiary | ai_app / meeting tool | convenience | recording of a confidential conversation | ask consent; use only approved tools; don't record sensitive sessions |
+
+Legitimate twins: same task with anonymised text in an approved tool, or the senior removing their
+name before asking about their own results.
+
+Risks to explain (check each ⚠ before shipping):
+- Depending on the service and settings, pasted text **may be stored, reviewed by people, or used to
+  train models**. Consumer and free plans differ from organisation plans with a data-processing agreement.
+- Anyone who takes over the account (phishing, see the other packs) **can read the full chat history**.
+- Shared chat links have ended up **indexed by search engines** in past incidents ⚠.
+- Employees have leaked confidential material by pasting it into chatbots (widely reported case:
+  engineers pasting source code, 2023) ⚠.
+- **Legal (Switzerland):** under the revised data protection law (since 1 September 2023), health
+  data counts as **sensitive personal data**; sending it to a provider abroad has extra rules;
+  professional secrecy applies to health professionals; use of the AVS number is restricted.
+  Organisations may have to report serious data breaches to the FDPIC. EU: GDPR ⚠.
+- Fake "AI" apps, bots and browser extensions are a growing way to collect data (links AI4 to the scam packs).
 
 ### Legitimate twins (write one for each main seed)
 - Real bank fraud alert: no link; "call the number on the back of your card".

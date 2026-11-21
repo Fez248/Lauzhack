@@ -21,6 +21,9 @@
     { "id": "ch-2nd-pillar-central", "name": "Central Office for the 2nd pillar (forgotten pension assets)", "url": "https://www.sfbvg.ch", "countries": ["CH"], "asks": ["pay_fee", "sign_contract"], "purpose": "Search for forgotten 2nd-pillar money for free.", "verified": false },
     { "id": "ch-finma-warning", "name": "FINMA warning list", "url": "https://www.finma.ch", "countries": ["CH"], "asks": ["move_money", "sign_contract"], "purpose": "Check whether a financial provider is unauthorised.", "verified": false },
 
+    { "id": "ch-fdpic", "name": "FDPIC / PFPDT / EDÖB (Swiss data protection commissioner)", "url": "https://www.edoeb.admin.ch", "countries": ["CH"], "asks": ["paste_data", "share_data", "share_chat_link"], "purpose": "Guidance on personal data, and where organisations report serious data breaches.", "verified": false },
+    { "id": "fr-cnil", "name": "CNIL", "url": "https://www.cnil.fr", "countries": ["FR"], "asks": ["paste_data", "share_data"], "purpose": "French data protection authority; guidance on AI and personal data.", "verified": false },
+
     { "id": "fr-cybermalveillance", "name": "Cybermalveillance.gouv.fr", "url": "https://www.cybermalveillance.gouv.fr", "countries": ["FR"], "asks": ["click_login", "pay_fee", "move_money", "give_code", "install_app", "send_documents"], "purpose": "Official French help and diagnosis for cyber incidents.", "verified": false },
     { "id": "fr-33700", "name": "33700 (spam SMS reporting)", "url": "https://www.33700.fr", "countries": ["FR"], "asks": ["click_login", "pay_fee"], "purpose": "Forward spam SMS and calls.", "verified": false },
     { "id": "fr-signal-spam", "name": "Signal Spam", "url": "https://www.signal-spam.fr", "countries": ["FR"], "asks": ["click_login"], "purpose": "Report spam and phishing emails.", "verified": false },

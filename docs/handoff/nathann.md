@@ -21,6 +21,7 @@ Branch: `nathann` · Last updated: 2026-11-21
 
 ## Questions for others
 - To everyone: does the idea in docs/idea.md work for you? Which area do you want to own (TASKS.md)?
+- To ferran: I wrote up your AI & sensitive data idea (scenario-engine.md, AI1–AI6, TASKS #26). Want to own it? Please correct anything off.
 - To everyone: claim your language in TASKS.md #21 (fr, en, hi, te, ur, de, it, es, ca).
 - To everyone: Swiss facts marked ⚠ in scenario-engine.md (2024 cold-call ban, commission caps,
   30 Nov deadline, 2nd-pillar central office) need checking against official sources.

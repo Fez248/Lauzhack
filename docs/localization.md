@@ -46,6 +46,7 @@ card chosen by **the ask that was given away × the user's country**. Data:
 | Intimate images | You're not to blame; don't pay; Take It Down (under 18) / StopNCII (adults) |
 | An appointment / signature for a broker | You can cancel; don't cancel existing supplementary insurance; compare on priminfo.admin.ch |
 | Just clicked, nothing entered | Usually fine; close it, enter nothing |
+| Pasted someone else's sensitive data into an AI tool | Delete the chat and any shared link; check the training setting; tell your supervisor/data protection contact (the organisation may need to report it) |
 
 Every card says **"this happens to careful people too."** Shame is a main reason seniors don't
 report or call their bank in time.
