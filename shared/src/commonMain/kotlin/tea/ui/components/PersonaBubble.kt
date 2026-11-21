@@ -67,6 +67,9 @@ fun personaArt(persona: Persona, mood: Mood): DrawableResource? {
     return all["persona_${persona.key}_${mood.name.lowercase()}"] ?: all["persona_${persona.key}_neutral"]
 }
 
+/** Full-body illustration `drawable/persona_<name>_full.png`, or null when it is not bundled. */
+fun personaFullArt(persona: Persona): DrawableResource? = Res.allDrawableResources["persona_${persona.key}_full"]
+
 /** 48dp circle in the persona accent, 2dp border; the art if present, else the initial letter. Decorative. */
 @Composable
 fun PersonaAvatar(

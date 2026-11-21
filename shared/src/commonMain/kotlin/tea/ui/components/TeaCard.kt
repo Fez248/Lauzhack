@@ -1,5 +1,10 @@
 package tea.ui.components
 
+import org.jetbrains.compose.resources.painterResource
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -109,7 +114,16 @@ fun PersonaCard(
                     Modifier.fillMaxWidth().background(style.surface).padding(horizontal = TeaSpacing.s3, vertical = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(TeaSpacing.s2),
                 ) {
-                    PersonaNameTag(persona, role = role, mood = mood)
+                    val full = personaFullArt(persona)
+                    if (full == null) {
+                        PersonaNameTag(persona, role = role, mood = mood)
+                    } else {
+                        // Hero header: name tag on the left, the full-body illustration on the right.
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            PersonaNameTag(persona, Modifier.weight(1f), role = role, mood = mood)
+                            Image(painterResource(full), null, Modifier.size(if (TeaTheme.isCompact) 72.dp else 96.dp))
+                        }
+                    }
                     if (title != null) PersonaTitle(persona, title)
                     top?.invoke(this)
                 }
