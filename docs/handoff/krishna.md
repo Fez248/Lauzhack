@@ -60,9 +60,20 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
   Two conflicts, both additive: `decisions.md` kept both sides, and `deploy/.env.example` kept my
   Vault block alongside nathann's `DEV_VERIFY_CODE=off`, with `PASSWORD_FP_PEPPER=changeme` to match
   his new convention that every secret carries a placeholder.
-- Could not run `docker compose -f deploy/docker-compose.dev.yml up --build` here: this machine has
-  no container runtime at all (no Docker, no podman, no colima, no socket) and no local Postgres, so
-  the vault schema had still only ever been created on H2. Closed that gap instead:
+- **Ran the dev compose stack against real Postgres** once Docker was installed, and the drill holds
+  up on it: the schema is created correctly (`vault_logins.at` quoted fine, the
+  `(user_id, site_id)` unique constraint, `breach_checked boolean default true`), the `timestamptz`
+  comparison behind the challenge is right in both directions (not due immediately, due after the
+  gap), the random pick varies, argon2id logins work, and `select` over `vault_accounts` and
+  `vault_findings` finds **zero rows** containing any plaintext password.
+  - One gap it exposed: the dev compose had no `VAULT_CHALLENGE_DELAY_S`, so the login drill sat 60 s
+    away and could not be demoed from that stack. Set to 10 s in `docker-compose.dev.yml`, next to
+    `RATE_LIMITS: "off"`, for the same reason.
+  - Not done: running the whole server suite against real Postgres. The compose db does not publish
+    5432, and more importantly the tests would need a schema each (`{id}` names a database, which
+    Postgres will not create on connect). Worth doing for CI; say if you want it.
+- Earlier, before Docker was available, the vault schema had only ever been created on H2. Closed that
+  gap too:
   `-Dtea.test.db.url=` now points the whole server suite at another database, with `{id}` in the URL
   for per-test isolation. All 57 server tests pass on H2's PostgreSQL dialect as well as its default
   one, so the new DDL survives it — `vault_logins.at` as a column name, `breach_checked BOOL DEFAULT
