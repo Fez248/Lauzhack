@@ -79,6 +79,8 @@ kotlin {
         jvmTest.dependencies {
             // Skiko native runtime, for off-screen rendering in tests (tea.ui.Screenshots).
             implementation(compose.desktop.currentOs)
+            // runComposeUiTest: clicks through the real App() (tea.ui.AppUiFlowTest).
+            implementation(libs.compose.ui.test)
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
