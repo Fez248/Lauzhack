@@ -32,8 +32,20 @@ Branch: `nathann` · Last updated: 2026-11-21
 - Merged Krishna's `awareness-sim-*` docs (they replace `docs/later/press-to-complete-trigger.md`).
 - Made docs/mvp0-plan.md honest: explicit opt-in for the practice email, password findings for the
   accepted password only, no contacts, no tracking pixel, minimal device data (decisions.md entry).
-- Aligned every doc on "cyber security literacy teaching" and the honest rules of plan §17 (see the
+
+- Aligned every doc on "cyber security literacy teaching" and the honest rules of plan §17 (see the
   decisions.md entry): edited files of ferran, nicholas and krishna (questions below).
+
+- **Built MVP 0 end to end from docs/mvp0-plan.md (milestones M0 to M9), on branch `nathann`:**
+  KMP scaffold; models and API contracts; engines (placement, mastery, fading, selector, traps, XP);
+  content pipeline and validator; Ktor server (auth, sync, leaderboard, opt-in practice email, Docker,
+  CI and Pages workflows); design system ported to Compose; app shell (registration, onboarding, home,
+  settings, about, leaderboard, reveal); learning screens (placement, lesson 1, practice, summary,
+  opt-in card); Android shell; en/fr/es UI strings and content. How to run: README.
+- Checked by an end-to-end run with the real app classes against a real server (register, placement,
+  lesson, fading practice, held-out item, leaderboard, opt-in, practice email in the console, click,
+  reveal, pause, guest mode then sync). Web build loaded in a headless browser. Android APK builds.
+- Debug code `426769` for email verification while no SMTP password is set (decisions.md).
 
 ## In progress
 - Getting team agreement on the idea (TASKS.md #1).
@@ -47,6 +59,19 @@ Branch: `nathann` · Last updated: 2026-11-21
   AGENTS.md: reading order now starts with the plan).
 - After merge, each person `git merge origin/main` into their branch, then code lands per part in
   small PRs (milestones M0–M9 in docs/mvp0-plan.md §14).
+
+- **Not verified yet:** real Gmail SMTP sending; Docker Compose + tunnel with the final build; the
+  Pages and CI workflows on GitHub (never run); the Android app on a device; a timed placement run
+  with a person (item timings suggest 5 to 6 minutes, the intro says "About 3 minutes").
+- **Needs a human before the demo:** review every content item and the lesson (all `draft`), incl. the
+  fr/es translations; replace the placeholder image `content/items/breadth/img/br-image-01.png`;
+  krishna writes `content/field/practice-email-01.<lang>.json` (still the placeholder text); check the
+  links in `content/resources/resources.json` and set `verified: true` (until then release builds
+  show Dog's general advice instead of links); persona art into
+  `shared/src/commonMain/composeResources/drawable/persona_<name>_<mood>.png`.
+- Decide: should the Pages build pass `-Prelease=true` (hides the debug aids and unverified links)?
+- Known small UI issues: one-frame flash when a button becomes enabled; Back on onboarding question 1
+  returns to the Password screen; a server error on the leaderboard reads "needs a connection".
 
 ## Questions for others
 - To everyone: does the idea in docs/idea.md work for you? Which area do you want to own (TASKS.md)?
@@ -85,7 +110,8 @@ Branch: `nathann` · Last updated: 2026-11-21
   practice email will come ("Yes, send me one"); only the timing and look stay secret. The server
   returns `{scheduled, reason?}` instead of hiding it, and there is no open pixel. The old "must not
   hint" rule tripped AI safety filters and reads as deceptive to judges. OK with you?
-- To ferran: I edited docs/info.md and docs/characters.md: no more "hack the student". Practice
+
+- To ferran: I edited docs/info.md and docs/characters.md: no more "hack the student". Practice
   emails happen only when the learner asks for one, from our plain address, click-only, nothing typed
   collected; Spider "plays the scammer in practice scenarios"; offboarding phrased as "remove access on
   the last day, planned with HR". Your voice and jokes are kept. Please check you're happy with it.
@@ -99,5 +125,12 @@ Branch: `nathann` · Last updated: 2026-11-21
   `isthistee.com`: we don't own it), the link goes to a reveal with **no form**, outcomes are
   `clicked`/`reported`, and the spaced series is a later loop with its own opt-in text. Your delay,
   scheduler and grading idea are kept. Please confirm or correct.
+
+- To everyone: three PROPOSED entries at the bottom of docs/decisions.md need a human yes/no
+  (toolchain versions and small API additions; the worked-example mastery rule; the debug code).
+- To krishna: the scheduler, `field_sends` table, reveal and report are built as in plan §10.6. Only
+  your email text is missing: `content/field/practice-email-01.<lang>.json` (placeholder for now).
+- To nicholas: your lesson 1 copy is ported to `content/lessons/email-01/lesson.<lang>.json`; your quiz
+  questions and spot-check emails became practice items. Please review the wording.
 
 ## Answers
