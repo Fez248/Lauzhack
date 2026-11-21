@@ -1,5 +1,5 @@
 /* =====================================================================
-   Tea [DCST] — shared theme
+   ThisIsTea — shared theme
    ---------------------------------------------------------------------
    Link this file from every page:
      <link rel="stylesheet" href="/static/tea-theme.css">
@@ -363,7 +363,7 @@ fieldset { margin: 0; min-width: 0; }
 }
 .demo-toggle:hover { color: #fff; border-color: #fff; }
 
-/* Trap reveal: Spider announces the result of his attack */
+/* Practice result: Spider reveals how the practice email the learner asked for went */
 .trap { border-radius: var(--r-md); padding: 1.2rem 1.4rem; margin-bottom: 1.8rem; border: 2px solid; display: flex; gap: 1rem; align-items: flex-start; }
 .trap .avatar { width: 3rem; height: 3rem; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 1.6rem; border: 2px solid currentColor; }
 .trap strong { display: block; font-family: var(--font-spider); font-style: italic; font-weight: 700; font-size: 1.85rem; line-height: 1.1; margin-bottom: .35rem; color: #fff; }
