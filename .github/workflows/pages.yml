@@ -28,7 +28,7 @@ jobs:
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
       - name: Build wasm distribution
-        run: ./gradlew :composeApp:wasmJsBrowserDistribution -Pstrict=true --console=plain
+        run: ./gradlew -Ptea.android=false :composeApp:wasmJsBrowserDistribution -Pstrict=true --console=plain
       - name: Write runtime config
         env:
           API_URL: ${{ vars.API_URL }}

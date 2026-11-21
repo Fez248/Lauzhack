@@ -5,6 +5,12 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
 }
 
+// Android target only when settings.gradle.kts found an Android SDK (or -Ptea.android=true).
+// The plugin is on the classpath (root build, `apply false`) but applied here by id, so the
+// typed `kotlin { android { } }` accessor does not exist: it is configured by type below.
+val androidEnabled: Boolean = gradle.extra["tea.android"] == true
+if (androidEnabled) apply(plugin = "com.android.kotlin.multiplatform.library")
+
 // ---------------------------------------------------------------------------------------------
 // tea.BuildInfo: short git sha (shown in the DebugFooter) and the debug flag. `-Prelease=true`
 // turns DEBUG off (demo aids hidden). Rewritten only when the content changes.
@@ -51,7 +57,18 @@ kotlin {
         binaries.executable()
     }
 
-    // Android target goes here later (conditional on an Android SDK being present).
+    if (androidEnabled) {
+        (this as ExtensionAware).extensions.configure<com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget>("android") {
+            namespace = "app.thisistea.shared"
+            compileSdk = libs.versions.android.compileSdk.get().toInt()
+            minSdk = libs.versions.android.minSdk.get().toInt()
+            // Compose resources (strings, fonts, files/content/**) are packaged as Android assets.
+            androidResources { enable = true }
+        }
+        sourceSets.named("androidMain") {
+            dependencies { implementation(libs.ktor.client.okhttp) }
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
