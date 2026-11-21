@@ -1,6 +1,6 @@
 # Handoff: krishna
 
-Branch: `Krishna` · Last updated: 2026-11-21
+Branch: `Krishna` · Last updated: 2026-11-21 (second session)
 
 ## Done
 
@@ -24,22 +24,47 @@ Branch: `Krishna` · Last updated: 2026-11-21
     time-to-first-input and an optional self-report — disclosed on the card before they type, never
     affecting XP or the verdict. Graduation rate across the five is the detection-free fallback.
 - Claimed TASKS #31 and #32; added #33 for the password-manager resource entries.
+- **Built the drill** (TASKS #31/#32 now `review`). 263 tests pass across `:server` and `:shared`.
+  - Server, `server/src/main/kotlin/tea/server/vault/`: `VaultService` (length → site name → HIBP →
+    strength → reuse, then argon2id + findings), `VaultRoutes` (7 endpoints under `/me/vault`),
+    `VaultSites`, `VaultFingerprint` (HMAC exact + family), `CachingPwnedClient` (1 h).
+  - Tables `vault_accounts` / `vault_findings` / `vault_logins` and the `vault_*` events are additive
+    to C1 and §5.1. `PasswordAnalyzer.estimate()` is now shared, so the drill and the account password
+    are graded identically. Every vault field is in "What we know about you"; `DELETE /me` wipes them.
+  - Client, `shared/src/commonMain/kotlin/tea/ui/screens/vault/`: five sign-up screens, the live
+    meter, the debrief, the login drill, `InputMethodWatcher`. Strings in en, fr and es.
+  - Config: `PASSWORD_FP_PEPPER` and `VAULT_CHALLENGE_DELAY_S` (default 60 s so the loop fits a demo),
+    both in `deploy/.env.example` with no values.
+  - Tests: `VaultTest.kt` (17) and `PasswordMeterTest.kt` (13). One asserts that no stored value, no
+    response body and no About line can contain a password.
+  - Two small changes outside my area, both forced and both intended: `MeTest`'s list of About fields
+    gained my three rows (that assertion exists to catch exactly this), and `POST /me/events` now
+    refuses the three server-only `vault_*` types the way it already refused `field_*`.
 
 ## In progress
 
-- Nothing. Waiting on the answers below before building.
+- Nothing. The code is on my branch and pushed; the three `decisions.md` entries I added are
+  **PROPOSED** and need nathann's yes or no.
 
 ## Blocked / needs
 
-- Needs a decision on hashed vs plaintext drill passwords (see the question to nathann). Everything
-  else in the design is independent of it.
+- Three `decisions.md` entries of 2026-11-21 need a human: lesson 2 + the drill, hashed-not-plaintext
+  storage, and the disclosed input-method signal. The last one reverses part of nathann's earlier
+  entry, so it is the one that actually needs discussion. The drill works without it — delete
+  `InputMethodWatcher`'s three fields from the login request and graduation rate still measures the
+  habit.
+- Lesson 2's copy (Cat's four rules, Spider's lines, Dog's tool cards) is still placeholder-free only
+  in structure: the words need a human writer, per §17.
+- TASKS #33: the password-manager entries for `resources.json` are not written yet.
 
 ## Next
 
-1. Confirm the password lesson is lesson 2, built after the MVP 0 demo stands up.
-2. Build in this order: five sign-up screens → `POST /me/vault/accounts` with the three checks →
-   debrief → login drill via `Review.kt`.
-3. Review nathann's rewrite of my `awareness-sim-*` docs line by line and confirm or push back
+1. Get the three decisions answered, then open the PR for the drill.
+2. Write `content/lessons/password-01/lesson.en.json` with the four rules and the tool cards, and add
+   the manager entries to `resources.json` (#33) with `verified: false`.
+3. Hook the drill into the lesson flow: lesson 2 should end on the drill the way lesson 1 ends on the
+   opt-in card, and Home should surface a due challenge.
+4. Review nathann's rewrite of my `awareness-sim-*` docs line by line and confirm or push back
    (he marked them "krishna to confirm").
 
 ## Questions for others
@@ -68,6 +93,9 @@ Branch: `Krishna` · Last updated: 2026-11-21
 - To nathann: `AGENTS.md` and the AGREED entry in `decisions.md` say branches are the first name in
   **lowercase**, but mine is `Krishna` with a capital K and already pushed with that name. Leave it, or
   do you want it renamed before the PRs start?
+- To nathann: `VAULT_CHALLENGE_DELAY_S` defaults to 60 s so the login drill fits a live demo, matching
+  what `FIELD_DELAY_*` does for the practice email. Real spacing is hours. Say if you want a different
+  demo number.
 - To nicholas: lesson 2 wants the same shape as your lesson 1 template (rule cards, then tool cards).
   Anything in `static/tea-theme.css` I should know about before I reuse your sign-up/form styling for
   the five fake sites?

@@ -78,6 +78,7 @@ fun testConfig(contentDir: String = "does-not-exist", rateLimits: Boolean = fals
     fieldPollInterval = 100.milliseconds,
     adminKey = "admin-secret",
     codePepper = "test-pepper",
+    passwordFpPepper = "test-fp-pepper",
     contentDir = contentDir,
     rateLimitsEnabled = rateLimits,
 )

@@ -159,7 +159,75 @@ object FieldSends : Table("field_sends") {
     override val primaryKey = PrimaryKey(id)
 }
 
+/**
+ * The Vault drill (docs/password-drill.md): one row per fictional site the learner signed up to.
+ * `password_hash` is argon2id — the drill login verifies against it, so no plaintext is ever needed.
+ */
+object VaultAccounts : Table("vault_accounts") {
+    val id = varchar("id", ID)
+    val userId = varchar("user_id", ID).index()
+    val siteId = varchar("site_id", 32)
+    val username = varchar("username", 64)
+    val passwordHash = varchar("password_hash", 255)
+    val createdAt = timestampWithTimeZone("created_at")
+    /** Set the first time the learner logs back in: the habit held. */
+    val graduatedAt = timestampWithTimeZone("graduated_at").nullable()
+    override val primaryKey = PrimaryKey(id)
+
+    init {
+        uniqueIndex(userId, siteId)
+    }
+}
+
+/**
+ * Findings about an accepted drill password, same shape as [PasswordFindings] plus `contains_site`
+ * and the two reuse fingerprints. Never plaintext.
+ *
+ * `reuseFp` / `familyFp` are HMAC-SHA256 keyed with PASSWORD_FP_PEPPER: they make "is this the same
+ * password as another of theirs" answerable without anything readable. Argon2id cannot do that
+ * (every hash has its own salt), and without the pepper these are useless to anyone who takes the
+ * table.
+ */
+object VaultFindings : Table("vault_findings") {
+    val accountId = varchar("account_id", ID)
+    val length = integer("length")
+    val classes = integer("classes")
+    val score = integer("score")
+    val pwned = bool("pwned")
+    val pwnedCount = integer("pwned_count")
+    val containsName = bool("contains_name")
+    val containsEmail = bool("contains_email")
+    val containsYear = bool("contains_year")
+    val containsSite = bool("contains_site")
+    val keyboardPattern = varchar("keyboard_pattern", 32).nullable()
+    val reuseFp = varchar("reuse_fp", 64).index()
+    val familyFp = varchar("family_fp", 64).index()
+    val analysedAt = timestampWithTimeZone("analysed_at")
+    override val primaryKey = PrimaryKey(accountId)
+}
+
+/**
+ * One row per login attempt in the drill. `inputMethod` / `timeToFirstInputMs` / `selfReport` are the
+ * manager-habit signal, recorded only after the card has told the learner we look at it, and never
+ * used to change a verdict or XP. No per-key timings, ever (behavioural biometrics).
+ */
+object VaultLogins : Table("vault_logins") {
+    val id = varchar("id", ID)
+    val userId = varchar("user_id", ID).index()
+    val siteId = varchar("site_id", 32)
+    val succeeded = bool("succeeded")
+    val attemptNo = integer("attempt_no")
+    /** "paste" | "autofill" | "typed", or null when the client did not say. */
+    val inputMethod = varchar("input_method", 16).nullable()
+    val timeToFirstInputMs = integer("time_to_first_input_ms").nullable()
+    /** "looked_it_up" | "remembered" | "written_down", or null. */
+    val selfReport = varchar("self_report", 16).nullable()
+    val at = timestampWithTimeZone("at")
+    override val primaryKey = PrimaryKey(id)
+}
+
 val allTables: Array<Table> = arrayOf(
     Users, Profiles, PasswordFindings, ClientSignals, Mastery, Attempts,
     Groups, GroupMembers, Events, EmailCodes, Sessions, FieldSends,
+    VaultAccounts, VaultFindings, VaultLogins,
 )

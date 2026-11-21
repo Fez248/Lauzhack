@@ -41,6 +41,22 @@ object EventTypes {
     const val FIELD_REPORTED = "field_reported"
     const val FIELD_CANCELLED = "field_cancelled"
     const val FIELD_PREFIX = "field_"
+
+    // the Vault drill (docs/password-drill.md). Clients may never post types starting with "vault_".
+    const val VAULT_DRILL_STARTED = "vault_drill_started"
+
+    /** payload {site_id, score, pwned, family_match} */
+    const val VAULT_ACCOUNT_CREATED = "vault_account_created"
+
+    /** payload {site_id, reason} — the reason only; nothing about the password itself. */
+    const val VAULT_ATTEMPT_REJECTED = "vault_attempt_rejected"
+    const val VAULT_DRILL_COMPLETED = "vault_drill_completed"
+
+    /** payload {site_id, succeeded, attempt_no, input_method} */
+    const val VAULT_LOGIN_ATTEMPTED = "vault_login_attempted"
+
+    /** Vault types the server alone may write (the drill's own start/finish come from the client). */
+    val vaultServerOnly = setOf(VAULT_ACCOUNT_CREATED, VAULT_ATTEMPT_REJECTED, VAULT_LOGIN_ATTEMPTED)
 }
 
 const val TERMS_VERSION = "2026-11-21"

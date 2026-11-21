@@ -18,6 +18,23 @@ object Crypto {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(b)
     }
 
+    /**
+     * Keyed fingerprint, used for the Vault drill's reuse detection: deterministic inside this
+     * deployment only, and worthless to anyone who takes the table without the pepper. Never used
+     * as a password hash — that is argon2id in [tea.server.auth.PasswordHasher].
+     */
+    fun hmacSha256Hex(key: String, message: CharArray): String {
+        val mac = javax.crypto.Mac.getInstance("HmacSHA256")
+        mac.init(javax.crypto.spec.SecretKeySpec(key.toByteArray(Charsets.UTF_8), "HmacSHA256"))
+        val buf = Charsets.UTF_8.encode(java.nio.CharBuffer.wrap(message))
+        val bytes = ByteArray(buf.remaining()).also { buf.get(it) }
+        return try {
+            hex(mac.doFinal(bytes))
+        } finally {
+            bytes.fill(0)
+        }
+    }
+
     fun constantTimeEquals(a: String, b: String): Boolean =
         MessageDigest.isEqual(a.toByteArray(Charsets.UTF_8), b.toByteArray(Charsets.UTF_8))
 

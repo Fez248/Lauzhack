@@ -1,6 +1,8 @@
 # Build prompt: password lesson and the Vault drill (lesson 2)
 
 > A ready-to-paste prompt for a coding agent to build krishna's password piece.
+> **Built on 2026-11-21** — see "What was built" in [password-drill.md](password-drill.md). Kept as the
+> spec the code answers to; where the code and this file differ, the code is right and this is a bug.
 > Design: [password-drill.md](password-drill.md). Keep the two in sync.
 > **The plan wins:** [docs/mvp0-plan.md](mvp0-plan.md) §4.2 (C3), §5 (C1), §9.2, §10.4, §17.
 > MVP 0 ships `email-01` only; build this **after** the MVP 0 demo stands up (§1.4).

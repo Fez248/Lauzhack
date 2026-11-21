@@ -1,6 +1,7 @@
 # Password lesson and the Vault drill (lesson 2)
 
-> Status: **proposal** (krishna, 2026-11-21). Owner: krishna.
+> Status: **built** (krishna, 2026-11-21). Owner: krishna. Server, screens and tests are in;
+> the three `decisions.md` entries of the same day need nathann's yes or no.
 > **Satellite file.** MVP 0 ships lesson `email-01` only ([docs/mvp0-plan.md](mvp0-plan.md) §1.1, §1.4).
 > This is the **next lesson after MVP 0**. If this file disagrees with the plan, **the plan wins**.
 > It reuses what the plan already specifies: `PasswordAnalyzer` (§10.4), argon2id, the HIBP prefix
@@ -147,8 +148,9 @@ one cached HTTP request, which is what [AGENTS.md](../AGENTS.md) means by frugal
 2. **Breached**, server-side: the HIBP Pwned Passwords range API exactly as
    [§10.4](mvp0-plan.md) specifies it — SHA-1, send the **first five hex characters only**, with
    `Add-Padding: true`, match the suffix locally, 2 s timeout, on failure `pwned = false` and log it.
-   Cache prefixes in memory for an hour: a drill is five lookups, and a demo room full of learners will
-   collide on the obvious ones.
+   Answers are cached in memory for an hour, keyed by the full SHA-1 (which never leaves the process),
+   so a demo room full of learners reaching for the same obvious password costs one request rather
+   than thirty.
 3. **Reuse**, server-side, against this learner's own four other sites **and their ThisIsTea account
    password**. Two fingerprints, both keyed with a pepper from `.env`:
    - `reuse_fp = HMAC-SHA256(PEPPER, password)` → exact reuse.
@@ -160,8 +162,13 @@ Argon2id cannot answer "is this the same as another one", because every hash has
 keyed fingerprint is what makes reuse detection possible **without** keeping anything readable: it is
 deterministic only inside this deployment, and useless to anyone who takes the table without the pepper.
 
-**Accept a password iff** `length >= 10`, `score >= 2`, `!pwned`, no exact reuse. A **family** match is
-*not* a rejection — it is accepted with the lesson attached, because "you built a family" is a better
+The **ThisIsTea account password** needs neither: it already has an argon2id hash, so the drill simply
+verifies the new password against it. No column is added to `password_findings`, which keeps contract
+C1 untouched.
+
+**Accept a password iff** `length >= 10`, `score >= 2`, `!pwned`, the site's own name is absent, and
+there is no exact reuse. The site-name check is a refusal rather than a mere finding because it is
+specific, teachable and trivially fixed. A **family** match is *not* a rejection — it is accepted with the lesson attached, because "you built a family" is a better
 teaching moment delivered after the fact than a wall that makes people type `qwerty` variants until
 something passes. **Rejected: answer with the reason and store nothing at all**, matching §1.4 ("storing
 anything about rejected password attempts" is out of scope) and §10.4.
@@ -284,8 +291,9 @@ plays the guesser and takes nothing, per the framing in [decisions.md](decisions
   graduated. Random is the point: the learner cannot revise for a specific one, so the only strategy
   that works is having saved all five. A predictable order — creation order, or weakest first — teaches
   them to prepare one and forget the rest.
-- **When:** `Review.kt` (§6.8) owns the timing only. Each vault account is a review item; the first
-  challenge falls at least a few hours later, **one site per session, never all five**.
+- **When:** `Review.kt` (§6.8) owns the timing only, **one site per session, never all five**. Real
+  spacing is hours or days; the shipped default is `VAULT_CHALLENGE_DELAY_S=60`, short enough for the
+  whole loop to fit a live demo, exactly as `FIELD_DELAY_*` does for the practice email.
 - **Ask:** "Log back in to dogLand." Username is shown (it is not the secret); password is not.
 - **Three attempts.** Each one records `vault_login_attempted`. No attempt reveals anything.
 - **On success:** the account graduates (`graduated_at`), XP, and Cat's line: "that is the habit —
@@ -313,7 +321,7 @@ With that said up front, three signals are enough:
 
 | Signal | How | What it suggests |
 |---|---|---|
-| `input_method` | `paste` from the paste event; `autofill` from an `input` event with no preceding keystroke (plus the `:-webkit-autofill` hook on web); else `typed` | paste or autofill → a manager, or at least *something* stored; typed → recall, or reading off another screen |
+| `input_method` | from **the size of each change**: typing arrives one character at a time, a paste or an autofill in one jump of four or more; a single jump within 400 ms of focus is an autofill, later is a paste | paste or autofill → a manager, or at least *something* stored; typed → recall, or reading off another screen |
 | `time_to_first_input_ms` | from the field gaining focus to the first character | a manager lookup costs a few seconds; pure recall is immediate, and so is giving up |
 | `self_report` | one tap after the attempt: "looked it up" / "remembered it" / "had it written down" | the only one of the three that is not a guess |
 
@@ -342,6 +350,10 @@ mastery estimate. It changes the follow-up question, which is where the teaching
   it into the manager."
 - **typed, wrong three times** → the strongest moment in the lesson: they tried to remember, and five
   passwords is exactly where remembering stops working.
+
+This is a heuristic over change sizes, not a clipboard hook, which is why it works the same on web,
+desktop and Android and why there is nowhere for a keystroke stream to be kept even by accident:
+`InputMethodWatcher` exposes one method name and one duration, and holds no text.
 
 ### The measure that needs no detection at all
 
@@ -399,7 +411,18 @@ From [mvp0-plan.md §17](mvp0-plan.md) and [AGENTS.md](../AGENTS.md):
 - **2FA follow-on:** the natural lesson 3 is turning on two-factor login, with the same drill shape
   (a fictional site, a real authenticator app). Out of scope here; worth a line in the pitch.
 
-## What to build
+## What was built
+
+All of the Must rows below are in, with 263 tests passing across `:server` and `:shared`:
+
+- **Server** — `server/src/main/kotlin/tea/server/vault/`: `VaultService` (the three checks, argon2id,
+  fingerprints, the random challenge, the three attempts), `VaultRoutes`, `VaultSites`,
+  `VaultFingerprint`, `CachingPwnedClient`; tables and events additive to C1/§5.1; every field in
+  "What we know about you" and wiped by `DELETE /me`.
+- **Client** — `shared/src/commonMain/kotlin/tea/ui/screens/vault/`: the five sign-up screens, the
+  live meter, the debrief, the login drill, and `InputMethodWatcher`; strings in en, fr and es.
+- **Tests** — `server/.../VaultTest.kt` (17) and `shared/.../PasswordMeterTest.kt` (13), including a
+  check that no stored value, response body or About line can contain a password.
 
 | Priority | Piece | Owner |
 |---|---|---|
