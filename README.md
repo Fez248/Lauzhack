@@ -65,6 +65,18 @@ Tests and checks:
 
 Wasm tests (`:shared:wasmJsTest`) need a Chromium browser; set `CHROME_BIN` if Chrome is not installed.
 
+**Screenshots of every pane.** The jvm tests render the app off-screen to `shared/build/screenshots/`.
+`.github/workflows/screenshots.yml` turns them into a doc (README + images): every run uploads it as
+the `screenshots` artifact, and each push to `main` commits it to the
+[`screenshots` branch](../../tree/screenshots). Locally:
+
+```bash
+./gradlew :shared:jvmTest --tests 'tea.ui.*' --tests 'tea.learn.LearnScreenshotsTest'
+python3 scripts/screenshot_doc.py shared/build/screenshots build/screenshot-doc
+```
+
+A new `Screen` will not compile until it is added to `PanesRenderTest`, so the doc covers every pane.
+
 ## Deploy
 
 Production is one machine with a public IP and a DNS name pointing at it (ports 80 and 443 open).
