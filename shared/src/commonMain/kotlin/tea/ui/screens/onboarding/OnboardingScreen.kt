@@ -105,7 +105,6 @@ private fun finishOnboarding(app: AppState) {
     app.finishOnboarding()
     val next = when {
         app.flags.value.termsVersion == null -> Screen.Terms
-        app.profile.value.placement == null -> Screen.PlacementIntro
         else -> Screen.Home
     }
     app.goNext(next)

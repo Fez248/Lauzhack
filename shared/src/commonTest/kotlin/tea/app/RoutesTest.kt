@@ -8,7 +8,7 @@ class RoutesTest {
     private val all = listOf(
         Screen.Language, Screen.Email, Screen.Code("a@b.example"), Screen.Name, Screen.Password, Screen.Onboarding(3),
         Screen.Terms, Screen.PlacementIntro, Screen.Placement, Screen.PlacementResult, Screen.Home,
-        Screen.Lesson("email-01", 2), Screen.Practice(), Screen.Practice(focusWeakest = true), Screen.PracticeSummary,
+        Screen.Lesson("email-01", 2), Screen.Challenge("boardroom-crisis", 2), Screen.Practice(), Screen.Practice(focusWeakest = true), Screen.PracticeSummary,
         Screen.Reveal("AbC_123-xyz"), Screen.About, Screen.Settings, Screen.Leaderboard, Screen.Gallery,
     )
 
@@ -23,6 +23,7 @@ class RoutesTest {
         assertEquals("/reveal/tok", Routes.toHash(Screen.Reveal("tok")))
         assertEquals("/lesson/email-01/0", Routes.toHash(Screen.Lesson("email-01")))
         assertEquals("/gallery", Routes.toHash(Screen.Gallery))
+        assertEquals("/challenge/boardroom-crisis/2", Routes.toHash(Screen.Challenge("boardroom-crisis", 2)))
     }
 
     @Test
@@ -36,6 +37,7 @@ class RoutesTest {
         assertEquals(Screen.Reveal("tok"), Routes.parse("#/reveal/tok"))
         assertEquals(Screen.Home, Routes.parse("/home/"))
         assertEquals(Screen.Lesson("email-01", 0), Routes.parse("#/lesson/email-01"))
+        assertEquals(Screen.Challenge("boardroom-crisis", 0), Routes.parse("#/challenge/boardroom-crisis"))
         assertEquals(Screen.Onboarding(0), Routes.parse("#/onboarding/x"))
         assertNull(Routes.parse(""))
         assertNull(Routes.parse("#/"))

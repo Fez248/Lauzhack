@@ -189,7 +189,6 @@
     <string name="home_goal">Objectif quotidien : %1$d minutes</string>
     <string name="home_leaderboard">Classement</string>
     <string name="home_about">Ce que nous savons de vous</string>
-    <string name="home_boardroom">Défi : crise en salle du conseil</string>
     <string name="home_settings">Réglages</string>
     <string name="home_suspicious">Un e-mail vous semble suspect ?</string>
     <string name="home_suspicious_body">S'il vient de nous, bravo d'avoir vérifié. Sinon, il pourrait s'agir d'une vraie arnaque : passons en revue les quatre étapes.</string>

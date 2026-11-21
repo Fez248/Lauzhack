@@ -31,6 +31,9 @@ sealed interface Screen {
     /** [section] = index into Lesson.sections. */
     data class Lesson(val id: String, val section: Int = 0) : Screen
 
+    /** [section] = 0 briefing, 1 playbook, 2 decisions, 3 fallout. */
+    data class Challenge(val id: String, val section: Int = 0) : Screen
+
     /** A free "Practise again" section outside a lesson; [focusWeakest] is set from the Reveal screen. */
     data class Practice(val focusWeakest: Boolean = false) : Screen
     data object PracticeSummary : Screen

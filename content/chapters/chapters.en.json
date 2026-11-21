@@ -1,0 +1,44 @@
+{
+  "chapters": [
+    {
+      "id": "phishing",
+      "kind": "lesson",
+      "target": "email-01",
+      "persona": "cat",
+      "title": "Spot a phishing email",
+      "blurb": "Read the sender, the link and the pressure. Four steps, one email at a time.",
+      "minutes": 10,
+      "status": "available"
+    },
+    {
+      "id": "passwords",
+      "kind": "lesson",
+      "target": null,
+      "persona": "dog",
+      "title": "Passwords and second locks",
+      "blurb": "Long, different, and a second factor everywhere it matters.",
+      "minutes": 8,
+      "status": "soon"
+    },
+    {
+      "id": "boardroom-crisis",
+      "kind": "challenge",
+      "target": "boardroom-crisis",
+      "persona": "turtle",
+      "title": "Boardroom crisis",
+      "blurb": "A breach is under way and the board is looking at you. Five decisions, six hours.",
+      "minutes": 12,
+      "status": "available"
+    },
+    {
+      "id": "scam-calls",
+      "kind": "lesson",
+      "target": null,
+      "persona": "spider",
+      "title": "Scam calls and messages",
+      "blurb": "The fake bank, the grandson in trouble, the group that moved.",
+      "minutes": 10,
+      "status": "soon"
+    }
+  ]
+}

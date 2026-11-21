@@ -37,6 +37,10 @@ object TeaSize {
     val maxContentWidth = 720.dp
     /** Below this width the layout is "compact" (single column, smaller headings). */
     val compactBreakpoint = 600.dp
+    /** From this width Home shows two columns (chapters + score sidebar). */
+    val wideBreakpoint = 960.dp
+    val maxWideWidth = 1120.dp
+    val sidebarWidth = 320.dp
     val avatar = 48.dp
     val avatarSm = 38.dp
 }

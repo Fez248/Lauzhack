@@ -26,7 +26,6 @@ import tea.app.Screen
 import tea.app.TeaApp
 import tea.engine.PlacementState
 import tea.generated.resources.Res
-import tea.generated.resources.home_boardroom
 import tea.generated.resources.placement_ack_got_it
 import tea.generated.resources.placement_ack_together
 import tea.generated.resources.placement_empty
@@ -66,7 +65,6 @@ import tea.ui.components.PersonaBubble
 import tea.ui.components.ScreenColumn
 import tea.ui.components.SectionHeading
 import tea.ui.components.TeaButton
-import tea.ui.components.TeaButtonVariant
 import tea.ui.components.TeaCard
 import tea.ui.components.TeaProgressBar
 import tea.ui.components.TopBar
@@ -81,7 +79,7 @@ import tea.ui.theme.TeaTheme
 @Composable
 fun PlacementIntroContent(app: TeaApp) {
     val inProgress = remember { app.load(LearnKeys.PLACEMENT_STATE, PlacementState.serializer())?.answers?.isNotEmpty() == true }
-    ScreenColumn {
+    ScreenColumn(onBack = app::back) {
         SectionHeading(
             stringResource(Res.string.placement_intro_title),
             large = true,
@@ -92,11 +90,6 @@ fun PlacementIntroContent(app: TeaApp) {
         TeaButton(
             stringResource(if (inProgress) Res.string.placement_resume else Res.string.placement_start),
             { app.navigate(Screen.Placement) },
-        )
-        TeaButton(
-            stringResource(Res.string.home_boardroom),
-            { app.openUrl("challenge-boardroom-crisis.html") },
-            variant = TeaButtonVariant.Secondary,
         )
     }
 }

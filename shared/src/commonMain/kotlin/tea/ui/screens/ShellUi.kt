@@ -110,7 +110,7 @@ fun FourStepsList(answers: Map<StepKey, String> = emptyMap(), modifier: Modifier
     }
 }
 
-/** Navigates to [screen]; Home and the placement intro become the new root (no way back into signup). */
+/** Navigates to [screen]; Home becomes the new root (no way back into signup). */
 fun AppState.goNext(screen: Screen) {
-    if (screen == Screen.Home || screen == Screen.PlacementIntro) navigateRoot(screen) else navigate(screen)
+    if (screen == Screen.Home) navigateRoot(screen) else navigate(screen)
 }

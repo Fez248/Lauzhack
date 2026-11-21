@@ -285,7 +285,7 @@ class AppState(
             !f.passwordSet -> Screen.Password
             !f.onboardingDone -> Screen.Onboarding(0)
             f.termsVersion == null -> Screen.Terms
-            p.placement == null -> Screen.PlacementIntro
+            // Registration ends on Home; the placement test is an optional card there.
             else -> Screen.Home
         }
     }
@@ -309,8 +309,7 @@ class AppState(
     private fun hasStarted(): Boolean = _flags.value.termsVersion != null || _profile.value.placement != null
 
     private fun startScreen(): Screen = when {
-        _profile.value.placement != null -> Screen.Home
-        _flags.value.termsVersion != null -> Screen.PlacementIntro
+        hasStarted() -> Screen.Home
         else -> Screen.Language
     }
 

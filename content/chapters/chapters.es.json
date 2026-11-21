@@ -1,0 +1,44 @@
+{
+  "chapters": [
+    {
+      "id": "phishing",
+      "kind": "lesson",
+      "target": "email-01",
+      "persona": "cat",
+      "title": "Detectar un correo de phishing",
+      "blurb": "Lee el remitente, el enlace y la presión. Cuatro pasos, un correo cada vez.",
+      "minutes": 10,
+      "status": "available"
+    },
+    {
+      "id": "passwords",
+      "kind": "lesson",
+      "target": null,
+      "persona": "dog",
+      "title": "Contraseñas y segundo cerrojo",
+      "blurb": "Largas, distintas, y un segundo factor donde importa.",
+      "minutes": 8,
+      "status": "soon"
+    },
+    {
+      "id": "boardroom-crisis",
+      "kind": "challenge",
+      "target": "boardroom-crisis",
+      "persona": "turtle",
+      "title": "Crisis en la junta",
+      "blurb": "Hay un ataque en curso y la junta te está mirando. Cinco decisiones, seis horas.",
+      "minutes": 12,
+      "status": "available"
+    },
+    {
+      "id": "scam-calls",
+      "kind": "lesson",
+      "target": null,
+      "persona": "spider",
+      "title": "Llamadas y mensajes fraudulentos",
+      "blurb": "El banco falso, el nieto en apuros, el grupo que se «mudó».",
+      "minutes": 10,
+      "status": "soon"
+    }
+  ]
+}
