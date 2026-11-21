@@ -41,6 +41,10 @@ data class FieldCache(
     val status: String = "none",
     /** Token of the last reveal link opened on this device, so Home can link back to it. */
     val revealToken: String? = null,
+    /** Lesson id → send id for clicked field emails not yet answered on this device. */
+    val pendingGotchas: Map<String, String> = emptyMap(),
+    /** Completed locally while offline, until the server confirms the matching event. */
+    val resolvedGotchaSendIds: Set<String> = emptySet(),
 )
 
 /**

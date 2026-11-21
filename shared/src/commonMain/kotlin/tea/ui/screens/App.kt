@@ -82,19 +82,23 @@ fun AppRoot(app: AppState) {
                 val width = maxWidth.value.toInt()
                 val fontScale = LocalDensity.current.fontScale
                 LaunchedEffect(width, dark, fontScale) { app.updateDevice(DeviceSnapshot(dark, fontScale, width)) }
-                Column(Modifier.fillMaxSize().background(TeaTheme.colors.paper)) {
-                    if (!online && screen != Screen.Gallery) {
-                        Box(Modifier.fillMaxWidth().padding(horizontal = TeaSpacing.s2, vertical = 6.dp), contentAlignment = Alignment.Center) {
-                            OfflineBanner(Modifier.widthIn(max = TeaSize.maxContentWidth), onRetry = app::retryConnection)
+                if (screen is Screen.Gotcha) {
+                    Router(app, screen)
+                } else {
+                    Column(Modifier.fillMaxSize().background(TeaTheme.colors.paper)) {
+                        if (!online && screen != Screen.Gallery) {
+                            Box(Modifier.fillMaxWidth().padding(horizontal = TeaSpacing.s2, vertical = 6.dp), contentAlignment = Alignment.Center) {
+                                OfflineBanner(Modifier.widthIn(max = TeaSize.maxContentWidth), onRetry = app::retryConnection)
+                            }
                         }
+                        Box(Modifier.weight(1f).fillMaxWidth()) { Router(app, screen) }
+                        DebugFooter(
+                            apiUrl.removePrefix("https://").removePrefix("http://"),
+                            if (online) "online" else "offline",
+                            "build ${BuildInfo.SHA}",
+                            modifier = Modifier.padding(horizontal = TeaSpacing.s2).padding(vertical = 0.dp),
+                        )
                     }
-                    Box(Modifier.weight(1f).fillMaxWidth()) { Router(app, screen) }
-                    DebugFooter(
-                        apiUrl.removePrefix("https://").removePrefix("http://"),
-                        if (online) "online" else "offline",
-                        "build ${BuildInfo.SHA}",
-                        modifier = Modifier.padding(horizontal = TeaSpacing.s2).padding(vertical = 0.dp),
-                    )
                 }
             }
         }
@@ -116,6 +120,7 @@ fun Router(app: AppState, screen: Screen) {
         Screen.PlacementResult -> PlacementResultScreen(app)
         Screen.Home -> HomeScreen(app)
         is Screen.Lesson -> LessonScreen(app, screen.id, screen.section)
+        is Screen.Gotcha -> GotchaScreen(app, screen)
         is Screen.Practice -> FreePracticeScreen(app, screen.focusWeakest)
         Screen.PracticeSummary -> PracticeSummaryScreen(app)
         is Screen.Reveal -> RevealScreen(app, screen.token)

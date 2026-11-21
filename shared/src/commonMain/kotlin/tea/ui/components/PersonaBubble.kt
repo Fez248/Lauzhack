@@ -119,7 +119,7 @@ fun PersonaNameTag(
         Column {
             Text(personaName(persona), style = style.name(), color = if (dark) Color.White else TeaTheme.colors.ink)
             if (role != null) {
-                Text(role, style = TeaTheme.type.small, color = if (dark) TeaColors.webSoft else TeaTheme.colors.inkSoft)
+                Text(role, style = TeaTheme.type.small, color = if (dark) TeaColors.webInk.copy(alpha = 0.85f) else TeaTheme.colors.inkSoft)
             }
         }
     }
@@ -183,7 +183,7 @@ fun PersonaBubble(
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(personaName(persona), style = style.name(15.sp), color = if (dark) Color.White else TeaTheme.colors.ink)
                 if (role != null) {
-                    Text(role, style = TeaTheme.type.xs, color = if (dark) TeaColors.webSoft else TeaTheme.colors.inkSoft)
+                    Text(role, style = TeaTheme.type.xs, color = if (dark) TeaColors.webInk.copy(alpha = 0.85f) else TeaTheme.colors.inkSoft)
                 }
             }
             PersonaSpeech(persona, text, onSoft = onSoft)

@@ -19,10 +19,12 @@ import tea.model.Profile
 import tea.model.Skill
 import tea.model.StepKey
 import tea.model.StoredEvent
+import tea.model.TeaJson
 import tea.model.TERMS_VERSION
 import tea.net.ApiResult
 import tea.net.FakeApi
 import tea.store.InMemoryKeyValueStore
+import tea.store.FieldCache
 import tea.store.LocalFlags
 import tea.store.LocalState
 import tea.store.Session
@@ -32,6 +34,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -125,6 +128,112 @@ class AppStateTest {
         val r = app.reveal("AbCdEf123456789012345")
         assertTrue(r is ApiResult.Ok)
         assertEquals("AbCdEf123456789012345", app.field.value.revealToken)
+    }
+
+    @Test
+    fun pendingGotchasComeFromClicksAndClearWhenAnswered() = runTest {
+        val events = listOf(
+            StoredEvent(
+                EventTypes.FIELD_CLICKED,
+                buildJsonObject {
+                    put("send_id", JsonPrimitive("send-1"))
+                    put("lesson_id", JsonPrimitive("email-01"))
+                },
+                t0,
+            ),
+            StoredEvent(
+                EventTypes.FIELD_CLICKED,
+                buildJsonObject { put("send_id", JsonPrimitive("old-send")) },
+                t0,
+            ),
+        )
+        val pending = AppState.fieldCacheFrom(events, null)
+        assertEquals(mapOf("email-01" to "old-send"), pending.pendingGotchas)
+        assertTrue(
+            AppState.fieldCacheFrom(
+                events + StoredEvent(
+                    EventTypes.FIELD_GOTCHA,
+                    buildJsonObject { put("send_id", JsonPrimitive("send-1")) },
+                    t0 + 1.seconds,
+                ),
+                null,
+            ).pendingGotchas["email-01"] == "old-send",
+        )
+        assertFalse(
+            "send-1" in AppState.fieldCacheFrom(events, null, resolvedGotchaSendIds = setOf("send-1"))
+                .pendingGotchas.values,
+        )
+        val oldCache = TeaJson.decodeFromString(FieldCache.serializer(), """{"clicked":true,"status":"caught"}""")
+        assertTrue(oldCache.pendingGotchas.isEmpty())
+    }
+
+    @Test
+    fun authenticatedLessonsInterceptAndContinueOnce() = runTest {
+        val store = InMemoryKeyValueStore()
+        LocalState(store).apply {
+            session = Session("session", "learner@example.test")
+            profile = Profile(placement = placement)
+            flags = LocalFlags(termsVersion = TERMS_VERSION)
+        }
+        val api = FakeApi().apply {
+            fieldEvents = listOf(
+                StoredEvent(
+                    EventTypes.FIELD_CLICKED,
+                    buildJsonObject {
+                        put("send_id", JsonPrimitive("send-1"))
+                        put("lesson_id", JsonPrimitive("email-01"))
+                    },
+                    t0,
+                ),
+            )
+        }
+        val e = env(store = store, api = api)
+        runCurrent()
+        assertEquals(mapOf("email-01" to "send-1"), e.app.field.value.pendingGotchas)
+        e.app.navigate(Screen.Lesson("email-01", 2))
+        assertEquals(Screen.Gotcha("send-1", "email-01"), e.app.screen.value)
+
+        e.app.finishGotcha("send-1", "email-01", answer = "yes")
+        assertEquals(Screen.Lesson("email-01", 0), e.app.screen.value)
+        assertFalse(Screen.Gotcha("send-1", "email-01") in e.app.stack.value)
+        assertTrue(e.app.field.value.pendingGotchas.isEmpty())
+        assertTrue("send-1" in e.app.field.value.resolvedGotchaSendIds)
+        settle()
+        assertEquals(
+            "yes",
+            (api.events.values.single { it.type == EventTypes.FIELD_GOTCHA }.payload["answer"] as JsonPrimitive).content,
+        )
+
+        e.app.navigate(Screen.Home)
+        e.app.navigate(Screen.Lesson("email-01", 0))
+        assertEquals(Screen.Lesson("email-01", 0), e.app.screen.value)
+    }
+
+    @Test
+    fun guestsKeepLessonNavigationAndOfflineGotchaCompletionStaysResolved() = runTest {
+        val guestStore = InMemoryKeyValueStore()
+        LocalState(guestStore).apply {
+            profile = Profile(placement = placement)
+            field = FieldCache(pendingGotchas = mapOf("email-01" to "send-1"))
+        }
+        val guest = env(store = guestStore).app
+        guest.navigate(Screen.Lesson("email-01"))
+        assertEquals(Screen.Lesson("email-01"), guest.screen.value)
+
+        val store = InMemoryKeyValueStore()
+        LocalState(store).apply {
+            session = Session("session", "learner@example.test")
+            profile = Profile(placement = placement)
+            flags = LocalFlags(termsVersion = TERMS_VERSION)
+            field = FieldCache(pendingGotchas = mapOf("email-01" to "send-1"))
+        }
+        val api = FakeApi().apply { onlineFlow.value = false }
+        val app = env(store = store, api = api).app
+        app.finishGotcha("send-1", "email-01", answer = "no", reason = "verify")
+        assertTrue(LocalState(store).field.pendingGotchas.isEmpty())
+        assertTrue("send-1" in LocalState(store).field.resolvedGotchaSendIds)
+        app.navigate(Screen.Lesson("email-01"))
+        assertEquals(Screen.Lesson("email-01", 0), app.screen.value)
     }
 
     @Test

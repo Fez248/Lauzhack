@@ -17,6 +17,7 @@ object EventTypes {
     // server-emitted
     const val REGISTERED = "registered"
     const val EMAIL_VERIFIED = "email_verified"
+    const val FIELD_REMINDED = "field_reminded"
 
     // client-emitted
     /** payload {version}. On receipt the server also sets users.terms_accepted_at / terms_version. */
@@ -33,8 +34,10 @@ object EventTypes {
     /** payload {lesson_id, xp, per_step}. Worth +50 XP, once per lesson_id. */
     const val LESSON_COMPLETED = "lesson_completed"
     const val PRACTICE_EMAIL_OPTED_IN = "practice_email_opted_in"
+    /** Client-emitted, payload {send_id, lesson_id, answer, reason?}. */
+    const val FIELD_GOTCHA = "field_gotcha"
 
-    // server-emitted, part 5. Clients may never post types starting with "field_".
+    // server-emitted, part 5. Clients may only post FIELD_GOTCHA from this prefix.
     const val FIELD_SCHEDULED = "field_scheduled"
     const val FIELD_SENT = "field_sent"
     const val FIELD_CLICKED = "field_clicked"

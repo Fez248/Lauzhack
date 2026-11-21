@@ -1,5 +1,6 @@
 package tea.server.field
 
+import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.CancellationException
@@ -14,6 +15,7 @@ import kotlinx.serialization.json.buildJsonObject
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -36,9 +38,10 @@ import tea.server.me.hasLessonEvent
 
 private val log = LoggerFactory.getLogger("tea.server.field")
 
-fun fieldPayload(sendId: String, templateId: String): JsonObject = buildJsonObject {
+fun fieldPayload(sendId: String, templateId: String, lessonId: String? = null): JsonObject = buildJsonObject {
     put("send_id", JsonPrimitive(sendId))
     put("template_id", JsonPrimitive(templateId))
+    lessonId?.let { put("lesson_id", JsonPrimitive(it)) }
 }
 
 /** Cancels every pending (unsent, uncancelled) send of the user. Call inside a transaction. */
@@ -52,7 +55,12 @@ fun cancelPendingSends(userId: String, now: Instant): Int {
 
 private fun cancelSend(row: ResultRow, now: Instant) {
     FieldSends.update({ FieldSends.id eq row[FieldSends.id] }) { it[cancelledAt] = now.toOdt() }
-    emitEvent(row[FieldSends.userId], EventTypes.FIELD_CANCELLED, fieldPayload(row[FieldSends.id], row[FieldSends.templateId]), now)
+    emitEvent(
+        row[FieldSends.userId],
+        EventTypes.FIELD_CANCELLED,
+        fieldPayload(row[FieldSends.id], row[FieldSends.templateId], row[FieldSends.lessonId]),
+        now,
+    )
 }
 
 /** Is a practice email pending for this user (never says when)? Call inside a transaction. */
@@ -78,6 +86,9 @@ class FieldScheduler(private val s: Services) {
     private val lessonIdPattern = Regex("^[A-Za-z0-9_-]{1,64}$")
 
     fun isValidLessonId(id: String) = lessonIdPattern.matches(id)
+
+    private fun hasLesson(id: String): Boolean =
+        isValidLessonId(id) && File(s.config.contentDir, "lessons/$id/lesson.en.json").isFile
 
     suspend fun readiness(userId: String, lessonId: String): ReadinessResponse {
         val now = s.clock.now()
@@ -115,7 +126,7 @@ class FieldScheduler(private val s: Services) {
                 it[scheduledAt] = (now + delayS.seconds).toOdt()
                 it[FieldSends.lessonId] = lessonId
             }
-            emitEvent(userId, EventTypes.FIELD_SCHEDULED, fieldPayload(sendId, FIELD_TEMPLATE_ID), now)
+            emitEvent(userId, EventTypes.FIELD_SCHEDULED, fieldPayload(sendId, FIELD_TEMPLATE_ID, lessonId), now)
             scheduledId = sendId
             ReadinessResponse(scheduled = true)
         }
@@ -137,10 +148,28 @@ class FieldScheduler(private val s: Services) {
         }
     }
 
-    private data class Claimed(val sendId: String, val userId: String, val templateId: String, val email: String,
-                               val language: String, val firstName: String, val token: String)
+    private data class Claimed(
+        val sendId: String,
+        val userId: String,
+        val templateId: String,
+        val lessonId: String,
+        val email: String,
+        val language: String,
+        val firstName: String,
+        val token: String,
+    )
 
-    /** One pass: sends every due, unsent, uncancelled row. Returns how many mails went out. */
+    private data class ReminderClaim(
+        val sendId: String,
+        val userId: String,
+        val templateId: String,
+        val lessonId: String,
+        val email: String,
+        val language: String,
+        val firstName: String,
+    )
+
+    /** One pass: sends due practice emails and reminders. Returns how many mails went out. */
     suspend fun tick(): Int {
         val now = s.clock.now()
         val due = s.db.tx {
@@ -150,6 +179,17 @@ class FieldScheduler(private val s: Services) {
         }
         var sent = 0
         for (id in due) if (sendOne(id, now)) sent++
+        val reminders = s.db.tx {
+            FieldSends.selectAll()
+                .where {
+                    FieldSends.sentAt.isNotNull() and FieldSends.clickedAt.isNotNull() and
+                        FieldSends.reportedAt.isNull() and FieldSends.cancelledAt.isNull() and
+                        FieldSends.remindedAt.isNull() and FieldSends.remindAt.isNotNull() and
+                        (FieldSends.remindAt lessEq now.toOdt())
+                }
+                .map { it[FieldSends.id] }
+        }
+        for (id in reminders) if (sendReminder(id, now)) sent++
         return sent
     }
 
@@ -174,7 +214,7 @@ class FieldScheduler(private val s: Services) {
             val profile = UserData.profile(user)
             val firstName = (user[Users.firstName] ?: profile.firstName)?.trim()?.takeIf { it.isNotEmpty() }
                 ?: Codes.localPart(email)
-            Claimed(sendId, userId, row[FieldSends.templateId], email, user[Users.language], firstName, token)
+            Claimed(sendId, userId, row[FieldSends.templateId], row[FieldSends.lessonId], email, user[Users.language], firstName, token)
         } ?: return false
 
         val template = s.templates.load(claimed.templateId, claimed.language)
@@ -183,7 +223,14 @@ class FieldScheduler(private val s: Services) {
         val mail = s.templates.render(template, claimed.firstName, clickUrl, settingsUrl)
         return try {
             s.mailer.send(claimed.email, mail.subject, mail.text, mail.html)
-            s.db.tx { emitEvent(claimed.userId, EventTypes.FIELD_SENT, fieldPayload(claimed.sendId, claimed.templateId), now) }
+            s.db.tx {
+                emitEvent(
+                    claimed.userId,
+                    EventTypes.FIELD_SENT,
+                    fieldPayload(claimed.sendId, claimed.templateId, claimed.lessonId),
+                    now,
+                )
+            }
             log.info("field send {} sent", claimed.sendId)
             true
         } catch (e: Exception) {
@@ -193,6 +240,64 @@ class FieldScheduler(private val s: Services) {
                     it[sentAt] = null
                     it[tokenHash] = null
                     it[scheduledAt] = (now + 60.seconds).toOdt()
+                }
+            }
+            false
+        }
+    }
+
+    private suspend fun sendReminder(sendId: String, now: Instant): Boolean {
+        val claimed = s.db.tx {
+            val eligible = (FieldSends.id eq sendId) and
+                FieldSends.sentAt.isNotNull() and FieldSends.clickedAt.isNotNull() and
+                FieldSends.reportedAt.isNull() and FieldSends.cancelledAt.isNull() and
+                FieldSends.remindedAt.isNull() and FieldSends.remindAt.isNotNull() and
+                (FieldSends.remindAt lessEq now.toOdt())
+            val row = FieldSends.selectAll().where { eligible }.singleOrNull() ?: return@tx null
+            val lessonId = row[FieldSends.lessonId]
+            if (!hasLesson(lessonId)) {
+                log.warn("field reminder {} skipped: invalid lesson id", sendId)
+                return@tx null
+            }
+            val user = Users.selectAll().where { Users.id eq row[FieldSends.userId] }.singleOrNull() ?: return@tx null
+            val updated = FieldSends.update({ eligible }) { it[remindedAt] = now.toOdt() }
+            if (updated != 1) return@tx null
+            val email = user[Users.email]
+            val profile = UserData.profile(user)
+            val firstName = (user[Users.firstName] ?: profile.firstName)?.trim()?.takeIf { it.isNotEmpty() }
+                ?: Codes.localPart(email)
+            ReminderClaim(
+                sendId = sendId,
+                userId = row[FieldSends.userId],
+                templateId = row[FieldSends.templateId],
+                lessonId = lessonId,
+                email = email,
+                language = user[Users.language],
+                firstName = firstName,
+            )
+        } ?: return false
+
+        val template = s.templates.load("lesson-reminder-01", claimed.language)
+        val settingsUrl = s.config.appPublicUrl + "#/settings"
+        val lessonUrl = s.config.appPublicUrl + "#/lesson/${claimed.lessonId}/0"
+        val mail = s.templates.render(template, claimed.firstName, "", settingsUrl, lessonUrl)
+        return try {
+            s.mailer.send(claimed.email, mail.subject, mail.text, mail.html)
+            s.db.tx {
+                emitEvent(
+                    claimed.userId,
+                    EventTypes.FIELD_REMINDED,
+                    fieldPayload(claimed.sendId, claimed.templateId, claimed.lessonId),
+                    now,
+                )
+            }
+            log.info("field reminder {} sent", claimed.sendId)
+            true
+        } catch (e: Exception) {
+            log.error("field reminder {} failed ({}); retrying next poll", claimed.sendId, e.javaClass.simpleName)
+            s.db.tx {
+                FieldSends.update({ (FieldSends.id eq claimed.sendId) and (FieldSends.remindedAt eq now.toOdt()) }) {
+                    it[remindedAt] = null
                 }
             }
             false

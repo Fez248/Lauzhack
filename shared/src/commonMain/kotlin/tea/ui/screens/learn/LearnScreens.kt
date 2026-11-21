@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.stringResource
 import tea.app.Screen
 import tea.app.TeaApp
+import tea.app.AppState
 import tea.generated.resources.Res
 import tea.generated.resources.practice_title
 import tea.model.Item
@@ -52,6 +53,12 @@ fun PlacementResultScreen(app: TeaApp) {
 }
 
 /** Renders section [section] of lesson [id], including the practice and readiness sections. */
+@Composable
+fun LessonScreen(app: AppState, id: String, section: Int) {
+    val field by app.field.collectAsState()
+    LessonContent(app, id, section, pending = id in field.pendingGotchas)
+}
+
 @Composable
 fun LessonScreen(app: TeaApp, id: String, section: Int) {
     LessonContent(app, id, section)

@@ -31,6 +31,9 @@ sealed interface Screen {
     /** [section] = index into Lesson.sections. */
     data class Lesson(val id: String, val section: Int = 0) : Screen
 
+    /** A field-intercept interview for the send tied to [lessonId]. */
+    data class Gotcha(val sendId: String, val lessonId: String) : Screen
+
     /** A free "Practise again" section outside a lesson; [focusWeakest] is set from the Reveal screen. */
     data class Practice(val focusWeakest: Boolean = false) : Screen
     data object PracticeSummary : Screen

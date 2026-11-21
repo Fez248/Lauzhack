@@ -75,7 +75,9 @@ class ContentValidationTest {
         File(contentDir, "field").listFiles { f -> f.extension == "json" }.orEmpty().forEach { f ->
             try {
                 val t = TeaJson.decodeFromString(FieldTemplate.serializer(), f.readText())
-                if ("{{click_url}}" !in t.text) problems += "field/${f.name}: text has no {{click_url}}"
+                if ("{{lesson_url}}" !in t.text && "{{click_url}}" !in t.text) {
+                    problems += "field/${f.name}: text has no {{click_url}}"
+                }
                 if ("{{settings_url}}" !in t.text) problems += "field/${f.name}: text has no {{settings_url}}"
             } catch (e: Exception) {
                 problems += "field/${f.name}: cannot parse: ${e.message}"

@@ -1,7 +1,7 @@
 package tea.app
 
 /**
- * Screen <-> URL hash (plan §9.1), e.g. `#/home`, `#/lesson/email-01/2`, `#/reveal/<token>`.
+ * Screen <-> URL hash (plan §9.1), e.g. `#/home`, `#/lesson/email-01/2`, `#/gotcha/<sendId>`.
  * The email address of [Screen.Code] is never put in the URL: `#/code` maps back to the address
  * waiting for its code.
  */
@@ -19,6 +19,7 @@ object Routes {
         Screen.PlacementResult -> "/placement/result"
         Screen.Home -> "/home"
         is Screen.Lesson -> "/lesson/${screen.id}/${screen.section}"
+        is Screen.Gotcha -> "/gotcha/${screen.sendId}"
         is Screen.Practice -> if (screen.focusWeakest) "/practice/focus" else "/practice"
         Screen.PracticeSummary -> "/practice/summary"
         is Screen.Reveal -> "/reveal/${screen.token}"
@@ -29,7 +30,11 @@ object Routes {
     }
 
     /** Parses a hash (with or without '#'); null when it names no screen. */
-    fun parse(hash: String, pendingEmail: String? = null): Screen? {
+    fun parse(
+        hash: String,
+        pendingEmail: String? = null,
+        pendingGotchas: Map<String, String> = emptyMap(),
+    ): Screen? {
         val parts = hash.removePrefix("#").trim('/').split('/').filter { it.isNotEmpty() }
         if (parts.isEmpty()) return null
         val rest = parts.drop(1)
@@ -49,6 +54,9 @@ object Routes {
             }
             "home" -> Screen.Home
             "lesson" -> rest.firstOrNull()?.let { Screen.Lesson(it, rest.getOrNull(1)?.toIntOrNull()?.coerceAtLeast(0) ?: 0) }
+            "gotcha" -> rest.firstOrNull()?.let { sendId ->
+                pendingGotchas.entries.firstOrNull { it.value == sendId }?.key?.let { Screen.Gotcha(sendId, it) }
+            }
             "practice" -> when (rest.firstOrNull()) {
                 null -> Screen.Practice()
                 "focus" -> Screen.Practice(focusWeakest = true)
@@ -63,6 +71,9 @@ object Routes {
             else -> null
         }
     }
+
+    fun isGotchaRoute(hash: String): Boolean =
+        hash.removePrefix("#").trim('/').split('/').firstOrNull() == "gotcha"
 
     /** Registration screens: not reachable by URL once the terms are accepted. */
     fun isRegistration(screen: Screen): Boolean = when (screen) {

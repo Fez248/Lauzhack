@@ -204,4 +204,51 @@
     <string name="summary_practise_again">Practicar otra vez</string>
     <string name="summary_continue">Continuar</string>
     <string name="summary_empty">Todavía no hay resumen de práctica.</string>
+    <!-- Repaso de práctica -->
+    <string name="gotcha_header">La prueba de práctica de Spider</string>
+    <string name="gotcha_title">Mira lo que hicimos</string>
+    <string name="gotcha_intro">Antes de la lección, Spider quiere enseñarte algo.</string>
+    <string name="gotcha_role">Un mensaje de práctica de Spider</string>
+    <string name="gotcha_loading">Cargando el mensaje de práctica…</string>
+    <string name="gotcha_load_failed">Ahora no puedo recuperar el mensaje. Puedes intentarlo de nuevo o continuar con la lección.</string>
+    <string name="gotcha_not_found">Este repaso de práctica ya no está disponible. Puedes continuar con la lección.</string>
+    <string name="gotcha_retry">Intentar de nuevo</string>
+    <string name="gotcha_continue">Continuar con la lección</string>
+    <string name="gotcha_spider_open">Te mandé algo. Míralo bien.</string>
+    <string name="gotcha_email_heading">¿Conoces este correo?</string>
+    <string name="gotcha_recognition_question">¿Te suena? ¿Te pareció real?</string>
+    <string name="gotcha_yes">Sí, lo conozco. Parecía real</string>
+    <string name="gotcha_no">No, nunca lo había visto</string>
+    <string name="gotcha_yes_spider">¡Ajá! Caíste en la trampa. Hiciste clic en mi enlace. Yo te envié ese correo: era una trampa de práctica.</string>
+    <string name="gotcha_fact_clicked">Hiciste clic %1$s.</string>
+    <string name="gotcha_fact_email">El correo: «%1$s»</string>
+    <string name="gotcha_fact_gave">Lo que me diste: un clic, y sé que funcionó. Eso es todo lo que necesita un estafador real para empezar.</string>
+    <string name="gotcha_no_spider">¿Nunca lo habías visto? Llegó a tu bandeja de entrada y se hizo clic en el enlace %1$s. Entonces, ¿por qué funcionó contigo?</string>
+    <string name="gotcha_reason_question">¿Por qué crees que funcionó?</string>
+    <string name="gotcha_reason_who">Confié en quien parecía enviarlo</string>
+    <string name="gotcha_reason_emotion">Me hizo sentir que tenía que actuar rápido</string>
+    <string name="gotcha_reason_ask">Lo que pedía parecía normal</string>
+    <string name="gotcha_reason_verify">No lo comprobé por otro medio</string>
+    <string name="gotcha_no_spider_who">Tomé prestado un nombre conocido. El remitente real es la primera pista.</string>
+    <string name="gotcha_no_spider_emotion">Intenté meterte prisa. Una pausa te da tiempo para pensar.</string>
+    <string name="gotcha_no_spider_ask">Hice que una petición pequeña pareciera normal. Veamos qué pide.</string>
+    <string name="gotcha_no_spider_verify">Me escondí tras mi propio enlace. Comprueba por un canal que tú elijas.</string>
+    <string name="gotcha_steps_heading">Tus cuatro comprobaciones</string>
+    <string name="gotcha_hints_heading">Una pista para recordar</string>
+    <string name="gotcha_time_just_now">ahora mismo</string>
+    <string name="gotcha_time_yesterday">ayer</string>
+    <string name="gotcha_time_earlier">hace un tiempo</string>
+    <plurals name="gotcha_time_minutes_ago">
+        <item quantity="one">hace %1$d minuto</item>
+        <item quantity="other">hace %1$d minutos</item>
+    </plurals>
+    <plurals name="gotcha_time_hours_ago">
+        <item quantity="one">hace %1$d hora</item>
+        <item quantity="other">hace %1$d horas</item>
+    </plurals>
+    <plurals name="gotcha_time_days_ago">
+        <item quantity="one">hace %1$d día</item>
+        <item quantity="other">hace %1$d días</item>
+    </plurals>
+    <string name="lesson_pending_label">Repaso de práctica pendiente</string>
 </resources>

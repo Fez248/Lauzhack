@@ -108,6 +108,7 @@ import tea.ui.components.ScreenColumn
 import tea.ui.components.SectionHeading
 import tea.ui.components.StepBar
 import tea.ui.components.TeaButton
+import tea.ui.screens.LessonPendingPill
 import tea.ui.components.TeaButtonVariant
 import tea.ui.components.TeaCard
 import tea.ui.components.TeaDialog
@@ -137,7 +138,7 @@ private sealed interface Loaded<out T> {
  * `navigate(Screen.Lesson(id, n))`; after the last section, back to Home.
  */
 @Composable
-fun LessonContent(app: TeaApp, id: String, section: Int) {
+fun LessonContent(app: TeaApp, id: String, section: Int, pending: Boolean = false) {
     val lang by app.lang.collectAsState()
     val loaded by produceState<Loaded<Lesson>>(Loaded.Loading, id, lang) {
         value = Loaded.Done(runCatching { app.content.lesson(id, lang) }.getOrNull())
@@ -162,7 +163,7 @@ fun LessonContent(app: TeaApp, id: String, section: Int) {
             return@Column
         }
         val index = section.coerceIn(0, lesson.sections.lastIndex)
-        LessonProgress(lesson, index)
+        LessonProgress(lesson, index, pending)
         key(index) {
             LessonSectionView(app, lesson, index, Modifier.weight(1f))
         }
@@ -175,13 +176,20 @@ fun goToSection(app: TeaApp, lesson: Lesson, n: Int) {
 }
 
 @Composable
-private fun LessonProgress(lesson: Lesson, index: Int) {
-    Box(Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 4.dp), contentAlignment = Alignment.Center) {
-        StepBar(
-            lesson.sections.map { sectionTitle(it) },
-            index,
-            Modifier.widthIn(max = TeaSize.maxContentWidth).fillMaxWidth().padding(horizontal = TeaSpacing.s2),
-        )
+private fun LessonProgress(lesson: Lesson, index: Int, pending: Boolean) {
+    Column(
+        Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(TeaSpacing.s1),
+    ) {
+        if (pending) LessonPendingPill()
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            StepBar(
+                lesson.sections.map { sectionTitle(it) },
+                index,
+                Modifier.widthIn(max = TeaSize.maxContentWidth).fillMaxWidth().padding(horizontal = TeaSpacing.s2),
+            )
+        }
     }
 }
 

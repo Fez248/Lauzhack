@@ -27,5 +27,7 @@ class ConfigTest {
         assertEquals("http://localhost:8081/", c.appPublicUrl)
         assertEquals("http://localhost:8080", c.apiPublicUrl)
         assertEquals(emptyList(), c.allowedOrigins)
+        assertEquals(300, c.fieldRemindDelayS)
+        assertEquals(0, Config.fromEnv(mapOf("FIELD_REMIND_DELAY_S" to "0")).fieldRemindDelayS)
     }
 }

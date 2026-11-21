@@ -12,10 +12,12 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
+import org.jetbrains.exposed.v1.jdbc.update
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import tea.model.AdminCancelRequest
 import tea.model.ApiError
+import tea.model.GotchaResponse
 import tea.model.ReadinessRequest
 import tea.model.ReadinessResponse
 import tea.model.RevealResponse
@@ -25,6 +27,7 @@ import tea.model.StepKey
 import tea.model.StoredEvent
 import tea.server.db.FieldSends
 import tea.server.db.Users
+import tea.server.db.toOdt
 
 class FieldTest {
     private suspend fun TestCtx.press(token: String, lesson: String = "email-01") =
@@ -136,6 +139,111 @@ class FieldTest {
         assertEquals("practice-email-01", reveal.templateId)
         assertEquals(StepKey.entries.toSet(), reveal.steps.keys)
         assertEquals(HttpStatusCode.NotFound, get("/field/reveal/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA").status)
+    }
+
+    @Test
+    fun clickedSendHasOwnAuthenticatedGotchaResponseWithoutToken() = teaTest {
+        val s = register("jane.doe@mail.example")
+        val other = register("other@example.test")
+        acceptTerms(s.token)
+        press(s.token)
+        services.field.tick()
+        val sendId = services.db.txBlocking { FieldSends.selectAll().single()[FieldSends.id] }
+
+        assertEquals(HttpStatusCode.Unauthorized, get("/me/field/sends/$sendId").status)
+        assertEquals(HttpStatusCode.NotFound, get("/me/field/sends/$sendId", other.token).status)
+        assertEquals(HttpStatusCode.NotFound, get("/me/field/sends/$sendId", s.token).status)
+
+        val token = clickToken()
+        get("/f/c/$token")
+        val r = get("/me/field/sends/$sendId", s.token)
+        assertEquals(HttpStatusCode.OK, r.status)
+        val response = decode<GotchaResponse>(r.bodyText())
+        assertEquals(sendId, response.sendId)
+        assertEquals("email-01", response.lessonId)
+        assertTrue("(practice link)" in response.text)
+        assertTrue("(settings)" in response.text)
+        assertFalse(token in response.text)
+        assertFalse(token in response.subject)
+        val clicked = decode<List<StoredEvent>>(get("/me/events?type=field_*", s.token).bodyText()).first()
+        assertEquals("email-01", clicked.payload["lesson_id"]?.toString()?.trim('"'))
+    }
+
+    @Test
+    fun clickedSendGetsOneReminderWithLessonLink() = teaTest(
+        contentDir = contentDir(mapOf(
+            "field/lesson-reminder-01.en.json" to """
+                {"id":"lesson-reminder-01","subject":"Lesson reminder",
+                 "text":"Continue here: {{lesson_url}}; manage: {{settings_url}}"}
+            """.trimIndent(),
+            "lessons/email-01/lesson.en.json" to "{}",
+        )),
+        fieldRemindDelayS = 10,
+    ) {
+        val s = register()
+        mailer.sent.clear()
+        acceptTerms(s.token)
+        press(s.token)
+        services.field.tick()
+        get("/f/c/${clickToken()}")
+        services.db.txBlocking {
+            assertNotNull(FieldSends.selectAll().single()[FieldSends.remindAt])
+            assertEquals(null, FieldSends.selectAll().single()[FieldSends.remindedAt])
+        }
+
+        clock.advance(9.seconds)
+        assertEquals(0, services.field.tick())
+        clock.advance(1.seconds)
+        assertEquals(1, services.field.tick())
+        assertEquals(2, mailer.sent.size)
+        val reminder = mailer.sent.last()
+        assertEquals("Lesson reminder", reminder.subject)
+        assertTrue("https://app.example/tea/#/lesson/email-01/0" in reminder.text)
+        assertTrue("https://app.example/tea/#/settings" in reminder.text)
+        assertEquals(0, services.field.tick())
+        assertEquals(2, mailer.sent.size)
+        assertEquals(
+            listOf("field_reminded", "field_clicked", "field_sent", "field_scheduled"),
+            fieldEvents(s.token),
+        )
+        services.db.txBlocking { assertNotNull(FieldSends.selectAll().single()[FieldSends.remindedAt]) }
+    }
+
+    @Test
+    fun reportOrCancellationBeforeReminderSuppressesIt() = teaTest(
+        contentDir = contentDir(mapOf(
+            "field/lesson-reminder-01.en.json" to """
+                {"id":"lesson-reminder-01","subject":"Lesson reminder","text":"{{lesson_url}}"}
+            """.trimIndent(),
+            "lessons/email-01/lesson.en.json" to "{}",
+        )),
+        fieldRemindDelayS = 10,
+    ) {
+        val s = register()
+        mailer.sent.clear()
+        acceptTerms(s.token)
+        press(s.token)
+        services.field.tick()
+        get("/f/c/${clickToken()}")
+        client.post("/me/field/report") { bearerAuth(s.token) }
+        clock.advance(10.seconds)
+        assertEquals(0, services.field.tick())
+        assertEquals(1, mailer.sent.size)
+
+        val second = register("second@example.test")
+        mailer.sent.removeAll { it.to == "second@example.test" }
+        acceptTerms(second.token)
+        press(second.token)
+        services.field.tick()
+        get("/f/c/${clickToken()}")
+        services.db.txBlocking {
+            FieldSends.update({ FieldSends.userId eq second.userId }) {
+                it[FieldSends.cancelledAt] = clock.now().toOdt()
+            }
+        }
+        clock.advance(10.seconds)
+        assertEquals(0, services.field.tick())
+        assertEquals(2, mailer.sent.size)
     }
 
     @Test

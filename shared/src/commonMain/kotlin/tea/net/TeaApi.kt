@@ -14,6 +14,7 @@ import tea.model.MasteryState
 import tea.model.PasswordAttemptResponse
 import tea.model.Profile
 import tea.model.ReadinessResponse
+import tea.model.GotchaResponse
 import tea.model.RevealResponse
 import tea.model.SettingsResponse
 import tea.model.SignalsRequest
@@ -73,4 +74,5 @@ interface TeaApi {
     suspend fun readiness(lessonId: String): ApiResult<ReadinessResponse>
     suspend fun reportField(): ApiResult<Unit>
     suspend fun reveal(token: String): ApiResult<RevealResponse>
+    suspend fun gotcha(sendId: String): ApiResult<GotchaResponse>
 }

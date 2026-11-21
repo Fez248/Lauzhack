@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import tea.model.BodyBlock
 import tea.model.EmailContent
+import tea.model.GotchaResponse
 import tea.model.Hotspot
 import tea.model.Mood
 import tea.model.Persona
@@ -63,6 +64,7 @@ import tea.ui.components.TeaProgressBar
 import tea.ui.components.TeaTextField
 import tea.ui.components.UrlTooltip
 import tea.ui.components.VoiceLine
+import tea.ui.screens.GotchaContent
 import tea.ui.components.ScreenColumn
 import tea.ui.theme.TeaShapes
 import tea.ui.theme.TeaSize
@@ -112,6 +114,55 @@ fun ColumnScope.GalleryContent(now: Instant = Clock.System.now()) {
     NoticeSection()
     SpiderSection()
     EmailSection(now)
+    GotchaSection(now)
+}
+
+@Composable
+private fun GotchaSection(now: Instant) {
+    SectionHeading(
+        "Gotcha interview",
+        intro = "Recognition, reason choices, and both completed answer branches, shown without the reminder-email flow.",
+    )
+    val sample = GotchaResponse(
+        sendId = "gallery-send",
+        lessonId = "email-01",
+        templateId = "gallery-sample",
+        clickedAt = now,
+        subject = "A quick check about your account",
+        text = "Please review the practice page. This message is for the design gallery.",
+        steps = mapOf(
+            StepKey.WHO to "Check the real sender, not only the display name.",
+            StepKey.EMOTION to "Notice whether the message is trying to rush you.",
+            StepKey.ASK to "Pause and identify exactly what it asks you to do.",
+            StepKey.VERIFY to "Check through a route you choose yourself.",
+        ),
+        hints = listOf("A familiar name is not proof of who sent a message."),
+    )
+    GotchaContent(
+        data = sample,
+        clickedWhen = "just now",
+        answer = "yes",
+        scrollEnabled = false,
+        animateTransition = false,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    GotchaContent(
+        data = sample,
+        clickedWhen = "just now",
+        answer = "no",
+        scrollEnabled = false,
+        animateTransition = false,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    GotchaContent(
+        data = sample,
+        clickedWhen = "just now",
+        answer = "no",
+        reason = "who",
+        scrollEnabled = false,
+        animateTransition = false,
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
 
 @Composable

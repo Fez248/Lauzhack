@@ -205,4 +205,51 @@
     <string name="summary_practise_again">Practise again</string>
     <string name="summary_continue">Continue</string>
     <string name="summary_empty">There's no practice summary yet.</string>
+    <!-- Gotcha interview -->
+    <string name="gotcha_header">Spider's practice check</string>
+    <string name="gotcha_title">Look what we did</string>
+    <string name="gotcha_intro">Before the lesson, Spider has something to show you.</string>
+    <string name="gotcha_role">A practice message from Spider</string>
+    <string name="gotcha_loading">Loading the practice message…</string>
+    <string name="gotcha_load_failed">I can’t fetch the message right now. You can retry or continue to the lesson.</string>
+    <string name="gotcha_not_found">This practice check is no longer available. You can continue to the lesson.</string>
+    <string name="gotcha_retry">Try again</string>
+    <string name="gotcha_continue">Continue to lesson</string>
+    <string name="gotcha_spider_open">I sent you a little something. Take a good look.</string>
+    <string name="gotcha_email_heading">Do you know this email?</string>
+    <string name="gotcha_recognition_question">Does it sound familiar? Did it look real to you?</string>
+    <string name="gotcha_yes">Yes, I know it. It looked real</string>
+    <string name="gotcha_no">No, I've never seen it</string>
+    <string name="gotcha_yes_spider">Aha! You fell for it. You clicked my link. I sent you that email: it was a practice trap.</string>
+    <string name="gotcha_fact_clicked">You clicked it %1$s.</string>
+    <string name="gotcha_fact_email">The email: “%1$s”</string>
+    <string name="gotcha_fact_gave">What you gave me: one click, and I know it worked. That's all a real scammer needs to start.</string>
+    <string name="gotcha_no_spider">Never seen it? It landed in your inbox, and the link was clicked %1$s. So why did it work on you?</string>
+    <string name="gotcha_reason_question">Why do you think it worked?</string>
+    <string name="gotcha_reason_who">I trusted who it seemed to come from</string>
+    <string name="gotcha_reason_emotion">It made me feel I had to act fast</string>
+    <string name="gotcha_reason_ask">What it asked for seemed normal</string>
+    <string name="gotcha_reason_verify">I didn't check it another way</string>
+    <string name="gotcha_no_spider_who">I borrowed a familiar name. The real sender is the first clue.</string>
+    <string name="gotcha_no_spider_emotion">I tried to rush you. A pause gives you room to think.</string>
+    <string name="gotcha_no_spider_ask">I made a small request seem ordinary. Let’s check what it asks.</string>
+    <string name="gotcha_no_spider_verify">I hid behind my own link. Check through a route you control.</string>
+    <string name="gotcha_steps_heading">Your four checks</string>
+    <string name="gotcha_hints_heading">A clue to keep</string>
+    <string name="gotcha_time_just_now">just now</string>
+    <string name="gotcha_time_yesterday">yesterday</string>
+    <string name="gotcha_time_earlier">some time ago</string>
+    <plurals name="gotcha_time_minutes_ago">
+        <item quantity="one">%1$d minute ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <plurals name="gotcha_time_hours_ago">
+        <item quantity="one">%1$d hour ago</item>
+        <item quantity="other">%1$d hours ago</item>
+    </plurals>
+    <plurals name="gotcha_time_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <string name="lesson_pending_label">Practice check waiting</string>
 </resources>

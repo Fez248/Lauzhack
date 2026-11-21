@@ -30,6 +30,7 @@ import kotlinx.serialization.json.JsonObject
  *  GET    /leaderboard?period=week|all -> LeaderboardResponse                     (optional session)
  *  POST   /me/readiness                ReadinessRequest -> ReadinessResponse               (session)
  *  POST   /me/field/report             -> 204                                              (session)
+ *  GET    /me/field/sends/{sendId}     -> GotchaResponse                                  (session)
  *  GET    /f/c/{token}                 -> 302 APP_PUBLIC_URL#/reveal/{token}
  *  GET    /field/reveal/{token}        -> RevealResponse
  *  POST   /admin/field/cancel          AdminCancelRequest -> 204            (header X-Admin-Key)
@@ -120,6 +121,19 @@ data class ReadinessResponse(val scheduled: Boolean, val reason: String? = null)
 @Serializable
 data class RevealResponse(
     val templateId: String,
+    val steps: Map<StepKey, String> = emptyMap(),
+    val hints: List<String> = emptyList(),
+)
+
+/** Safe, rendered practice-email facts for the signed-in learner's gotcha interview. */
+@Serializable
+data class GotchaResponse(
+    val sendId: String,
+    val lessonId: String,
+    val templateId: String,
+    val clickedAt: Instant,
+    val subject: String,
+    val text: String,
     val steps: Map<StepKey, String> = emptyMap(),
     val hints: List<String> = emptyList(),
 )
