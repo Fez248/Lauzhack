@@ -16,7 +16,10 @@ data class Config(
     val databasePassword: String = "",
     /** Exact origins allowed by CORS, besides any http://localhost:* / http://127.0.0.1:* */
     val allowedOrigins: List<String> = emptyList(),
-    /** Base of the web app, used in links inside emails (e.g. https://org.github.io/repo/). */
+    /**
+     * Base of the web app, used in links inside emails (e.g. https://org.github.io/repo/). The
+     * default is the wasm dev server (`:composeApp:wasmJsBrowserDevelopmentRun`, pinned to 8081).
+     */
     val appPublicUrl: String = "http://localhost:8081/",
     /** Base of this API as seen from the outside (tunnel URL), used for click links inside emails. */
     val apiPublicUrl: String = "http://localhost:8080",

@@ -14,6 +14,11 @@ kotlin {
         browser {
             commonWebpackConfig {
                 outputFileName = "composeApp.js"
+                // The dev server always takes 8081: 8080 is the Ktor server, and the server's default
+                // APP_PUBLIC_URL (practice-email reveal and settings links) is http://localhost:8081/.
+                // Unpinned, webpack takes 8080 when it starts first and the API cannot start.
+                devServer = (devServer ?: org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.DevServer())
+                    .apply { port = 8081 }
             }
         }
         binaries.executable()
