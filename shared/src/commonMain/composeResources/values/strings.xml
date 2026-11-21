@@ -191,6 +191,7 @@
     <string name="home_goal">Daily goal: %1$d minutes</string>
     <string name="home_leaderboard">Leaderboard</string>
     <string name="home_about">What we know about you</string>
+    <string name="home_boardroom">Challenge: Boardroom crisis</string>
     <string name="home_settings">Settings</string>
     <string name="home_suspicious">Got a suspicious email?</string>
     <string name="home_suspicious_body">If it came from us, well done for checking. If not, it could be a real scam: let's go through the four steps.</string>
