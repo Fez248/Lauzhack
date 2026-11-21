@@ -24,7 +24,7 @@
     "verify": "reverse_image_search"
   },
   "image": {
-    "file": "img/br-image-01.png",
+    "file": "br-image-01.png",
     "alt": "An illustration of a market stall with a striped roof, a sign, a pile of fruit and a person holding out one hand. One hand has six fingers.",
     "ai_generated": true,
     "tells": [

@@ -24,7 +24,7 @@
     "verify": "reverse_image_search"
   },
   "image": {
-    "file": "img/br-image-01.png",
+    "file": "br-image-01.png",
     "alt": "Une illustration d'un étal de marché avec un toit rayé, une enseigne, un tas de fruits et une personne qui tend une main. Une des mains a six doigts.",
     "ai_generated": true,
     "tells": [

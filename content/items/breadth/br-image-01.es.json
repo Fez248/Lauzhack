@@ -24,7 +24,7 @@
     "verify": "reverse_image_search"
   },
   "image": {
-    "file": "img/br-image-01.png",
+    "file": "br-image-01.png",
     "alt": "Una ilustración de un puesto de mercado con toldo a rayas, un cartel, un montón de fruta y una persona que extiende una mano. Una de las manos tiene seis dedos.",
     "ai_generated": true,
     "tells": [
