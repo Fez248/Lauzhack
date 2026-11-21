@@ -12,6 +12,9 @@ Branch: `nathann` · Last updated: 2026-11-21
 - New idea written up: [docs/onboarding-and-field-mode.md](../onboarding-and-field-mode.md)
   (onboarding questions, placement test, opt-in field mode with practice scams by real email/SMS).
   Two PROPOSED decisions, TASKS #27–30.
+- Tech stack set as a requirement: Kotlin Multiplatform + Compose. Web/desktop = simulator + drills,
+  phone = drills only. See [docs/tech-stack.md](../tech-stack.md).
+- Merged Ferran's `Fez248/storytelling` branch (docs/info.md) into `nathann`.
 
 ## In progress
 - Getting team agreement on the idea (TASKS.md #1).
@@ -30,5 +33,8 @@ Branch: `nathann` · Last updated: 2026-11-21
   30 Nov deadline, 2nd-pillar central office) need checking against official sources.
 - To everyone: field mode (practice scams sent to your real inbox) needs your opinion, especially
   the safety rules. Would you opt in for the live demo? Two study citations marked ⚠ need checking.
+
+- To everyone: the app must be in Kotlin (docs/tech-stack.md). Who already knows Kotlin/Compose?
+  Who has a Mac for the iOS build?
 
 ## Answers

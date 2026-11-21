@@ -7,7 +7,7 @@ Areas: engine, phone-ui, content-seniors, content-ngo, content-ch, ai-pipeline, 
 | # | Task | Area | Owner | Status |
 |---|---|---|---|---|
 | 1 | Team agrees on the idea and target challenges (update decisions.md) | pitch | all | todo |
-| 2 | Pick the tech stack (web app framework, hosting) and scaffold the project | engine | | todo |
+| 2 | Scaffold the Kotlin Multiplatform + Compose project (stack decided: [docs/tech-stack.md](docs/tech-stack.md)); pick hosting for the web build | engine | | todo |
 | 3 | Finalise the scenario JSON format (`content/scenarios/_example.json`) | engine | | todo |
 | 4 | Engine: per-step mastery tracking and fading of step prompts | engine | | todo |
 | 5 | Drills for each of the four steps | engine | | todo |
