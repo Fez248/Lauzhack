@@ -49,6 +49,10 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.ktor.client.okhttp)
         }
+        jvmTest.dependencies {
+            // Skiko native runtime, for off-screen rendering in tests (tea.ui.Screenshots).
+            implementation(compose.desktop.currentOs)
+        }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
         }
