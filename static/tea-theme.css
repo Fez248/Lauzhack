@@ -525,6 +525,75 @@ html:has(.card-dialog[open]) { overflow: hidden; }
 
 
 /* ---------------------------------------------------------------------
+   Active learning: hunt, spot check, recovery plan, quiz retries
+   --------------------------------------------------------------------- */
+
+/* Spider's hunt: click the tricks in the email before he explains them */
+[data-decoy] { transition: background .2s, box-shadow .2s; border-radius: 4px; }
+.email.hunting [data-flag], .email.hunting [data-decoy] { cursor: pointer; }
+.email.hunting [data-flag]:not(.is-found):hover, .email.hunting [data-decoy]:hover { background: #fff6bf; box-shadow: 0 0 0 3px #fff6bf; }
+.email [data-flag].is-found { background: var(--highlight); box-shadow: 0 0 0 3px var(--highlight); color: #000; }
+.email [data-flag].is-missed { background: #ffd0d7; box-shadow: 0 0 0 3px #ffd0d7, 0 0 0 5px var(--spider); color: #000; }
+.email [data-decoy].is-nope { background: #ffd0d7; box-shadow: 0 0 0 3px #ffd0d7; }
+.hunt-bar { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-bottom: .8rem; color: var(--web-soft); font-size: var(--t-sm); }
+.hunt-bar .spacer { flex: 1; }
+.hunt-msg { font-family: var(--font-spider); font-style: italic; font-weight: 600; font-size: 1.25rem; line-height: 1.35; color: var(--web-ink); min-height: 2.7em; margin-bottom: .8rem; }
+.flag-btn.is-locked { cursor: default; border-style: dashed; opacity: .8; }
+.flag-btn.is-locked:hover { border-color: var(--web-line); }
+.trap-link { display: inline-block; margin-top: .6rem; font-family: var(--font-body); font-weight: 700; font-size: var(--t-sm); color: #fff; }
+
+/* Spot check: two fresh emails, safe or phish */
+.practice { margin-top: var(--s-4); padding: var(--s-3); }
+.practice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--s-3); margin-top: 1.25rem; align-items: start; }
+.spot .email { margin-bottom: .9rem; }
+.spot-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+.btn.is-right { background: var(--turtle-soft); border-color: var(--ok); }
+.btn.is-wrong { background: var(--spider-soft); border-color: var(--bad); }
+.btn:disabled { cursor: default; transform: none; }
+.btn:disabled:hover { box-shadow: var(--stick-sm); }
+
+/* Recovery plan (Turtle) */
+.recovery { margin-top: var(--s-4); }
+.recovery .top { padding: 1.4rem 1.5rem 1.2rem; background: var(--v-soft); display: grid; gap: 1rem; }
+.checklist { list-style: none; margin: 0; padding: 1.2rem 1.5rem; border-top: 2px dashed var(--rule); display: grid; gap: .7rem; }
+.checklist label { display: flex; gap: .85rem; align-items: flex-start; cursor: pointer; padding: .8rem 1rem; border: 2px solid var(--rule); border-radius: var(--r-md); transition: border-color .15s, background .15s; }
+.checklist label:hover { border-color: var(--ink); }
+.checklist label:has(input:checked) { border-color: var(--ok); background: var(--turtle-soft); }
+.checklist input { margin-top: .3rem; accent-color: var(--turtle-deep); width: 1.15rem; height: 1.15rem; flex: none; }
+.checklist b { display: block; font-family: var(--font-turtle); font-size: 1.08rem; }
+.recovery-progress { padding: 0 1.5rem 1.4rem; color: var(--v-deep); font-weight: 600; }
+
+/* Quiz artifacts: the thing being judged, shown as it would really look */
+.q-artifact { margin-bottom: 1.1rem; }
+.q-artifact .email { max-width: 34rem; }
+.q-note { color: var(--ink-soft); font-size: var(--t-sm); font-weight: 600; margin: -.4rem 0 .8rem; }
+.chat-mock { display: flex; gap: .8rem; max-width: 34rem; padding: .8rem 1rem; background: #fff; border: 2px solid #000; border-radius: var(--r-md); box-shadow: 3px 3px 0 #000; }
+.chat-mock .pic { width: 2.4rem; height: 2.4rem; flex: none; border-radius: 8px; background: #7c3aed; color: #fff; display: grid; place-items: center; font-weight: 800; font-size: .85rem; }
+.chat-mock .role-tag { font-size: var(--t-xs); font-weight: 700; background: var(--rule); border-radius: 4px; padding: 0 .35rem; margin-left: .25rem; }
+.chat-mock time { color: var(--ink-soft); font-size: var(--t-xs); margin-left: .5rem; }
+.sms-mock { max-width: 22rem; background: #e7ebf4; border: 2px solid #000; border-radius: 18px 18px 18px 4px; padding: .8rem 1rem; font-size: .98rem; }
+.option-row.opt-mono span { font-family: var(--font-mono); font-size: .95rem; word-break: break-all; }
+.option-row:has(input:disabled) { cursor: default; }
+.option-row:has(input:disabled):hover { border-color: var(--rule); }
+.option-row.is-right:hover, .option-row.is-right:has(input:disabled):hover { border-color: var(--ok); }
+.option-row.is-wrong:hover, .option-row.is-wrong:has(input:disabled):hover { border-color: var(--bad); }
+.option-row.is-wrong span { text-decoration: line-through; text-decoration-color: var(--bad); }
+.q-warn { color: var(--bad-deep); font-weight: 700; font-size: var(--t-sm); margin-top: .6rem; }
+
+/* Hints, review links and the quiz buttons */
+.feedback.is-hint .verdict { color: var(--cat-deep); }
+.review-row { display: block; margin-top: .6rem; }
+.review-link {
+    font-family: var(--font-body); font-style: normal; font-weight: 700; font-size: var(--t-sm); cursor: pointer;
+    color: var(--ink); background: var(--card); border: 2px solid var(--line); border-radius: 999px; padding: .25rem .8rem;
+}
+.review-link:hover { background: var(--highlight); }
+.rules li.is-ref { background: var(--highlight); box-shadow: 0 0 0 6px var(--highlight); border-radius: 4px; }
+.quiz-actions { display: flex; gap: .8rem; flex-wrap: wrap; }
+.quiz-actions .btn { flex: 1; font-size: 1.1rem; padding: 1rem; }
+
+
+/* ---------------------------------------------------------------------
    7. Utilities, motion, responsive
    --------------------------------------------------------------------- */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
