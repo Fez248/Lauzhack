@@ -175,4 +175,29 @@ class AuthTest {
         assertNull(no.headers[HttpHeaders.AccessControlAllowOrigin])
         assertNotNull(ok)
     }
+
+    @Test
+    fun devOverrideCodeVerifiesWhenEnabled() = teaTest(devVerifyCode = "426769") {
+        val email = "dev@b.example"
+        post("/auth/start", null, StartRequest(email))
+        assertEquals(HttpStatusCode.OK, post("/auth/verify", null, VerifyRequest(email, "426769")).status)
+    }
+
+    @Test
+    fun devOverrideCodeIsRejectedWhenDisabled() = teaTest {
+        val email = "dev@b.example"
+        post("/auth/start", null, StartRequest(email))
+        if (mailer.lastCodeFor(email) != "426769") {
+            assertEquals("invalid_code", decode<ApiError>(post("/auth/verify", null, VerifyRequest(email, "426769")).bodyText()).error)
+        }
+    }
+
+    @Test
+    fun devOverrideDefaultsOnOnlyWithoutSmtp() {
+        assertEquals("426769", Config.fromEnv(emptyMap()).devVerifyCode)
+        assertEquals("426769", Config.fromEnv(mapOf("DEV_VERIFY_CODE" to "")).devVerifyCode)
+        assertEquals("", Config.fromEnv(mapOf("SMTP_PASSWORD" to "x")).devVerifyCode)
+        assertEquals("", Config.fromEnv(mapOf("DEV_VERIFY_CODE" to "off")).devVerifyCode)
+        assertEquals("111111", Config.fromEnv(mapOf("SMTP_PASSWORD" to "x", "DEV_VERIFY_CODE" to "111111")).devVerifyCode)
+    }
 }

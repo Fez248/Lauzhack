@@ -39,10 +39,19 @@ data class Config(
     /** false disables the per-email / per-IP rate limits (tests, local demo). */
     val rateLimitsEnabled: Boolean = true,
     val version: String = "dev",
+    /**
+     * DEBUG ONLY. When not blank, this code is accepted by POST /auth/verify in place of the emailed
+     * one (a code must still have been requested with /auth/start and not be expired).
+     * From the environment (DEV_VERIFY_CODE) it defaults to "426769" while no SMTP password is set
+     * (ConsoleMailer, dev) and to disabled as soon as real mail is configured.
+     */
+    val devVerifyCode: String = "",
 ) {
     val smtpEnabled: Boolean get() = smtpPassword.isNotBlank()
 
     companion object {
+        const val DEV_VERIFY_CODE_DEFAULT = "426769"
+
         fun fromEnv(env: Map<String, String> = System.getenv()): Config {
             fun s(key: String, default: String = "") = env[key]?.trim()?.takeIf { it.isNotEmpty() } ?: default
             fun i(key: String, default: Int) = env[key]?.trim()?.toIntOrNull() ?: default
@@ -68,6 +77,8 @@ data class Config(
                 contentDir = s("CONTENT_DIR", d.contentDir),
                 rateLimitsEnabled = s("RATE_LIMITS", "on").lowercase() !in setOf("off", "false", "0", "no"),
                 version = s("APP_VERSION", d.version),
+                devVerifyCode = (env["DEV_VERIFY_CODE"]?.trim()?.takeIf { it.isNotEmpty() } ?: if (s("SMTP_PASSWORD").isEmpty()) DEV_VERIFY_CODE_DEFAULT else "")
+                    .takeIf { it.lowercase() !in setOf("off", "false", "no", "0") } ?: "",
             )
         }
     }

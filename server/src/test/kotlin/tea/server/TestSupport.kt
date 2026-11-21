@@ -68,7 +68,8 @@ class FakePwned(private val known: Map<String, Int> = emptyMap()) : PwnedClient 
     }
 }
 
-fun testConfig(contentDir: String = "does-not-exist", rateLimits: Boolean = false) = Config(
+fun testConfig(contentDir: String = "does-not-exist", rateLimits: Boolean = false, devVerifyCode: String = "") = Config(
+    devVerifyCode = devVerifyCode,
     databaseUrl = "jdbc:h2:mem:test-${UUID.randomUUID()};DB_CLOSE_DELAY=-1",
     appPublicUrl = "https://app.example/tea/",
     apiPublicUrl = "https://api.example",
@@ -130,13 +131,14 @@ fun teaTest(
     rateLimits: Boolean = false,
     pwned: FakePwned = FakePwned(),
     startScheduler: Boolean = false,
+    devVerifyCode: String = "",
     block: suspend TestCtx.() -> Unit,
 ) = testApplication {
     val mailer = FakeMailer()
     val clock = FakeClock()
     lateinit var services: Services
     application {
-        services = module(testConfig(contentDir, rateLimits), mailer, clock, pwned, startScheduler)
+        services = module(testConfig(contentDir, rateLimits, devVerifyCode), mailer, clock, pwned, startScheduler)
     }
     startApplication()
     val client = createClient {

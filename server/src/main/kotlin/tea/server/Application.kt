@@ -75,6 +75,9 @@ fun Application.module(
         log.warn("CODE_PEPPER is not set: using a random pepper (codes sent before a restart stop working)")
         Crypto.newToken()
     }
+    if (config.devVerifyCode.isNotBlank()) {
+        log.warn("DEBUG: the override verification code is ENABLED (DEV_VERIFY_CODE). Set DEV_VERIFY_CODE=off or configure SMTP_PASSWORD before real use.")
+    }
     val theMailer = mailer ?: if (config.smtpEnabled) SmtpMailer(config) else ConsoleMailer().also {
         log.warn("SMTP_PASSWORD is not set: mails are printed to the log (ConsoleMailer, dev only)")
     }
