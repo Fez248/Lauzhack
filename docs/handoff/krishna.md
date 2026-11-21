@@ -80,6 +80,13 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
   true`, and the `(user_id, site_id)` unique index. Someone with Docker should still run the compose
   stack against real Postgres before the demo; the command is in the README.
 
+- **Clicked the drill through in a browser** against the compose stack (web profile, Caddy at
+  :8081 proxying /api to the server, real Postgres behind it). Registration, the disclosure card,
+  catLand's sign-up, the live meter (red with the site-name reason, green with the positive line),
+  account creation and the manager nudge, the family card on dogLand, and the debrief all render and
+  behave correctly. The debrief reads "We cannot show you the passwords, because we did not keep
+  them" over two rows of findings and the family link, which is the lesson landing as intended.
+
 ## In progress
 
 - Nothing. The code is on my branch and all three `decisions.md` entries are AGREED, including the
@@ -136,6 +143,16 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
 - To nathann: `VAULT_CHALLENGE_DELAY_S` defaults to 60 s so the login drill fits a live demo, matching
   what `FIELD_DELAY_*` does for the practice email. Real spacing is hours. Say if you want a different
   demo number.
+- To nathann or nicholas (whoever owns `TeaButton`): **a primary button renders near-black with grey
+  text while a text field on the same screen has focus**, even though it is enabled and works when
+  clicked. Seen on the email step and on every drill sign-up screen: the button is green when the
+  field is empty and goes dark as soon as you type, which reads as "disabled" exactly when it has
+  become usable. I nearly filed it as a broken drill before noticing Enter submitted fine. It is in
+  the shared component, not my screens, so I have not touched it — but it is on the registration
+  path, so every judge will meet it in the first ten seconds.
+- To nathann: the terms summary ("What we store, in short") does not mention the drill's practice
+  accounts, and §9.2 says the summary covers what we store. I added three stored things. Want me to
+  add a line to it and to `terms_body`, or will you fold it into the next terms version?
 - To nicholas: lesson 2 wants the same shape as your lesson 1 template (rule cards, then tool cards).
   Anything in `static/tea-theme.css` I should know about before I reuse your sign-up/form styling for
   the five fake sites?
