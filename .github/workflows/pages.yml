@@ -1,5 +1,6 @@
-# wasm build → GitHub Pages (plan §15). Requires Settings → Pages → Source: GitHub Actions,
-# and a repository variable API_URL (the backend/tunnel URL written into config.json).
+# wasm build → GitHub Pages (plan §15), an optional mirror of the self-hosted web app.
+# Requires Settings → Pages → Source: GitHub Actions. Optional repository variable API_URL: the
+# production API (https://<domain>/api) written into config.json; empty → guest only.
 name: Pages
 
 on:

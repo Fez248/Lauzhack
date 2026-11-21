@@ -37,7 +37,11 @@ val ServicesKey = AttributeKey<Services>("tea.services")
 
 val ApplicationCall.services: Services get() = application.attributes[ServicesKey]
 
-/** First X-Forwarded-For hop when behind the tunnel, else the socket peer. Used for rate limits only. */
+/**
+ * First X-Forwarded-For hop when behind the reverse proxy (Caddy overwrites the header with the real
+ * client address), else the socket peer. Used for rate limits only. In production the app port is
+ * never published, so the header cannot be set by a client directly.
+ */
 fun ApplicationCall.clientIp(): String =
     request.headers["X-Forwarded-For"]?.substringBefore(',')?.trim()?.takeIf { it.isNotEmpty() }
         ?: request.origin.remoteHost
