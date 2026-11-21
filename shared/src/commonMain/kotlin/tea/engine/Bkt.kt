@@ -71,6 +71,14 @@ object Bkt {
      * ([countsAsCorrect]). With [support] `WORKED` nothing changes. Does not touch [MasteryState.support]
      * (see [Scaffold.withSupport]) nor the VERDICT difficulty level.
      */
+    /**
+     * A worked example was studied (support `WORKED`): no evidence and no attempt counted, only the
+     * BKT learning transition `p + (1 - p)·LEARN`. This is what lets a step leave WORKED: from
+     * p = 0.20 two worked examples reach PROMPTED (0.35), from p = 0.10 three do.
+     */
+    fun studied(state: MasteryState, now: Instant): MasteryState =
+        state.copy(p = (state.p + (1 - state.p) * LEARN).coerceIn(0.0, 1.0), updatedAt = now)
+
     fun observe(state: MasteryState, correct: Boolean, guess: Double, support: Support, now: Instant): MasteryState {
         if (support == Support.WORKED) return state
         return state.copy(

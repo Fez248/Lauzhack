@@ -179,7 +179,7 @@
     <string name="practice_gentle_not_quite">Easy to miss</string>
     <string name="practice_gentle_line">These emails are made by people whose job is to fool others. Every one you look at closely makes the next one easier.</string>
     <string name="practice_dog_intro">If this happens for real, here's what to do now, buddy!</string>
-    <string name="practice_dog_generic">If this happens for real: stop, don't type anything more, and change your password on the real site. Then tell someone you trust. You've got this!</string>
+    <string name="practice_dog_generic">If this happens for real, buddy: stop, and don't type or pay anything more. Gave a password? Change it on the real site, typed in yourself. Paid or shared card details? Call your bank on the number on your card. Then tell someone you trust. You've got this!</string>
     <string name="practice_link_unchecked">Link not yet checked</string>
     <string name="practice_open">Open</string>
 
