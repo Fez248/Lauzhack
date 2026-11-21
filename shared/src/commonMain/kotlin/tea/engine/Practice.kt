@@ -232,7 +232,12 @@ object Practice {
 
         for (step in StepKey.entries) {
             val support = answer.support[step] ?: Scaffold.supportMap(item, mastery).getValue(step)
-            if (support == Support.WORKED) continue
+            if (support == Support.WORKED) {
+                // No evidence, but the worked example is a learning opportunity: without this a step
+                // below 0.35 could never leave WORKED (found in the end-to-end run).
+                m[step.skill] = Scaffold.withSupport(Bkt.studied(m.getValue(step.skill), now))
+                continue
+            }
             val content = item.steps[step]
             val (raw, guess) = when {
                 content != null && answer.stepChoices.containsKey(step) ->

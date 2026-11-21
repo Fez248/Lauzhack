@@ -58,10 +58,27 @@ class BktScaffoldTest {
     fun workedGivesNoEvidence() {
         val out = apply(right(support = StepKey.entries.associateWith { Support.WORKED }))
         for (step in StepKey.entries) {
-            assertEquals(0.5, out.mastery.getValue(step.skill).p)
+            // No evidence (no attempt, no unaided, not in stepCorrect), only the learning transition.
+            close(0.5 + 0.5 * Bkt.LEARN, out.mastery.getValue(step.skill).p)
             assertEquals(0, out.mastery.getValue(step.skill).attempts)
+            assertEquals(0, out.mastery.getValue(step.skill).unaided)
         }
+        assertTrue(out.stepCorrect.isEmpty())
         assertEquals(1, out.mastery.getValue(Skill.VERDICT).attempts) // verdict still counts
+    }
+
+    /** Regression (end-to-end run): a step under 0.35 stayed WORKED forever because WORKED gave no update at all. */
+    @Test
+    fun workedExamplesLeadToPrompted() {
+        var mastery = Fx.mastery(0.2).mapValues { (_, m) -> m.copy(support = Scaffold.levelFor(m.p)) }
+        val worked = StepKey.entries.associateWith { Support.WORKED }
+        var rounds = 0
+        while (mastery.getValue(Skill.EMOTION).support == Support.WORKED) {
+            mastery = apply(right(support = worked), mastery).mastery
+            assertTrue(++rounds <= 3, "still WORKED after $rounds worked examples")
+        }
+        assertEquals(2, rounds)
+        assertEquals(Support.PROMPTED, mastery.getValue(Skill.EMOTION).support)
     }
 
     @Test
