@@ -60,3 +60,63 @@ compose.resources {
     packageOfResClass = "tea.generated.resources"
     generateResClass = always
 }
+
+// ---------------------------------------------------------------------------------------------
+// Content bundling (mvp0-plan §3.1). Compose resources cannot list directories, so we copy
+// /content into composeResources/files/content/ (gitignored) and write an index.json.
+// `Sync` deletes files of removed items. Validation runs as a jvm test (ContentValidationTest);
+// pass -Pstrict=true to turn missing translations into errors.
+// ---------------------------------------------------------------------------------------------
+val contentRoot: File = rootProject.file("content")
+val contentLanguagesFile: File = File(contentRoot, "languages.txt")
+
+val syncContent = tasks.register<Sync>("syncContent") {
+    group = "build"
+    description = "Copies /content items, lessons and resources.json into composeResources/files/content."
+    val outDir = layout.projectDirectory.dir("src/commonMain/composeResources/files/content").asFile
+    into(outDir)
+    from(File(contentRoot, "items")) { into("items") }
+    from(File(contentRoot, "lessons")) { into("lessons") }
+    from(File(contentRoot, "resources/resources.json"))
+    inputs.file(contentLanguagesFile).withPropertyName("languages")
+    doLast {
+        val languages = contentLanguagesFile.readLines().map { it.trim() }
+            .filter { it.isNotEmpty() && !it.startsWith("#") }
+        val fileName = Regex("""^(.+)\.([a-z]{2,3}(?:-[A-Za-z]{2})?)\.json$""")
+        val itemsDir = File(outDir, "items")
+        val items = itemsDir.walkTopDown()
+            .filter { it.isFile && it.parentFile.name != "img" }
+            .mapNotNull { f ->
+                val m = fileName.matchEntire(f.name) ?: return@mapNotNull null
+                if (m.groupValues[1].startsWith("_")) return@mapNotNull null
+                val kindDir = f.parentFile.relativeTo(itemsDir).invariantSeparatorsPath
+                "$kindDir/${m.groupValues[1]}"
+            }
+            .distinct().sorted().toList()
+        val lessons = (File(outDir, "lessons").listFiles() ?: emptyArray())
+            .filter { d -> d.isDirectory && (d.listFiles()?.any { it.name.startsWith("lesson.") } == true) }
+            .map { it.name }.sorted()
+        fun arr(xs: List<String>) = xs.joinToString(",", "[", "]") { "\"$it\"" }
+        File(outDir, "index.json").writeText(
+            "{\n  \"items\": ${arr(items)},\n  \"lessons\": ${arr(lessons)},\n  \"languages\": ${arr(languages)}\n}\n"
+        )
+    }
+}
+
+// Every Compose resource task reads composeResources/, so all of them must run after the sync.
+tasks.matching {
+    it.name == "generateComposeResClass" ||
+        it.name.startsWith("prepareComposeResourcesTaskFor") ||
+        it.name.startsWith("convertXmlValueResourcesFor") ||
+        it.name.startsWith("copyNonXmlValueResourcesFor") ||
+        it.name.startsWith("generateResourceAccessorsFor")
+}.configureEach { dependsOn(syncContent) }
+
+// Content validation (plan §7.3) through ContentValidationTest.
+tasks.withType<Test>().matching { it.name == "jvmTest" }.configureEach {
+    val strict = (findProperty("strict")?.toString() ?: "false")
+    systemProperty("tea.contentDir", contentRoot.absolutePath)
+    systemProperty("tea.strict", strict)
+    inputs.property("teaStrict", strict)
+    inputs.dir(contentRoot).withPropertyName("teaContent").withPathSensitivity(PathSensitivity.RELATIVE)
+}

@@ -1,0 +1,17 @@
+{
+  "id": "practice-email-01",
+  "subject": "Placeholder practice email: replace before the demo",
+  "text": "Hello {{first_name}},\n\nPlaceholder practice email: replace before the demo.\n\nPractice link: {{click_url}}\n\nManage ThisIsTea emails: {{settings_url}}\n",
+  "html": "<p>Hello {{first_name}},</p>\n<p>Placeholder practice email: replace before the demo.</p>\n<p><a href=\"{{click_url}}\">Practice link</a></p>\n<p style=\"font-size:12px;color:#666\"><a href=\"{{settings_url}}\">Manage ThisIsTea emails</a></p>\n",
+  "reveal": {
+    "steps": {
+      "who": "Placeholder: who really sent the practice email.",
+      "emotion": "Placeholder: the feeling it tried to create.",
+      "ask": "Placeholder: what it asked you to do.",
+      "verify": "Placeholder: how you could have checked through a channel you control."
+    },
+    "hints": [
+      "Placeholder hint: replace before the demo."
+    ]
+  }
+}

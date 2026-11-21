@@ -1,0 +1,92 @@
+{
+  "id": "email-01",
+  "language": "en",
+  "title": "Phishing emails",
+  "subtitle": "Placeholder lesson: Nicholas's copy replaces this text.",
+  "minutes": 10,
+  "sections": [
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Personal",
+          "title": "Placeholder: Cat's rules for your own inbox",
+          "say": "Placeholder: three habits that keep your own accounts safe.",
+          "rules": [
+            { "headline": "Check who is writing", "body": "Placeholder: look at the address, not just the name." },
+            { "headline": "Notice the pressure", "body": "Placeholder: urgency and fear are tools, not facts." },
+            { "headline": "Check on your own", "body": "Placeholder: open the app or website yourself, never through the email." }
+          ],
+          "sign_off": "Placeholder: Cat"
+        },
+        {
+          "persona": "turtle",
+          "role": "Organisation",
+          "title": "Placeholder: Turtle's rules for work and volunteering",
+          "say": "Placeholder: three habits that protect the people you work with.",
+          "rules": [
+            { "headline": "Slow down on payments", "body": "Placeholder: confirm any change of bank details by phone." },
+            { "headline": "Protect shared accounts", "body": "Placeholder: never share codes, even with colleagues." },
+            { "headline": "Report, do not hide", "body": "Placeholder: tell someone as soon as something looks wrong." }
+          ],
+          "sign_off": "Placeholder: Turtle"
+        }
+      ]
+    },
+    {
+      "type": "tools",
+      "intro": "Placeholder: Dog's free tools for checking things yourself.",
+      "tools": [
+        { "resource_id": "hibp", "name": "Have I Been Pwned", "what": "Placeholder: check whether your email appeared in a data breach.", "dog_says": "Placeholder: worth a look once a year.", "button": "Open" },
+        { "resource_id": "2fa-directory", "name": "2FA Directory", "what": "Placeholder: see which services support two-step login.", "dog_says": "Placeholder: turn it on for your email first.", "button": "Open" },
+        { "resource_id": "urlscan", "name": "urlscan.io", "what": "Placeholder: see where a link leads without opening it.", "dog_says": "Placeholder: paste the link, not your password.", "button": "Open" }
+      ]
+    },
+    {
+      "type": "attacks",
+      "hunt": {
+        "item_id": "email-bank-login-01",
+        "intro": "Placeholder: Spider dares you to find three tricks in this email.",
+        "flags": [
+          { "hotspot_id": "hs-from-address", "title": "The lookalike sender", "spider_says": "Placeholder: I picked an address that looks close enough." },
+          { "hotspot_id": "hs-deadline", "title": "The deadline", "spider_says": "Placeholder: thirty minutes, so you would not stop to check." },
+          { "hotspot_id": "hs-link", "title": "The link", "spider_says": "Placeholder: the button text and the real address do not match." }
+        ],
+        "debrief": "Placeholder: Spider's summary of the three tricks."
+      },
+      "recovery": {
+        "title_caught": "Placeholder: you clicked, here is what to do now",
+        "lead_caught": "Placeholder: it happens to everyone. Work through these steps.",
+        "title_default": "Placeholder: if you ever click",
+        "lead_default": "Placeholder: keep these steps in mind.",
+        "steps": [
+          { "headline": "Change your password", "body": "Placeholder: from the real app or website, typed in yourself." },
+          { "headline": "Call your bank", "body": "Placeholder: use the number on the back of your card." },
+          { "headline": "Report it", "body": "Placeholder: tell your provider and the national reporting service." }
+        ]
+      }
+    },
+    {
+      "type": "status",
+      "question": "Placeholder: how sure do you feel about spotting phishing emails now?",
+      "levels": [
+        { "key": "LOW", "label": "Still unsure", "persona": "turtle", "reply": "Placeholder: that is fine, practice will help." },
+        { "key": "MEDIUM", "label": "Getting there", "persona": "cat", "reply": "Placeholder: good, let's make it a habit." },
+        { "key": "HIGH", "label": "Confident", "persona": "spider", "reply": "Placeholder: we will see about that." }
+      ]
+    },
+    {
+      "type": "practice",
+      "count": 8,
+      "focus": [],
+      "end_with_held_out": true
+    },
+    {
+      "type": "readiness",
+      "prompt": "Want to test yourself for real? We'll send one practice phishing email to {{email}} at a random moment in the next few minutes. It will look like a real scam but it is harmless and never asks for a password. See if you spot it.",
+      "button": "Yes, send me one",
+      "done": "Done. Keep an eye on your inbox, and use the four steps."
+    }
+  ]
+}
