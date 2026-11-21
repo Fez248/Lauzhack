@@ -46,6 +46,10 @@ Branch: `nathann` · Last updated: 2026-11-21
   lesson, fading practice, held-out item, leaderboard, opt-in, practice email in the console, click,
   reveal, pause, guest mode then sync). Web build loaded in a headless browser. Android APK builds.
 - Debug code `426769` for email verification while no SMTP password is set (decisions.md).
+- Screenshot doc: `.github/workflows/screenshots.yml` + `scripts/screenshot_doc.py` build a README of
+  every pane (artifact on every run, `screenshots` branch on main). `PanesRenderTest` renders each
+  `Screen` through the real app shell (compile error if a new screen is missing). It found and I fixed
+  a crash: the Gallery's inline dialog card nested a vertical scroll inside the screen's scroll.
 
 ## In progress
 - Getting team agreement on the idea (TASKS.md #1).
