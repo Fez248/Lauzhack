@@ -66,10 +66,11 @@
                 <div class="step-no">1</div>
                 <h2>Content</h2>
             </div>
-            <p class="section-intro">Two ideas cover most of phishing. Cat starts with you; Turtle widens it to everyone you work with.</p>
+            <p class="section-intro">Two ideas cover most of phishing. Cat starts with you; Turtle widens it to everyone you work with. Tap a card to read it up close.</p>
 
             <div class="grid-2">
                 <article class="card lesson-card voice-cat">
+                    <button type="button" class="expand-btn" aria-label="Read Cat's card larger">⤢</button>
                     <div class="top">
                         <div class="char-tag">
                             <span class="avatar" aria-hidden="true">🐱</span>
@@ -87,6 +88,7 @@
                 </article>
 
                 <article class="card lesson-card voice-turtle">
+                    <button type="button" class="expand-btn" aria-label="Read Turtle's card larger">⤢</button>
                     <div class="top">
                         <div class="char-tag">
                             <span class="avatar" aria-hidden="true">🐢</span>
@@ -293,6 +295,23 @@
         </div>
     </footer>
 
+    <!-- Enlarged lesson card -->
+    <dialog id="cardDialog" class="card-dialog" aria-label="Lesson card">
+        <button type="button" class="dialog-close" aria-label="Close" onclick="document.getElementById('cardDialog').close()">×</button>
+        <div id="cardDialogSlot"></div>
+    </dialog>
+
+    <!-- Corner guide: the section's character pops up and speaks -->
+    <aside class="buddy" id="buddy" data-voice="cat" aria-label="Your guide">
+        <div class="say buddy-bubble">
+            <button type="button" class="buddy-close" id="buddyClose" aria-label="Dismiss">×</button>
+            <span class="buddy-name" id="buddyName"></span>
+            <span class="buddy-text" aria-hidden="true"><span class="ghost" id="buddyGhost"></span><span class="typed" id="buddyTyped"></span></span>
+        </div>
+        <span class="buddy-avatar" id="buddyAvatar" aria-hidden="true"></span>
+    </aside>
+    <p class="sr-only" id="buddyLive" aria-live="polite"></p>
+
     <script>
         // Characters: one place for the emoji of each voice
         const CHARACTERS = {
@@ -440,11 +459,120 @@
             banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        // 5. Progress bar follows the scroll position
+        // 5. Content cards open larger in a dialog
+        (function () {
+            const dialog = document.getElementById('cardDialog');
+            const slot = document.getElementById('cardDialogSlot');
+
+            function openCard(card) {
+                const big = card.cloneNode(true);
+                big.classList.remove('is-expandable');
+                big.classList.add('is-big');
+                big.querySelector('.expand-btn').remove();
+                slot.replaceChildren(big);
+                dialog.setAttribute('aria-label', card.querySelector('.char-title').textContent);
+                dialog.showModal();
+                big.scrollTop = 0;
+            }
+
+            document.querySelectorAll('#content .lesson-card').forEach(card => {
+                card.classList.add('is-expandable');
+                card.addEventListener('click', () => openCard(card));
+            });
+
+            // Click on the dimmed backdrop closes it (Esc works natively)
+            dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
+        })();
+
+        // 6. Corner guide: what each character says when you reach their section
+        const SECTION_LINES = {
+            content: [
+                { voice: 'cat',    text: "Two ideas, two of us. Tap a card if you want to read it up close. I'll wait." },
+                { voice: 'turtle', text: "Take your time, dear. Mine is the one about everyone around you." }
+            ],
+            tools: [
+                { voice: 'dog',    text: "These are my buddies! All free. Try one on a link you're not sure about!" }
+            ],
+            attacks: [
+                { voice: 'spider', text: "Ah, my favourite part. Let me show you exactly how I did it..." }
+            ],
+            status: [
+                { voice: 'turtle', text: "There's no wrong answer here. Just tell us honestly how you feel." }
+            ],
+            answers: [
+                { voice: 'cat',    text: "Three questions. Answer them. I'll check every one." }
+            ]
+        };
+
+        const Buddy = (function () {
+            const el = document.getElementById('buddy');
+            const nameEl = document.getElementById('buddyName');
+            const ghost = document.getElementById('buddyGhost');
+            const typed = document.getElementById('buddyTyped');
+            const avatar = document.getElementById('buddyAvatar');
+            const live = document.getElementById('buddyLive');
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            let timers = [];
+
+            function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+            function stop() { timers.forEach(clearTimeout); timers = []; el.classList.remove('is-talking'); }
+
+            function hide() { stop(); el.classList.remove('is-in'); }
+
+            // Pop in and type out one line, then call done after a pause long enough to read it
+            function say(line, done) {
+                const c = CHARACTERS[line.voice];
+                el.dataset.voice = line.voice;
+                avatar.textContent = c.emoji;
+                nameEl.textContent = c.name;
+                ghost.textContent = line.text;
+                typed.textContent = '';
+                live.textContent = c.name + ': ' + line.text;
+                el.classList.add('is-in');
+
+                const hold = Math.max(4000, line.text.length * 55);
+                if (reduceMotion) {
+                    typed.textContent = line.text;
+                    later(done, hold);
+                    return;
+                }
+                el.classList.add('is-talking');
+                let n = 0;
+                (function tick() {
+                    typed.textContent = line.text.slice(0, ++n);
+                    if (n < line.text.length) later(tick, 26);
+                    else { el.classList.remove('is-talking'); later(done, hold); }
+                })();
+            }
+
+            // Play a section's lines in order; swapping character pops the old one out first
+            function play(lines) {
+                stop();
+                let i = 0;
+                (function next() {
+                    if (i >= lines.length) { el.classList.remove('is-in'); return; }
+                    const line = lines[i++];
+                    const visible = el.classList.contains('is-in');
+                    if (visible) {
+                        el.classList.remove('is-in');
+                        later(() => say(line, next), 280);
+                    } else {
+                        say(line, next);
+                    }
+                })();
+            }
+
+            document.getElementById('buddyClose').addEventListener('click', hide);
+            return { play, hide };
+        })();
+
+        // 7. Progress bar follows the scroll position; a new section wakes its character
         (function () {
             const ids = ['content', 'tools', 'attacks', 'status', 'answers'];
             const links = {};
             document.querySelectorAll('#steps a').forEach(a => links[a.dataset.step] = a);
+            let lastCurrent = null;
+            let pending = null;
             function update() {
                 const mid = window.scrollY + window.innerHeight * 0.35;
                 let current = -1;
@@ -456,6 +584,15 @@
                     links[id].classList.toggle('done', i < current);
                     links[id].classList.toggle('current', i === current);
                 });
+                if (current !== lastCurrent) {
+                    lastCurrent = current;
+                    // Wait until the reader settles, so jumping across sections doesn't fire every character
+                    clearTimeout(pending);
+                    pending = setTimeout(() => {
+                        if (current === -1) Buddy.hide();
+                        else Buddy.play(SECTION_LINES[ids[current]]);
+                    }, 450);
+                }
             }
             window.addEventListener('scroll', update, { passive: true });
             update();

@@ -441,6 +441,88 @@ fieldset { margin: 0; min-width: 0; }
 .score .num { font-family: var(--font-display); font-weight: 800; font-size: 2.2rem; line-height: 1; white-space: nowrap; }
 .score .say { flex: 1; }
 
+/* Expandable lesson card: click to read it larger in a dialog */
+.lesson-card { position: relative; }
+.lesson-card.is-expandable { cursor: zoom-in; transition: transform .15s, box-shadow .15s; }
+.lesson-card.is-expandable:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+.expand-btn {
+    position: absolute; top: .9rem; right: .9rem; z-index: 1;
+    width: 2.2rem; height: 2.2rem; border-radius: 50%; border: var(--border);
+    background: var(--card); color: var(--ink); box-shadow: var(--stick-sm);
+    display: grid; place-items: center; font-size: 1.05rem; font-weight: 700; line-height: 1; cursor: zoom-in;
+    transition: transform .12s, box-shadow .12s;
+}
+.lesson-card.is-expandable:hover .expand-btn { transform: scale(1.08); }
+.lesson-card.is-expandable .char-tag { padding-right: 2.5rem; }
+
+.card-dialog {
+    padding: 0; border: 0; background: transparent; color: var(--ink); overflow: visible;
+    width: min(46rem, calc(100vw - 2rem)); max-width: none; max-height: none;
+}
+.card-dialog::backdrop { background: rgba(17, 27, 58, .6); backdrop-filter: blur(4px); }
+.card-dialog[open] { animation: dialog-pop .28s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes dialog-pop { from { opacity: 0; transform: translateY(1.5rem) scale(.94); } }
+html:has(.card-dialog[open]) { overflow: hidden; }
+.dialog-close {
+    position: absolute; top: .9rem; right: .9rem; z-index: 2;
+    width: 2.6rem; height: 2.6rem; border-radius: 50%; border: var(--border);
+    background: var(--card); color: var(--ink); box-shadow: var(--stick-sm);
+    display: grid; place-items: center; font-size: 1.5rem; line-height: 1; cursor: pointer;
+}
+.dialog-close:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+
+.lesson-card.is-big { max-height: calc(100dvh - 2rem); overflow-y: auto; box-shadow: 8px 8px 0 var(--ink); }
+.lesson-card.is-big .top { padding: 2rem 4.5rem 1.6rem 2.2rem; gap: 1.3rem; }
+.lesson-card.is-big .char-tag .avatar { width: 4.2rem; height: 4.2rem; font-size: 2.2rem; }
+.lesson-card.is-big .char-tag .name { font-size: 1.35rem; }
+.lesson-card.is-big .char-tag .role { font-size: 1rem; }
+.lesson-card.is-big .char-title { font-size: clamp(1.8rem, 4.5vw, 2.5rem); }
+.lesson-card.is-big .say { font-size: calc(var(--v-size) * 1.25); padding: 1.1rem 1.4rem; }
+.lesson-card.is-big .rules { padding: 1.8rem 2.2rem; }
+.lesson-card.is-big .rules li { font-size: 1.2rem; padding-left: 3rem; margin-bottom: 1.4rem; }
+.lesson-card.is-big .rules li::before { width: 2.1rem; height: 2.1rem; font-size: 1.05rem; }
+.lesson-card.is-big .rules li b { font-size: 1.3rem; margin-bottom: .15rem; }
+.lesson-card.is-big .sign-off { padding: 0 2.2rem 2rem; font-size: calc(var(--v-size) * 1.2); }
+
+/* Corner guide: the character for the section in view pops up and speaks */
+.buddy {
+    position: fixed; z-index: 30;
+    right: calc(1rem + env(safe-area-inset-right, 0px));
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    display: flex; align-items: flex-end; gap: .9rem;
+    pointer-events: none; visibility: hidden; opacity: 0;
+    transform: translateY(1.5rem) scale(.9); transform-origin: bottom right;
+    transition: opacity .22s, transform .3s cubic-bezier(.3, 1.6, .5, 1), visibility 0s linear .3s;
+}
+.buddy.is-in { opacity: 1; transform: none; visibility: visible; pointer-events: auto; transition-delay: 0s; }
+.buddy-bubble {
+    width: min(20rem, calc(100vw - 7rem)); padding-right: 2.2rem;
+    box-shadow: var(--stick);
+}
+.buddy-bubble::after {   /* tail pointing at the avatar */
+    content: ""; position: absolute; right: -10px; bottom: 1.4rem; width: 16px; height: 16px;
+    background: inherit; border-top: var(--border); border-right: var(--border); transform: rotate(45deg);
+}
+.buddy-name { display: block; font-family: var(--v-font); font-style: normal; font-weight: 700; font-size: var(--t-sm); color: var(--v-deep); margin-bottom: .15rem; }
+[data-voice="spider"] .buddy-name { color: var(--web-soft); }
+.buddy-text { display: grid; }
+.buddy-text > span { grid-area: 1 / 1; }          /* ghost reserves the final size, typed text sits on top */
+.buddy-text .ghost { visibility: hidden; }
+.buddy.is-talking .typed::after { content: "▍"; opacity: .45; }
+.buddy-close {
+    position: absolute; top: .35rem; right: .45rem; width: 1.7rem; height: 1.7rem;
+    border: 0; background: none; color: inherit; opacity: .55; cursor: pointer;
+    font-size: 1.15rem; line-height: 1; border-radius: 50%;
+}
+.buddy-close:hover { opacity: 1; }
+.buddy-avatar {
+    width: 3.6rem; height: 3.6rem; flex: none; border-radius: 50%; border: var(--border);
+    background: var(--v-accent); box-shadow: var(--stick-sm);
+    display: grid; place-items: center; font-size: 1.9rem;
+}
+.buddy.is-talking .buddy-avatar { animation: buddy-talk .18s ease-in-out infinite alternate; }
+@keyframes buddy-talk { to { transform: translateY(-4px) rotate(-5deg); } }
+
 
 /* ---------------------------------------------------------------------
    7. Utilities, motion, responsive
@@ -463,6 +545,13 @@ fieldset { margin: 0; min-width: 0; }
     .guide .role { display: none; }
     .guide { padding: .8rem; }
     .speaker .char-tag .avatar { width: 2.4rem; height: 2.4rem; font-size: 1.25rem; }
+    .lesson-card.is-big .top { padding: 1.4rem 4rem 1.2rem 1.3rem; }
+    .lesson-card.is-big .rules { padding: 1.3rem; }
+    .lesson-card.is-big .rules li { font-size: 1.08rem; padding-left: 2.6rem; }
+    .lesson-card.is-big .sign-off { padding: 0 1.3rem 1.4rem; }
+    .buddy-avatar { width: 3rem; height: 3rem; font-size: 1.55rem; }
+    .buddy-bubble { width: calc(100vw - 6rem); }
+    .buddy .say { font-size: calc(var(--v-size) * .92); }
 }
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
