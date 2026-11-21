@@ -15,7 +15,7 @@ only in `.env`.
 
 ## Goal
 
-A learner opens the web app ("Tea"), creates an account with a **verified email**, answers a few
+A learner opens the web app ("ThisIsTea"), creates an account with a **verified email**, answers a few
 profile questions, takes a ~3-minute **adaptive placement test**, then enters lesson 1 (email
 phishing). Inside the lesson they practise on emails, Duolingo-style, with **four-step prompts that
 fade per step** as they master them. Everything we learn about the learner is stored, so later
@@ -25,10 +25,14 @@ the learner's own behaviour as teaching material.
 Other parts, built by other agents. Do not implement them, but respect the contracts:
 - **Part 3:** lesson 1 theory and structure (Content → Tools → Attacks → Status → Answers, see
   `static/lesson-01-phishing.html`).
-- **Part 5:** sends the learner a real practice-phishing email (lookalike of our own domain) before
-  lesson 1, and reports what happened through the events table (C1).
-- **Assets:** persona art and story (docs/characters.md): Cat (she, personal security), Turtle (she,
-  organisational security), Dog (he, free tools), Spider (he, the attacker).
+- **Part 5:** after the learner presses the end-of-lesson readiness button, sends them one real
+  **opt-in practice-awareness email from a plain Gmail address** (`thisistea@gmail.com`, **no custom
+  or look-alike domain**). For MVP 0 it is **click-only**: we record only whether the email was opened
+  and whether its link was clicked; there is no sign-in page and no credentials are ever collected.
+  It reports through the events table (C1). (A practice sign-in step may be added in a later loop.)
+- **Assets:** persona art and the four-character design system (docs/characters.md, guide-rules.md,
+  static/tea-theme.css): Cat (she, personal security), Turtle (she, organisational security),
+  Dog (he, free tools), Spider (he, the attacker). Each has a fixed colour, font and bubble shape.
 
 ## Stack and hosting (required)
 
@@ -36,6 +40,14 @@ Other parts, built by other agents. Do not implement them, but respect the contr
 - Kotlin Multiplatform + Compose Multiplatform. Targets: `wasmJs` (demo), `jvm` desktop (dev
   loop), `android` (parts 1, 2 and 4 are all "drills", so they run on phones too; never a simulated
   phone frame).
+- **The HTML/CSS in `static/` is a styling prototype only, not the app.** `static/lesson-01-phishing.html`,
+  `static/tea-theme.css` and `guide-rules.md` define the **artistic direction** (neo-brutalist; the
+  four-character voice system: Cat = Space Grotesk / amber / one sharp corner, Turtle = Fraunces /
+  green / round, Dog = Fredoka / blue, Spider = Cormorant italic / red / always dark; 2px outlines,
+  hard offset shadows, design tokens). **Port it into a Compose Multiplatform theme** (map the CSS
+  `--v-*` voice tokens to a `PersonaTheme`, the colour/spacing/radius tokens to `MaterialTheme`
+  extensions) and rebuild the lesson as Compose screens. Do **not** ship the HTML; it is the reference
+  designers and agents restyle against (see guide-rules.md §4 for the voice rules to preserve).
 - **The web build is static files.** A GitHub Actions workflow builds it on each push to `main`
   (`wasmJsBrowserDistribution`) and publishes it to **GitHub Pages**.
 - **Content is bundled into the build** (items, lessons, strings), so placement and practice work
@@ -60,8 +72,10 @@ Other parts, built by other agents. Do not implement them, but respect the contr
 - **CORS:** allow our `https://<org>.github.io` origin and `http://localhost:*`; nothing else.
 - The same image must run on any container host later (Fly.io, Railway, Cloud Run); switching is
   one URL change.
-- Email sending: SMTP from `.env` (free-tier transactional provider). If SMTP is not configured, a
-  `ConsoleMailer` prints the mail to the server log (dev only).
+- Email sending: SMTP from `.env`. For MVP 0 the one practice-awareness email (part 5) is sent from a
+  plain Gmail account (`thisistea@gmail.com`) over Gmail SMTP with an app password in `.env`; the
+  verification-code email can use the same account. No custom or look-alike domain. If SMTP is not
+  configured, a `ConsoleMailer` prints the mail to the server log (dev only).
 
 ### Layout
 ```
@@ -83,6 +97,28 @@ English, French and Spanish. UI strings in Compose resources (`composeResources/
 `values-fr/`, `values-es/`); item and lesson text in one file per language (`<id>.<lang>.json`),
 falling back to `en`. **Adding a language = adding files, no code change.** Write
 `docs/adding-a-language.md` (5 lines). Language switch without restart; large-text mode.
+
+### Architecture notes for the JetBrains / KMP scoring (keep these in mind while building)
+The main ranking is Scholé, but the JetBrains challenge rewards how KMP is used. Judges score:
+*does it run on ≥2 platforms*, *native-feeling UX per platform*, *how much logic is genuinely shared
+in `commonMain` vs duplicated*, use of Compose Multiplatform, backend integration, localization, and
+shared AI/agent logic. So:
+- **Maximise `commonMain`.** All of parts 1/2/4 logic — placement search, BKT mastery, scaffold/fade,
+  item selection, shortcut breaker, password-finding model, DTOs, i18n, the ported `PersonaTheme` —
+  lives in `commonMain`. Per-platform code is only the thin `AppShell`, storage (`localStorage` /
+  DataStore / file) and the HTTP engine, behind `expect`/`actual`. Document in the README exactly what
+  is shared vs platform-specific (the pitch must state this).
+- **Ship ≥2 platforms running:** web (`wasmJs`, the demo) **and** one of desktop (`jvm`) or Android.
+  Android runs parts 1/2/4 (drills), no simulated phone.
+- **Dark/light mode and localization** are explicit scoring items: build both into the ported theme
+  from the start (the design system already defines a dark Spider palette; add a light/dark toggle).
+- **Shared AI logic via Koog (`docs.koog.ai`), written once in `commonMain`:** use it for the two AI
+  pieces this part touches — (a) grading the learner's free-text four-step reasoning, (b) offline,
+  cached generation of item *variations* from human-written seeds (AGENTS.md: variations only, human
+  reviewed; frugal: small model + cache, no live calls during the demo). Keep the model behind an
+  interface with a rules/stub fallback so the app runs with no key. Do not force AI where a rule works.
+- **Agentic development (bonus):** this prompt is built to be run by JetBrains Air / Junie agents with a
+  human steering; note in the pitch which agents did the shared vs platform-specific code.
 
 ## Shared contracts
 
@@ -106,8 +142,9 @@ events(id, user_id, type, payload_json, created_at)  -- append-only bus between 
 ```
 Events we emit: `registered`, `email_verified`, `terms_accepted` (payload: opened, scroll depth,
 ms), `onboarding_completed`, `placement_completed`, `lesson_started`, `practice_item_answered`,
-`lesson_completed`, `contacts_shared`. Part 5 emits `field_sent`, `field_opened`, `field_clicked`,
-`field_submitted`, `field_reported`. Lesson 1's "Attacks" section (part 3) reads them to decide
+`lesson_completed`, `contacts_shared`, `readiness_pressed` (the end-of-lesson button). Part 5 emits
+`field_sent`, `field_opened`, `field_clicked`, `field_reported` (click-only in MVP 0; `field_submitted`
+is reserved for the later practice sign-in step). Lesson 1's "Attacks" section (part 3) reads them to decide
 whether Spider says "I caught you" or "you dodged me" (`fellForTrap` in Nicholas's template).
 API: `GET /me/events?type=field_*`, `POST /events` (server-side key for part 5).
 
@@ -208,14 +245,21 @@ Screens:
    shopping/parcels, job search, investing, donations, social; NGO: invoices, grants, shared accounts,
    beneficiary data), "Ever had a message you weren't sure about, or lost money?" (choices +
    optional text → gentle tone), self-rating 1–5, bigger text?, daily goal 2/5/10 min.
-6. **Terms of use** (required checkbox "I accept the terms of use", with a collapsed "Read the
-   terms" link, as in real apps). The practice-email clause is **in the terms, lightly buried but
-   honest and easy to spot for anyone who expands them**: a short section "Practice messages: we
+6. **Terms of use — consent layer 1 (required checkbox** "I accept the terms of use", with a collapsed
+   "Read the terms" link, as in real apps). The practice-email clause is **in the terms, lightly buried
+   but honest and easy to spot for anyone who expands them**: a short section "Practice messages: we
    sometimes send practice phishing emails to the address you registered. You won't know when.
    You can pause or stop them any time in Settings." Record whether the terms were opened, scroll depth and
    time spent (event `terms_accepted`). Accepting sets `practice_emails_allowed = true`; Settings
    always shows "Practice emails: on / pause / stop". A later chapter reveals "you accepted terms you
-   didn't read" as a teaching moment.
+   didn't read" as a teaching moment. This is the legal/ethical basis for sending the email.
+
+   **Consent layer 2 — the readiness button (end of each lesson, part 4 / Krishna's piece).** After the
+   lesson, a button — e.g. *"Press this once you feel ready to spot a scam like this"* — emits
+   `readiness_pressed` and lets part 5 schedule the practice email after a random delay. **It must NOT
+   mention or hint that an email is coming** (that would telegraph the test and defeat the point); it
+   only gates on the learner feeling ready. Consent comes from layer 1; layer 2 is a readiness gate, not
+   a warning. No press → no email even if the terms were accepted.
 7. **Permissions: none at signup.** Web: no notification, location or camera prompt. Android: only
    INTERNET. Later chapters request what they need, when they teach about it.
 8. **Passive client signals** (no prompt; listed in "What we know about you"): platform, OS,
@@ -355,11 +399,17 @@ A validation test fails the build on: missing language files, deny-listed real b
 non-`.example` links, hotspots pointing at missing targets, items without `steps` for all four steps.
 
 ## Safety and privacy rules
-- Verification emails come only from our own domain and never imitate a real service.
+- **Two kinds of "email" — keep them separate.** (a) The **in-app email items** the learner judges
+  (placement + practice) are fictional teaching content: fictional brands, `.example` domains only
+  (AGENTS.md). (b) The **one real practice-awareness email** sent to the learner's own inbox (part 5)
+  comes from our plain Gmail account, **no look-alike domain**, and is **click-only** (opened/clicked
+  recorded; no sign-in page, no credentials collected). Neither imitates a real service.
+- Real outbound email (verification code, practice email) is sent only from our own Gmail account.
 - Passwords: plaintext only in memory during the attempt analysis; argon2id hash at rest; findings only.
 - Codes hashed, short-lived, rate-limited. No secrets in logs, images or the web build.
 - Every stored field has a purpose string shown in "What we know about you"; delete-my-account works.
-- Practice emails can be paused or stopped any time in Settings.
+- Practice emails need accepted terms (layer 1) **and** the readiness press (layer 2); they can be
+  paused or stopped any time in Settings.
 
 ## Done when
 - `docker compose up` (server + db) behind a tunnel, plus the Pages build (or

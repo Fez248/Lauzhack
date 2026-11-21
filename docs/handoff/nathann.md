@@ -18,6 +18,13 @@ Branch: `nathann` · Last updated: 2026-11-21
 - Merged Ferran's docs/characters.md and Nicholas's lesson 1 template (static/) into `nathann`.
 - Wrote the MVP 0 implementation prompt for parts 1 (registration), 2 (placement), 4 (practice):
   [docs/prompts/mvp0-part-1-2-4.md](../prompts/mvp0-part-1-2-4.md), with shared contracts C1–C5.
+- Merged Krishna's part-5 design (press-to-complete trigger) and Nicholas's latest (design system
+  `guide-rules.md` + `tea-theme.css` + expanded lesson 1) into `nathann`.
+- Wrote the full integration plan: [docs/merge-plan.md](../merge-plan.md) — reconciles all branches,
+  lists design conflicts A–H and their resolutions, the target architecture and the route to `main`.
+- Reflected this session's decisions in the prompt and decisions.md: rename to **ThisIsTea**
+  (`thisistea@gmail.com`); keep KMP/Compose and port the HTML design; two-layer consent; click-only
+  Gmail practice email; shared AI via Koog in `commonMain`; JetBrains/KMP scoring notes.
 
 ## In progress
 - Getting team agreement on the idea (TASKS.md #1).
@@ -26,7 +33,10 @@ Branch: `nathann` · Last updated: 2026-11-21
 - `gh` (GitHub CLI) is not installed on this machine, so the task board lives in TASKS.md, not GitHub Issues.
 
 ## Next
-- Open a PR from `nathann` to `main` so everyone gets AGENTS.md when they create their branch.
+- **nathann to open the PR `nathann → main` manually** (gh not installed here). It carries AGENTS.md,
+  the contracts, the design system, the MVP 0 prompt and docs/merge-plan.md. A teammate reviews.
+- After merge, each person `git merge origin/main` into their branch, then code lands per part in
+  small PRs (order in docs/merge-plan.md).
 
 ## Questions for others
 - To everyone: does the idea in docs/idea.md work for you? Which area do you want to own (TASKS.md)?
@@ -40,12 +50,19 @@ Branch: `nathann` · Last updated: 2026-11-21
 - To everyone: the app must be in Kotlin (docs/tech-stack.md). Who already knows Kotlin/Compose?
   Who has a Mac for the iOS build?
 
-- To nicholas (part 3) and the part 5 owner: please check the contracts C1 (events table), C3
-  (lesson hook, matches your lesson-01 sections) and C5 (backend URL) in docs/prompts/mvp0-part-1-2-4.md.
-  Note: lesson-01 uses real brands (Microsoft, Slack) and non-`.example` domains; AGENTS.md asks for
-  fictional ones. Also: the app needs to be Kotlin/Compose (docs/tech-stack.md), so the HTML page is the
-  design template to port.
-- To ferran: "Tea" is also the name of a real app (women's dating-safety app with a 2025 data breach).
-  Worth checking the name before the pitch.
+- To nicholas (part 3): please check contracts C1 (events table), C3 (lesson hook — it maps onto your
+  five sections Content→Tools→Attacks→Status→Answers) and C5 (backend URL) in
+  docs/prompts/mvp0-part-1-2-4.md. Two things from docs/merge-plan.md: (1) your `guide-rules.md` +
+  `tea-theme.css` are adopted as the **artistic direction**, to be **ported into a Compose theme** (we
+  keep KMP, don't ship the HTML); (2) during the port, swap the real brands (Microsoft, Slack,
+  `tea.app`/`tae-app.com`) for fictional ones + `.example` domains, per AGENTS.md.
+- To krishna: your press-to-complete trigger is **part 5** of MVP 0. Three alignments (see
+  docs/merge-plan.md conflicts D/E/H): (1) consent is now **two layers** — the Terms of Use are the
+  consent, your button is the **readiness gate and must not mention an email** (it already says so);
+  (2) for MVP 0 the email is **click-only from `thisistea@gmail.com`, no look-alike domain and no
+  sign-in page** — keep your delay/scheduler, defer the landing-page/credential parts; (3) write your
+  outcomes as `field_*` events into the shared `events` table (contract C1), not in-memory.
+- To ferran: the app is renamed **ThisIsTea** (sender `thisistea@gmail.com`) — "Tea" alone collides
+  with a real women's-safety app that had a 2025 breach. OK with you?
 
 ## Answers
