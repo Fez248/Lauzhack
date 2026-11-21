@@ -9,6 +9,9 @@ Branch: `nathann` · Last updated: 2026-11-21
   seeds incl. Swiss pack), [docs/localization.md](../localization.md) (languages, theme, resource
   cards), [content/resources/resources.json](../../content/resources/resources.json) (all links unverified).
 - Scenario format extended: category, language, country, slots, variant_of, operators.
+- New idea written up: [docs/onboarding-and-field-mode.md](../onboarding-and-field-mode.md)
+  (onboarding questions, placement test, opt-in field mode with practice scams by real email/SMS).
+  Two PROPOSED decisions, TASKS #27–30.
 
 ## In progress
 - Getting team agreement on the idea (TASKS.md #1).
@@ -25,5 +28,7 @@ Branch: `nathann` · Last updated: 2026-11-21
 - To everyone: claim your language in TASKS.md #21 (fr, en, hi, te, ur, de, it, es, ca).
 - To everyone: Swiss facts marked ⚠ in scenario-engine.md (2024 cold-call ban, commission caps,
   30 Nov deadline, 2nd-pillar central office) need checking against official sources.
+- To everyone: field mode (practice scams sent to your real inbox) needs your opinion, especially
+  the safety rules. Would you opt in for the live demo? Two study citations marked ⚠ need checking.
 
 ## Answers

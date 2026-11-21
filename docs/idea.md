@@ -54,6 +54,9 @@ apprenticeship (Collins, Brown & Newman), expertise reversal effect (Kalyuga), a
   combination grid for the transfer test, shortcut breaker, all seed scenarios (general, NGO, Switzerland).
 - [localization.md](localization.md): 9 languages, scams adapted per country, right-to-left,
   dark theme and accessibility, "what to do now" resource cards.
+- [onboarding-and-field-mode.md](onboarding-and-field-mode.md): onboarding questions for
+  personalisation, a 3-minute placement test (per-step starting level), and opt-in **field mode**
+  (practice scams sent by real email/SMS/calls, so the learner can't rely on "it's the scam app").
 
 ## Content packs
 

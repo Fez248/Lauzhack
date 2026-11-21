@@ -32,3 +32,7 @@ Areas: engine, phone-ui, content-seniors, content-ngo, content-ch, ai-pipeline, 
 | 24 | Check every link in `content/resources/resources.json`, set `verified: true` | resources | | todo |
 | 25 | "What to do now" cards: pick resources by ask × country | engine | | todo |
 | 26 | AI & sensitive data pack (AI1–AI6) + simulated chatbot screen with "Send / edit / other way"; check facts marked ⚠ | content-ai | ferran? | todo |
+| 27 | Onboarding questions (language/country, role, channels, interests, daily goal) → learner profile ([docs/onboarding-and-field-mode.md](docs/onboarding-and-field-mode.md)) | engine | | todo |
+| 28 | Placement test: 8–10 items (scam or fine, which is fake, tap the warning sign, what next, "how sure?") → per-step starting mastery | engine | | todo |
+| 29 | Write placement items incl. legitimate twins and one fake-news pair | content-seniors | | todo |
+| 30 | Stretch: field mode, email only, opt-in team members; report button + "did you send this?" check + reveal page | engine | | todo |
