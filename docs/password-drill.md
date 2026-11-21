@@ -45,10 +45,12 @@ lesson 2: passwords (Cat's rules → Dog's tools: install a password manager)
                  → accepted → argon2id hash + findings stored; "saved it in your manager?" nudge
       → debrief: five passwords, side by side, by what they have in common
          → Spider: "here's the one I'd have cracked first, and why"
-   → (a later session) login drill: "log back in to <one of the five>"
-      → right → the system holds; the account graduates
-      → wrong 3× → "open your manager" → we show we can't help: we only kept a hash
-         → that lands the lesson harder than the lesson did
+   → (a later session) login drill: one of the five, picked at random
+      → "log back in to dogLand"   ← they cannot know which, so all five have to be saved
+      → as they answer: pasted, autofilled or typed? how long was the pause? (told up front)
+         → right → the system holds; the account graduates
+         → wrong 3× → "open your manager" → we show we can't help: we only kept a hash
+            → that lands the lesson harder than the lesson did
 ```
 
 **My part:** the drill screens, the live meter, the create/login endpoints, the checks, the storage, the
@@ -197,6 +199,28 @@ up, and turn into the lesson: **we cannot show you, because we didn't keep them.
 can.** The login drill is then an honest test of whether they saved them, instead of a hint we could
 quietly hand out.
 
+### How a common password is still penalised without keeping it
+
+The check does not need the password *later* — it needs it **once**, and it has it: the plaintext is in
+memory for the whole creation request. Everything we will ever want to know is measured there, and the
+**verdict** is what gets stored:
+
+| Stored in `vault_findings` | Answers later, without the password |
+|---|---|
+| `score` (nbvcxz 0–4) | "was this weak?" — drives XP and the debrief forever |
+| `pwned`, `pwned_count` | "was it in breach lists, how often?" — the count is why the debrief can say "seen 3.7 million times" |
+| `length`, `classes`, `keyboard_pattern` | "what kind of password was it?" |
+| `contains_name` / `_email` / `_year` / `_site` | "was it built out of guessable facts?" |
+| `reuse_fp`, `family_fp` | "was it reused, or one of a family?" |
+
+So a **common password is refused at creation**, while we can still see it, and a merely mediocre one is
+recorded as mediocre for good. XP, mastery and the debrief all read the findings; none of them needs the
+password. Storing the plaintext would only help if we wanted to **re-examine** the password later, and
+there is exactly one honest case for that: a breach list published *after* the learner chose it. The
+industry answer covers that too — re-run the check at the next login, when the plaintext is briefly in
+memory again, and tell the learner then. Real services do precisely this, and they do not keep the
+password either.
+
 ### Tables (additive to contract C1, §5)
 
 ```
@@ -206,7 +230,8 @@ vault_accounts(id, user_id, site_id, username, password_hash, created_at,
 vault_findings(account_id PK, length, classes, score, pwned, pwned_count,
     contains_name, contains_email, contains_year, contains_site, keyboard_pattern,
     reuse_fp, family_fp, analysed_at)                                             (add)
-vault_logins(id, user_id, site_id, succeeded, attempt_no, at)                     (add)
+vault_logins(id, user_id, site_id, succeeded, attempt_no, input_method,
+    time_to_first_input_ms, self_report?, at)                                     (add)
 ```
 
 - `password_hash`: argon2id, same parameters as §10.4 (`m = 19456 KiB, t = 2, p = 1`, 16-byte salt).
@@ -224,7 +249,7 @@ vault_logins(id, user_id, site_id, succeeded, attempt_no, at)                   
 | `vault_account_created` | server | `{site_id, score, pwned, family_match}` |
 | `vault_attempt_rejected` | server | `{site_id, reason}` — reason only, nothing about the password |
 | `vault_drill_completed` | client | `{accounts, rejections, families}` |
-| `vault_login_attempted` | server | `{site_id, succeeded, attempt_no}` |
+| `vault_login_attempted` | server | `{site_id, succeeded, attempt_no, input_method}` |
 
 ### Endpoints
 
@@ -255,8 +280,12 @@ plays the guesser and takes nothing, per the framing in [decisions.md](decisions
 
 ## The login drill (a later session)
 
-- **When:** reuse `Review.kt` (§6.8). Each vault account is a review item; the first challenge is due in
-  the next session, at least a few hours later. Only one site per session, never all five.
+- **Which:** **one of the five, picked uniformly at random** among the accounts that have not
+  graduated. Random is the point: the learner cannot revise for a specific one, so the only strategy
+  that works is having saved all five. A predictable order — creation order, or weakest first — teaches
+  them to prepare one and forget the rest.
+- **When:** `Review.kt` (§6.8) owns the timing only. Each vault account is a review item; the first
+  challenge falls at least a few hours later, **one site per session, never all five**.
 - **Ask:** "Log back in to dogLand." Username is shown (it is not the secret); password is not.
 - **Three attempts.** Each one records `vault_login_attempted`. No attempt reveals anything.
 - **On success:** the account graduates (`graduated_at`), XP, and Cat's line: "that is the habit —
@@ -266,6 +295,68 @@ plays the guesser and takes nothing, per the framing in [decisions.md](decisions
   creates a new password for that site through the same checks, and schedule the challenge again.
 - **Never** hand out a hint derived from the findings ("it was 14 characters, started with…"). That
   teaches guessing, which is the opposite lesson.
+
+## Are they using a manager?
+
+The drill's real question is not "do they know the rules" but "did the habit stick", and the habit is
+**looking a password up instead of remembering it**. The login drill can see that cheaply, from how the
+password arrives — under one condition: **we say we are looking, before we look.**
+
+### What we observe, and what the learner is told
+
+The login drill's card says, in plain words:
+
+> "We notice whether you paste, autofill or type this, and how long you take — that is how we tell
+> whether the manager habit is working. We never read your clipboard, and we never record what you type."
+
+With that said up front, three signals are enough:
+
+| Signal | How | What it suggests |
+|---|---|---|
+| `input_method` | `paste` from the paste event; `autofill` from an `input` event with no preceding keystroke (plus the `:-webkit-autofill` hook on web); else `typed` | paste or autofill → a manager, or at least *something* stored; typed → recall, or reading off another screen |
+| `time_to_first_input_ms` | from the field gaining focus to the first character | a manager lookup costs a few seconds; pure recall is immediate, and so is giving up |
+| `self_report` | one tap after the attempt: "looked it up" / "remembered it" / "had it written down" | the only one of the three that is not a guess |
+
+One enum, one integer, one optional enum, on the `vault_logins` row. **Not** a keystroke stream.
+
+### What we deliberately do not do
+
+- **No keystroke timing or typing dynamics.** Per-key intervals are behavioural biometrics under the
+  GDPR and the Swiss nFADP. Collecting them to tell *who* is typing is a different product from
+  teaching, and one enum already answers the teaching question.
+- **Never read the clipboard.** We observe *that* a paste happened, never what was in it, and never the
+  clipboard at any other moment.
+- **Nothing for failed attempts beyond the count.** Same rule as creation (§1.4): the attempt number and
+  the outcome, never a fragment of what was typed.
+- **No guessing which manager.** Sniffing extensions or autofill fingerprints to name the product is
+  surveillance with no teaching value.
+
+### Typing is not a wrong answer
+
+The signal is soft in both directions: a paste can come from a sticky-note text file, and typing can
+mean a manager open on the phone next to the laptop. So it **never** changes the verdict, the XP or the
+mastery estimate. It changes the follow-up question, which is where the teaching actually is:
+
+- **pasted or autofilled, correct** → "that is the habit — the manager did the remembering."
+- **typed, correct** → "did you look that up, or remember it? If it is written down somewhere, let's get
+  it into the manager."
+- **typed, wrong three times** → the strongest moment in the lesson: they tried to remember, and five
+  passwords is exactly where remembering stops working.
+
+### The measure that needs no detection at all
+
+Over a few sessions, **graduation rate is the answer**: nobody remembers five unrelated 14-character
+passwords. A learner who logs back in to four or five of five is using a manager, whatever the input
+method said. It is already in `vault_accounts.graduated_at`, costs nothing, and is the outcome the other
+three signals are only proxies for. If the team wants no input-method detection at all, this is the
+fallback and the design still works.
+
+> **This section needs a [decisions.md](decisions.md) entry before it is built.**
+> [§1.4](mvp0-plan.md) lists "paste detection" as out of scope, and the 2026-11-21 decision removed it
+> deliberately, because the earlier design "read as a covert phishing and surveillance kit". What is
+> proposed here differs in one way that matters: the learner is told we watch the input method, and told
+> why, before they type — which is what the honesty test (§17) actually asks. It is still the reversal
+> of a recorded decision, so nathann agrees it first.
 
 ## Rules (inherited, non-negotiable)
 
@@ -284,6 +375,9 @@ From [mvp0-plan.md §17](mvp0-plan.md) and [AGENTS.md](../AGENTS.md):
   by a vault login; it is a drill and nothing else.
 - **No secrets in git.** `PASSWORD_FP_PEPPER` lives in `.env`, with a valueless entry in
   `deploy/.env.example`.
+- **Input method, not keystrokes.** The login drill may record `paste | autofill | typed`, a
+  time-to-first-input and a self-report, and only after the card has said so. Never per-key timings,
+  never clipboard contents, never a guess at which manager they use. It never changes a verdict or XP.
 - **Human-written copy.** Cat's rules, Spider's lines and the tool cards are written by a person; AI may
   draft variations for human review (§17).
 
@@ -299,6 +393,9 @@ From [mvp0-plan.md §17](mvp0-plan.md) and [AGENTS.md](../AGENTS.md):
   name agreed with whoever owns `Bkt.kt`.
 - **Five sites or three for the demo?** Five teaches reuse properly; three fits a two-minute stage slot.
   Proposed: five in the app, and the demo shows sites one, three and five.
+- **Paste / autofill detection** (see "Are they using a manager?") reverses a recorded decision and
+  needs its own `decisions.md` entry. Disclosed up front and stored as one enum, it is a different
+  thing from the silent version that was cut — but nathann decides, and graduation rate works without it.
 - **2FA follow-on:** the natural lesson 3 is turning on two-factor login, with the same drill shape
   (a fictional site, a real authenticator app). Out of scope here; worth a line in the pitch.
 
@@ -312,7 +409,9 @@ From [mvp0-plan.md §17](mvp0-plan.md) and [AGENTS.md](../AGENTS.md):
 | Must | `POST /me/vault/accounts`: strength + HIBP + reuse, argon2id, findings, reasons | krishna |
 | Must | Reuse and family fingerprints (HMAC + pepper) and the reuse check across the learner's set | krishna |
 | Must | Debrief screen built from findings (family links, tiering sort, where they came from) | krishna |
-| Must | Login drill via `Review.kt`: challenge, three attempts, graduation, honest failure | krishna |
+| Must | Login drill: **random** non-graduated site, three attempts, graduation, honest failure | krishna |
+| Should | Input-method signal (`paste`/`autofill`/`typed`) + time-to-first-input + self-report, disclosed on the card | krishna |
+| Should | Graduation rate across the five accounts (the detection-free measure) | krishna |
 | Must | "What we know about you" entries for every vault field; `DELETE /me` wipes all three tables | krishna |
 | Must | HIBP prefix cache (1 h, in memory) | krishna |
 | Should | Spider's "order I'd have tried them in" ranking from findings | krishna |

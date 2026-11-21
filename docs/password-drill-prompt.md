@@ -95,8 +95,10 @@ back in to one of the five.** Three rules must hold in your code:
    strength they actually chose; and **where these came from** (name / year / site name / keyboard
    counts). Spider ranks them weakest-first with the reason, and takes nothing.
 
-6. **Login drill.** `GET /me/vault/challenge` returns a due site via `Review.kt` (§6.8), treating each
-   vault account as a review item — first challenge at least a few hours later, **one site per session**.
+6. **Login drill.** `GET /me/vault/challenge` returns **one site chosen uniformly at random** among the
+   learner's accounts that have not graduated; `Review.kt` (§6.8) decides only *when* it is due (first
+   challenge at least a few hours later, **one site per session**). Do not order the challenges by
+   creation or by weakness — the learner must not be able to prepare for a specific one.
    `POST /me/vault/login {site_id, username, password}` verifies against the argon2id hash:
    - Three attempts, each emitting `vault_login_attempted`. Username is shown; the password is not.
    - Success → set `graduated_at`, award XP, Cat: "that is the habit — you didn't remember it, you
@@ -106,7 +108,26 @@ back in to one of the five.** Three rules must hold in your code:
      a new password through step 4 and reschedules the challenge.
    - **Never** give a hint derived from the findings (length, first character, anything).
 
-7. **Transparency and deletion.** Add every vault field to `GET /me/about` ("What we know about you",
+7. **Manager-habit signals** (only after the card below has been shown; see the design doc's
+   "Are they using a manager?" — **this step needs a `decisions.md` entry before you build it**, because
+   §1.4 lists paste detection as out of scope):
+   - The login drill's card must say: *"We notice whether you paste, autofill or type this, and how long
+     you take — that is how we tell whether the manager habit is working. We never read your clipboard,
+     and we never record what you type."*
+   - Record exactly three things on the `vault_logins` row: `input_method` (`paste` from the paste
+     event, `autofill` from an `input` event with no preceding keystroke plus the `:-webkit-autofill`
+     hook, else `typed`), `time_to_first_input_ms` (focus → first character), and an optional
+     `self_report` from one tap after the attempt ("looked it up" / "remembered it" / "had it written
+     down").
+   - **Never** collect per-key timings or typing dynamics (behavioural biometrics under the GDPR and the
+     Swiss nFADP), never read clipboard contents, never try to identify which manager is in use.
+   - The signal **never** changes the verdict, the XP or the mastery estimate — it only picks the
+     follow-up line: pasted and correct → "that is the habit"; typed and correct → "did you look it up,
+     or remember it?"; typed and wrong three times → the teaching moment.
+   - Also compute **graduation rate** across the five accounts. It needs no detection at all and is the
+     real measure; if the team declines the input-method signal, this alone is enough.
+
+8. **Transparency and deletion.** Add every vault field to `GET /me/about` ("What we know about you",
    §9.2) with its purpose in plain words. Extend `DELETE /me` to wipe `vault_accounts`,
    `vault_findings` and `vault_logins`. Add `DELETE /me/vault` for demo resets.
 
@@ -147,14 +168,16 @@ vault_accounts(id, user_id, site_id, username, password_hash, created_at,
 vault_findings(account_id PK, length, classes, score, pwned, pwned_count,
     contains_name, contains_email, contains_year, contains_site, keyboard_pattern,
     reuse_fp, family_fp, analysed_at)                                             (add)
-vault_logins(id, user_id, site_id, succeeded, attempt_no, at)                     (add)
+vault_logins(id, user_id, site_id, succeeded, attempt_no, input_method,
+    time_to_first_input_ms, self_report?, at)                                     (add)
 ```
 
 ### Events (additive to §5.1)
 
 `vault_drill_started` `{lesson_id}` · `vault_account_created` `{site_id, score, pwned, family_match}` ·
 `vault_attempt_rejected` `{site_id, reason}` · `vault_drill_completed`
-`{accounts, rejections, families}` · `vault_login_attempted` `{site_id, succeeded, attempt_no}`
+`{accounts, rejections, families}` · `vault_login_attempted`
+`{site_id, succeeded, attempt_no, input_method}`
 
 ### Config
 
@@ -174,6 +197,11 @@ not logins — say so in a comment.
 - Every stored field is listed in "What we know about you" with its purpose; `DELETE /me` removes all of
   it; the honesty test (§17) applies to every screen.
 - Lesson copy is human-written; AI only drafts variations for human review.
+- A weak or breached password is caught **at creation**, while the plaintext is in memory, and the
+  verdict (`score`, `pwned`, `pwned_count`, the `contains_*` flags) is stored instead of the password.
+  Nothing later needs to re-read it: XP, mastery and the debrief all read the findings.
+- Input method only (`paste | autofill | typed`), disclosed first. Never per-key timings, never
+  clipboard contents, never which manager. It changes no verdict and no XP.
 
 ## Done when
 
@@ -185,6 +213,9 @@ not logins — say so in a comment.
   off, the drill still works and the log says "hibp unavailable".
 - `catland1` then `catland2` both get in, and the debrief draws the family link between them.
 - The debrief shows five rows built only from findings — no password, no fingerprint.
-- A later session challenges exactly one site; the right password graduates it, three wrong ones give
-  the honest "we can't tell you either" message and never a derived hint.
+- A later session challenges exactly one site, **picked at random** among the non-graduated ones; over
+  repeated runs the challenged site varies. The right password graduates it; three wrong ones give the
+  honest "we can't tell you either" message and never a derived hint.
+- A pasted login and a typed login both succeed and are recorded as such, the card said so beforehand,
+  and neither changes the XP awarded.
 - "What we know about you" lists every vault field; `DELETE /me` leaves no vault rows behind.

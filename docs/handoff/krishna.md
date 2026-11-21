@@ -18,6 +18,11 @@ Branch: `Krishna` · Last updated: 2026-11-21
   - Reuses what the plan already has: `PasswordAnalyzer` (§10.4), argon2id, `Review.kt` (§6.8),
     contract C3 lesson sections. New tables and events are additive to C1 / §5.1.
   - **Zero AI calls** in the module — rules, nbvcxz, one cached HTTP request.
+  - Login drill picks **one of the five at random** (not in creation or weakness order), so the learner
+    cannot prepare for a specific site; `Review.kt` decides only when it is due.
+  - Added a "manager habit" signal on the login attempt: `input_method` (paste / autofill / typed),
+    time-to-first-input and an optional self-report — disclosed on the card before they type, never
+    affecting XP or the verdict. Graduation rate across the five is the detection-free fallback.
 - Claimed TASKS #31 and #32; added #33 for the password-manager resource entries.
 
 ## In progress
@@ -48,6 +53,16 @@ Branch: `Krishna` · Last updated: 2026-11-21
   a plaintext table of "pretend" passwords holds some real ones, and (c) §17 says plaintext lives in
   memory only, and a plaintext table in a security course fails your own honesty test. Confirm, or tell
   me to flip it — it is one column and one sentence on the opening card either way.
+- To nathann: the login drill wants to notice whether the password was **pasted / autofilled / typed**,
+  to see whether the manager habit stuck. §1.4 lists "paste detection" as out of scope and your
+  2026-11-21 entry removed it on purpose ("covert phishing and surveillance kit"). What I've designed is
+  the disclosed version: the card tells the learner we watch the input method and why, *before* they
+  type; we store one enum, a time-to-first-input and an optional self-report; no per-key timings (those
+  are biometrics under the GDPR/nFADP), no clipboard reads, no guessing which manager. It changes no XP
+  and no verdict, only the follow-up line. That passes your honesty test as I read it, but it still
+  reverses a recorded decision, so it needs a `decisions.md` entry from you. If you'd rather not:
+  **graduation rate across the five accounts** measures the same habit with no detection at all, and the
+  design works without the signal.
 - To nathann: should password behaviour get its own mastery `skill` key in `Bkt.kt`, separate from the
   four scam-defence steps? It is a different skill and I don't want to pollute the step mastery.
 - To nathann: `AGENTS.md` and the AGREED entry in `decisions.md` say branches are the first name in
