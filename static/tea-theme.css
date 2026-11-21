@@ -113,14 +113,21 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 5.5rem; }
 body {
+    --page-bg: var(--paper);
     margin: 0;
-    background: var(--paper);
+    background: var(--page-bg);
+    transition: background-color .6s ease;
     color: var(--ink);
     font-family: var(--font-body);
     font-size: var(--t-md);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
 }
+/* While a character speaks in the corner guide, the page takes their soft tint */
+body[data-bg="cat"]    { --page-bg: var(--cat-soft); }
+body[data-bg="turtle"] { --page-bg: var(--turtle-soft); }
+body[data-bg="dog"]    { --page-bg: var(--dog-soft); }
+body[data-bg="spider"] { --page-bg: var(--spider-soft); }
 h1, h2, h3, h4 {
     font-family: var(--font-display);
     line-height: 1.1;
@@ -248,7 +255,7 @@ fieldset { margin: 0; min-width: 0; }
 /* Top bar with lesson progress */
 .topbar {
     position: sticky; top: 0; z-index: 20;
-    background: rgba(238, 242, 249, .92); backdrop-filter: blur(8px);
+    background: color-mix(in srgb, var(--page-bg) 92%, transparent); backdrop-filter: blur(8px);
     border-bottom: var(--border);
 }
 .topbar .wrap { display: flex; align-items: center; gap: 1.25rem; padding-top: .7rem; padding-bottom: .7rem; }
@@ -594,10 +601,124 @@ html:has(.card-dialog[open]) { overflow: hidden; }
 
 
 /* ---------------------------------------------------------------------
+   Boardroom crisis: briefing, dials, decisions, fallout
+   Used by challenge-boardroom-crisis.html
+   --------------------------------------------------------------------- */
+
+/* The room: who is at the table */
+.roster { list-style: none; margin: 0 0 var(--s-3); padding: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+.seat {
+    display: flex; align-items: center; gap: .6rem; padding: .3rem 1rem .3rem .35rem;
+    background: var(--card); border: var(--border); border-radius: 999px; box-shadow: var(--stick-sm);
+    font-size: var(--t-sm); line-height: 1.25;
+}
+.seat .seat-ico {
+    width: 2rem; height: 2rem; flex: none; border-radius: 50%; border: var(--border); background: var(--rule);
+    display: grid; place-items: center; font-size: .75rem; font-weight: 800;
+}
+.seat b { display: block; }
+.seat span span { color: var(--ink-soft); }
+.seat.is-you { background: var(--highlight); }
+.seat.is-you .seat-ico { background: var(--card); }
+.seat.is-away { border-style: dashed; box-shadow: none; }
+
+/* Incident feed: what happened, in order */
+.feed-head { padding: 1.1rem 1.4rem .7rem; }
+.feed-head h3 { font-size: 1.2rem; font-weight: 800; }
+.feed { list-style: none; margin: 0; padding: 0; }
+.feed li { display: grid; grid-template-columns: 4.2rem 1fr; gap: 1rem; padding: .85rem 1.4rem; border-top: 2px dashed var(--rule); }
+.feed time { font-family: var(--font-display); font-weight: 800; }
+.feed li.is-now { background: var(--highlight); }
+
+/* Known and unknown facts */
+.know { padding: 1.2rem 1.4rem; }
+.know h3 { font-size: 1.2rem; font-weight: 800; }
+.know-list { list-style: none; margin: .8rem 0 0; padding: 0; display: grid; gap: .55rem; }
+.know-list li { position: relative; padding-left: 2rem; }
+.know-list li::before {
+    content: "\2713"; position: absolute; left: 0; top: .12rem; width: 1.4rem; height: 1.4rem;
+    border-radius: 50%; border: 2px solid var(--line); background: var(--turtle-soft);
+    display: grid; place-items: center; font-size: .75rem; font-weight: 800; line-height: 1;
+}
+.unknown .know-list li::before { content: "?"; background: var(--cat-soft); }
+
+/* The attacker's note */
+.ransom {
+    background: var(--web-card); border: 2px solid var(--web-line); border-radius: var(--r-md);
+    padding: 1.3rem 1.5rem; color: var(--web-ink);
+    font-family: var(--font-spider); font-style: italic; font-weight: 600; font-size: 1.3rem; line-height: 1.45;
+}
+.ransom p + p { margin-top: .7rem; }
+.ransom .ransom-sign { text-align: right; color: var(--web-soft); }
+.ransom-meta { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+.ransom-chip {
+    font-family: var(--font-body); font-style: normal; font-weight: 700; font-size: var(--t-sm);
+    color: #fff; border: 2px solid var(--spider); border-radius: 999px; padding: .15rem .85rem;
+}
+
+/* Crisis bar: the clock and the four dials */
+.crisis-bar { margin-bottom: var(--s-3); padding: 1.2rem 1.4rem; display: grid; gap: 1.1rem; }
+.clock-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1.4rem; }
+.clock { font-family: var(--font-display); font-weight: 800; font-size: 2rem; line-height: 1; }
+.clock-note { color: var(--ink-soft); }
+.clock-note b { color: var(--bad-deep); }
+.dials { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .9rem; }
+.dial { --dial-c: var(--ok); --dial-t: var(--ok-deep); background: var(--paper); border: var(--border); border-radius: var(--r-md); padding: .7rem .9rem; }
+.dial[data-level="strained"] { --dial-c: var(--cat); --dial-t: var(--cat-deep); }
+.dial[data-level="critical"] { --dial-c: var(--bad); --dial-t: var(--bad-deep); }
+.dial-top { display: flex; justify-content: space-between; gap: .5rem; font-weight: 700; }
+.dial-bar { height: .9rem; margin: .45rem 0 .3rem; background: var(--card); border: var(--border); border-radius: 999px; overflow: hidden; }
+.dial-fill { display: block; height: 100%; width: var(--val, 0%); background: var(--dial-c); transition: width .6s ease; }
+.dial-state { font-size: var(--t-sm); font-weight: 700; color: var(--dial-t); }
+
+/* Decisions: built on .quiz-card, .option-row and .feedback */
+.decision-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 0 0 .8rem; color: var(--ink-soft); font-size: var(--t-sm); font-weight: 700; }
+.time-chip { font-family: var(--font-display); font-weight: 800; font-size: 1rem; background: var(--ink); color: #fff; border-radius: 8px; padding: .1rem .6rem; }
+.opt-tag { display: block; margin-top: .15rem; font-size: var(--t-sm); font-weight: 700; }
+.option-row.is-right .opt-tag { color: var(--ok-deep); }
+.option-row.is-wrong .opt-tag { color: var(--bad-deep); }
+.decision-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1rem; }
+
+/* Fallout: Spider tells you what your choice cost */
+.fallout {
+    margin-top: 1.2rem; padding: 1.2rem 1.3rem; display: grid; gap: 1rem;
+    background: var(--web-bg); color: var(--web-ink);
+    border: var(--border); border-radius: var(--r-lg); box-shadow: 4px 4px 0 var(--spider);
+}
+.fallout.is-quiet { box-shadow: 4px 4px 0 var(--turtle); }
+.fallout .char-tag .name { color: #fff; }
+.fallout .char-tag .role { color: var(--web-soft); }
+.fallout-item { display: grid; gap: .5rem; padding-top: 1rem; border-top: 2px dashed var(--web-line); }
+.fallout-cause { font-weight: 700; font-size: var(--t-sm); color: var(--web-soft); }
+.deltas { display: flex; flex-wrap: wrap; gap: .4rem; }
+.delta { font-family: var(--font-body); font-style: normal; font-weight: 700; font-size: var(--t-xs); border: 2px solid; border-radius: 999px; padding: .05rem .65rem; }
+.delta.is-down { color: #ffd3da; border-color: var(--spider); }
+.delta.is-up { color: #c6f4e2; border-color: var(--turtle); }
+
+/* Recap of all decisions */
+.recap { list-style: none; margin: 0; padding: 0; display: grid; gap: .7rem; }
+.recap li { display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: start; padding: .9rem 1rem; border: 2px solid var(--rule); border-radius: var(--r-md); }
+.recap li.is-right { border-color: var(--ok); background: var(--turtle-soft); }
+.recap li.is-wrong { border-color: var(--bad); background: var(--spider-soft); }
+.recap h4 { font-size: 1.1rem; font-weight: 800; }
+.recap .verdict-tag { margin-left: .5rem; font-family: var(--font-body); font-size: var(--t-sm); font-weight: 700; }
+.recap .is-right .verdict-tag { color: var(--ok-deep); }
+.recap .is-wrong .verdict-tag { color: var(--bad-deep); }
+.recap p { margin-top: .25rem; }
+.recap .deltas, .recap .review-row { margin-top: .5rem; }
+.recap .delta.is-down { color: var(--bad-deep); border-color: var(--bad); }
+.recap .delta.is-up { color: var(--ok-deep); border-color: var(--ok); }
+.final-card { margin-top: var(--s-3); padding: 1.3rem 1.4rem; display: grid; gap: 1rem; }
+.final-card h3 { font-size: 1.2rem; font-weight: 800; }
+
+
+/* ---------------------------------------------------------------------
    7. Utilities, motion, responsive
    --------------------------------------------------------------------- */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .muted { color: var(--ink-soft); }
+.stack { display: grid; gap: var(--s-3); align-content: start; }
+.mt-4 { margin-top: var(--s-4); }
 
 @media (max-width: 860px) {
     .hero-grid, .attack-grid { grid-template-columns: 1fr; }
@@ -611,6 +732,8 @@ html:has(.card-dialog[open]) { overflow: hidden; }
     .tool { grid-template-columns: auto 1fr; }
     .tool .btn { grid-column: 1 / -1; }
     .choice-row { grid-template-columns: 1fr; }
+    .feed li { grid-template-columns: 3.4rem 1fr; gap: .7rem; padding-inline: 1rem; }
+    .ransom { font-size: 1.2rem; padding: 1.1rem; }
     .guide .role { display: none; }
     .guide { padding: .8rem; }
     .speaker .char-tag .avatar { width: 2.4rem; height: 2.4rem; font-size: 1.25rem; }

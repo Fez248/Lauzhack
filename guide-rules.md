@@ -228,7 +228,28 @@ Design mobile-first thinking, but extend the existing breakpoints rather than ad
 7. Verify keyboard use, reduced motion, 400px width, and that wrong-answer review links open the right card.
 8. Remove dev aids (demo toggle) before shipping.
 
-## 14. Do / Don't summary
+## 14. Challenge type: Boardroom Crisis
+
+Reference page: [static/challenge-boardroom-crisis.html](static/challenge-boardroom-crisis.html). A crisis (here a ransomware breach) is shown to a person or a board, who must decide how to respond. Each decision is checked by the system and the cost of a wrong one is shown. It keeps the topbar, hero, characters, corner guide and footer from section 3, but **replaces the five lesson sections** with four:
+
+| Section | Owner | Job |
+|---|---|---|
+| Briefing (`#briefing`) | Turtle chairs, Spider sends the demand | Roster (`.roster`), timeline (`.feed`), `.know` / `.know.unknown` lists, the attacker's note in an `.attack-panel` (`.ransom`) |
+| Playbook (`#playbook`) | Cat and Turtle | Two `.lesson-card`s, three rules each. Every wrong decision links back to a rule here |
+| Decisions (`#decisions`) | Per decision (`voice`) | `.crisis-bar` (clock + four `.dial`s) and `fieldset.decision` cards revealed one at a time |
+| Fallout (`#fallout`) | Spider's verdict, Turtle or Cat's score | `.score`, `.trap`, `.recap`, final dials, replay button. Hidden until the last decision is locked |
+
+Rules specific to this type:
+
+- **One shot per decision.** Unlike the quiz, there is no hint and retry: a crisis has no takebacks. The learning comes from the consequence, so every wrong or missed option MUST carry `fx` (dial cost), `why` (Spider's account of what happened, in his voice) and `rv` (the playbook rule that would have helped).
+- **Consequences are Spider's.** Costs appear in a `.fallout` block under the verdict. A sound call gets a short grudging line (`spiderOk`) in a quiet `.fallout.is-quiet`.
+- **Dials are shared state.** Four dials (Trust, Cash, Systems, Legal standing), 0 to 100, each with a number and a word (Steady, Strained, Critical), never colour alone. Wrong choices subtract `fx`; a fully sound decision adds `gain`. Dials start damaged (Systems at 30) so a perfect run lands in the 80s and 90s, not at 100.
+- **Multi-select decisions** are sound only if the selection matches exactly. Picking a wrong option and missing a sound option both cost something.
+- **Outcome tiers** come from the number of sound decisions: all = contained (`.trap.dodged`), most = bruised, few = wrecked (`.trap.caught`).
+- Same persona and fake domain as the lessons (Sam, tea.app). Keep the count ("5 decisions") consistent across the hero, buddy lines and `DECISIONS`.
+- Same caveat as the quiz: `ok`, `fx` and `gain` are readable in the page script. Real grading belongs on the server.
+
+## 15. Do / Don't summary
 
 **Do**
 - Use `--v-*` variables so components stay character-agnostic.
