@@ -5,6 +5,8 @@
 > It is written so that one coding agent can build MVP 0 end to end from this file alone.
 > Anything not specified here: pick the simplest option, note it in your handoff file.
 > Changing a **contract (C1–C5)** needs a `docs/decisions.md` entry first.
+> 2026-11-21 revision: consent, password findings, device data, contacts and tracking made honest
+> (§1.3 items 3–5, §9.2, §9.6, §10.4, §10.6, §17; decisions.md entry of the same day).
 
 ### Satellite files (details and ideas for later; this plan wins on any conflict)
 
@@ -19,7 +21,7 @@
 | [docs/onboarding-and-field-mode.md](onboarding-and-field-mode.md) | Background research, later field mode | Pitch; later loops |
 | [docs/localization.md](localization.md) | Languages and resources beyond en/fr/es | Later languages |
 | [docs/tech-stack.md](tech-stack.md) | Long-term platform split (simulator, iOS) | Later; MVP 0 has no simulator |
-| [docs/later/press-to-complete-trigger.md](later/press-to-complete-trigger.md) | Krishna's later-loop part 5 design (resend series, landing page) | **Not MVP 0**; see §1.4 |
+| [docs/awareness-sim-trigger.md](awareness-sim-trigger.md), [docs/awareness-sim-prompt.md](awareness-sim-prompt.md) | Krishna's later-loop part 5 design (resend series, landing page) | **Not MVP 0**; see §1.4. Where they say the button must not hint at a message, §9.6 wins (honest opt-in). |
 | [docs/decisions.md](decisions.md) | Why things were decided | Rationale; append-only |
 | [TASKS.md](../TASKS.md) | Long-term task board | MVP 0 work follows §14 |
 
@@ -46,8 +48,8 @@ register (verified email, password, profile, terms)
   → lesson 1: email phishing (theory sections, then practice)
   → practice with four-step prompts that fade per step as mastery rises
   → held-out email with all prompts off (the "click" moment)
-  → readiness button ("press once you feel ready")
-  → (server, opt-in) one click-only practice-awareness email to the learner's real inbox
+  → opt-in button: "Test me: send me one practice email soon" (says plainly what will happen)
+  → (server) one click-only practice email to the learner's real inbox, at a random moment
   → blame-free debrief in the app (Spider: "caught" or "dodged")
 ```
 
@@ -68,7 +70,7 @@ Internal step keys: `who`, `emotion`, `ask`, `verify`. Plus the end-of-item `ver
 | 2 | Adaptive placement test | nathann | full spec |
 | 3 | Lesson 1 theory sections | nicholas | lesson JSON format + renderer spec; copy is ported from the HTML |
 | 4 | Practice with faded four-step support | nathann | full spec |
-| 5 | Readiness button → one click-only practice email | krishna | contract + server flow; email text written by a human |
+| 5 | Opt-in button → one click-only practice email | krishna | contract + server flow; email text written by a human |
 | — | Persona art (Cat, Turtle, Dog, Spider) | ferran + nicholas | placeholder spec; art drops into a folder |
 
 ### 1.3 Decisions this plan relies on (all recorded in decisions.md)
@@ -77,14 +79,21 @@ Internal step keys: `who`, `emotion`, `ask`, `verify`. Plus the end-of-item `ver
    with a real app that had a 2025 breach.)
 2. **Stack:** Kotlin Multiplatform + Compose Multiplatform. No JS/TS front end. The HTML/CSS in `static/`
    is the **design reference**, ported into a Compose theme, never shipped.
-3. **Consent, two layers.** Layer 1: a clause in the accepted Terms of Use (lightly placed, honest, easy
-   to find). Layer 2: an end-of-lesson readiness button that **never mentions an email**. No press → no
-   email. Settings always allows pause/stop.
+3. **Consent is explicit and honest** (replaces the earlier "readiness button never mentions an email").
+   The Terms of Use describe practice emails in their own clearly titled section. Practice emails are
+   **off by default**; they are switched on only when the learner presses an end-of-lesson button that
+   says in plain words that one practice email will arrive soon. What stays secret is only **when** it
+   arrives and **what it looks like**, which is what the test needs. No press → no email. Settings
+   always allows pause/stop.
 4. **The real practice email is click-only**, from the plain Gmail account, **no custom or look-alike
-   domain, no sign-in page, no credentials collected**. Only sent / opened / clicked / reported is recorded.
-5. **Hosting:** wasm build as static files on GitHub Pages; Ktor server + Postgres in Docker Compose on a
+   domain, no sign-in page, no credentials collected, no tracking pixel**. Only sent / clicked /
+   reported is recorded.
+5. **Collect only what teaching needs, and say so.** Password findings only for the password the
+   learner actually sets; a short list of device settings for the UI; no contacts; every stored field
+   listed in "What we know about you".
+6. **Hosting:** wasm build as static files on GitHub Pages; Ktor server + Postgres in Docker Compose on a
    team laptop behind a cloudflared/ngrok tunnel; backend URL chosen at runtime.
-6. **Shared AI** (free-text grading, cached variations) behind an interface in `commonMain`, rules/stub
+7. **Shared AI** (free-text grading, cached variations) behind an interface in `commonMain`, rules/stub
    fallback, optional Koog implementation. No live AI calls in the demo.
 
 ### 1.4 Out of scope for MVP 0 (do not build)
@@ -92,7 +101,10 @@ Internal step keys: `who`, `emotion`, `ask`, `verify`. Plus the end-of-item `ver
 - Simulated phone frame, scenario player, other channels (SMS, calls, messengers).
 - Any page that imitates a login form; any collection of what a learner types after a click.
 - Resending series / spaced field emails (Krishna's later loop), look-alike domains.
-- Group/team leaderboards (schema only), contact-based ranking, contacting shared contacts.
+- Open-tracking pixels; tracking whether or how long the terms were read.
+- Uploading or storing the learner's contacts (no contact picker, no friends' emails or phones).
+- Storing anything about rejected password attempts; paste detection.
+- Group/team leaderboards (schema only).
 - iOS build. Right-to-left languages. Languages other than en/fr/es.
 - Live AI calls during the demo.
 
@@ -180,7 +192,7 @@ server/
     auth/                      AuthRoutes.kt, Codes.kt, Sessions.kt, PasswordHasher.kt
     password/                  PasswordAnalyzer.kt, PwnedClient.kt
     me/                        ProfileRoutes.kt, AboutRoutes.kt, AttemptRoutes.kt, MasteryRoutes.kt,
-                               EventRoutes.kt, SettingsRoutes.kt, ContactsRoutes.kt
+                               EventRoutes.kt, SettingsRoutes.kt
     leaderboard/               LeaderboardRoutes.kt
     field/                     FieldScheduler.kt, FieldRoutes.kt, FieldTemplates.kt   (part 5)
     mail/                      Mailer.kt (interface), SmtpMailer.kt, ConsoleMailer.kt
@@ -356,23 +368,22 @@ decision because nothing existing changes.
 ```
 users(id, email UNIQUE (lowercased), email_verified_at?, first_name?, last_name?, display_name?,
       language, country?, created_at, password_hash?, terms_accepted_at?, terms_version?,
-      practice_emails_allowed BOOL DEFAULT false,     -- set true when terms accepted
+      practice_emails_allowed BOOL DEFAULT false,     -- set true only by the opt-in button (§9.6)
       practice_emails_paused_at?, practice_emails_stopped_at?)
 profiles(user_id PK, json, updated_at)
-password_findings(id, user_id, attempt_no, length, classes, score, pwned BOOL, pwned_count,
-      contains_name, contains_email, contains_year, keyboard_pattern, similar_to_attempt_1,
-      accepted BOOL, pasted BOOL?, analysed_at)        -- never plaintext, never any hash of it
-client_signals(id, user_id, platform, json, created_at)
+password_findings(user_id PK, length, classes, score, pwned BOOL, pwned_count,
+      contains_name, contains_email, contains_year, keyboard_pattern,
+      analysed_at)            -- the accepted password only; never plaintext; rejected attempts: nothing
+client_signals(id, user_id, platform, json, created_at)   -- only the fields listed in §9.2.9
 mastery(user_id, skill, p, level, attempts, unaided, support, tested_out, review_interval,
       next_review_at?, updated_at,  PK(user_id, skill))
 attempts(id, client_id UNIQUE, user_id, item_id, context, answers_json, correct, confidence?,
       scaffold_json, hints_used, ms, created_at)
-shared_contacts(id, user_id, name?, email?, phone?, source (picker|manual), created_at)
 groups(id, name, created_at)    group_members(group_id, user_id)          -- schema only
 events(id, client_id UNIQUE?, user_id, type, payload_json, created_at)   -- append-only
 email_codes(id, email, code_hash, expires_at, tries, created_at, used_at?)        (add)
 sessions(id, user_id, token_hash UNIQUE, created_at, last_seen_at, revoked_at?)   (add)
-field_sends(id, user_id, template_id, token_hash UNIQUE, scheduled_at, sent_at?, opened_at?,
+field_sends(id, user_id, template_id, token_hash UNIQUE, scheduled_at, sent_at?,
       clicked_at?, reported_at?, cancelled_at?, lesson_id)                        (add, part 5)
 ```
 
@@ -384,7 +395,7 @@ field_sends(id, user_id, template_id, token_hash UNIQUE, scheduled_at, sent_at?,
 |---|---|---|
 | `registered` | server | `{language}` |
 | `email_verified` | server | `{provider}` |
-| `terms_accepted` | client | `{version, opened, scroll_depth (0..1), ms}` |
+| `terms_accepted` | client | `{version}` |
 | `onboarding_completed` | client | `{skipped: [question ids]}` |
 | `placement_completed` | client | `PlacementResult` |
 | `lesson_started` | client | `{lesson_id}` |
@@ -392,9 +403,8 @@ field_sends(id, user_id, template_id, token_hash UNIQUE, scheduled_at, sent_at?,
 | `practice_item_answered` | client | `{item_id, correct, scaffold}` |
 | `held_out_answered` | client | `{item_id, correct, verdict, action_id}` |
 | `lesson_completed` | client | `{lesson_id, xp, per_step: {who: p, ...}}` |
-| `contacts_shared` | client | `{count, source}` |
-| `readiness_pressed` | client | `{lesson_id}` |
-| `field_scheduled` / `field_sent` / `field_opened` / `field_clicked` / `field_reported` / `field_cancelled` | server (part 5) | `{send_id, template_id}` |
+| `practice_email_opted_in` | client | `{lesson_id}` |
+| `field_scheduled` / `field_sent` / `field_clicked` / `field_reported` / `field_cancelled` | server (part 5) | `{send_id, template_id}` |
 
 `field_submitted` is reserved for a later loop; nothing emits it in MVP 0.
 
@@ -720,7 +730,7 @@ sealed interface Screen {
   data object PlacementIntro; data object Placement; data object PlacementResult
   data object Home; data class Lesson(val id: String, val section: Int)
   data object PracticeSummary; data class Reveal(val token: String)
-  data object About; data object Settings; data object Leaderboard; data object Contacts
+  data object About; data object Settings; data object Leaderboard
 }
 ```
 Start screen: `Home` if a profile with `placement` exists locally, else `Language`. Back = previous
@@ -744,32 +754,38 @@ screen, big buttons, everything skippable except email, code, password and terms
    Shows: "We will never ask you for this code or your password in an email or a message."
 4. **Name**: first name (required for personalisation), last name (optional), display name for the
    leaderboard (default `First L.`).
-5. **Password**: one field, show/hide toggle, min 10 characters, no composition rules. Every attempt
-   (including the first, even if shorter than 10) goes to `POST /auth/password/attempt`. Detect paste
-   (`onValueChange` jumps by > 3 chars in one event) and send `pasted: true`. Messages: too short →
-   "At least 10 characters, please."; rejected for any other reason → "Please choose a different
-   password." (never say why). Never store the password client-side; clear the field state after the call.
+5. **Password**: one field, show/hide toggle, min 10 characters, no composition rules. A visible line
+   under the field: "We check your password against known data breaches without sending it anywhere in
+   full, and we keep a few facts about the one you choose (like its length) for your password lesson.
+   Never the password itself." Length is checked on the client; the submit goes to
+   `POST /auth/password/attempt`. Messages say the real reason: too short → "At least 10 characters,
+   please."; found in a breach → "This password appears in known data breaches. Please choose another
+   one." Rejected attempts are not stored in any form. Never store the password client-side; clear the
+   field state after the call.
 6. **Onboarding** (one per screen, all skippable, "Skip" top-right): I'm here for; age range (optional);
    channels I use (multi); which email app; what I do online (multi; NGO options shown if here-for is
    NGO/company); "Ever had a message you weren't sure about, or lost money?" (none / not sure about one /
    lost money / prefer not to say + optional text, which switches feedback to the gentle tone); "How good
    are you at spotting scams?" 1–5; bigger text? (applies immediately); daily goal 2/5/10 min.
-   Track ms per screen into signals. Emit `onboarding_completed`.
+   Emit `onboarding_completed`.
 7. **Terms**: required checkbox "I accept the terms of use", collapsed "Read the terms" link expanding a
-   scrollable text (`strings.xml` key `terms_body`, versioned `terms_version = "2026-11-21"`). The terms
-   include, as one honest short section among the others: "Practice messages: we sometimes send practice
-   phishing emails to the address you registered. You won't know when. You can pause or stop them any
-   time in Settings." Record opened / scroll depth / ms → `terms_accepted`; server sets
-   `practice_emails_allowed = true`.
+   scrollable text (`strings.xml` key `terms_body`, versioned `terms_version = "2026-11-21"`). Below the
+   checkbox, always visible, a short plain summary of what we store, linking to the full terms. The
+   terms have a clearly titled section **"Practice emails"**: "Only if you ask for it at the end of a
+   lesson, we send one practice phishing email to the address you registered. You won't know exactly
+   when it arrives or what it looks like; that is the test. It never asks for a password, and we only
+   record whether its link was clicked and whether you reported it. You can pause or stop practice
+   emails any time in Settings." Emit `terms_accepted`. Accepting the terms does **not** switch practice
+   emails on.
 8. **Permissions: none at signup.** Web: no notification/location/camera prompt. Android: INTERNET only.
-9. **Passive signals** (no prompt), `POST /me/signals` once after terms: platform, OS, browser (wasm:
-   `navigator.userAgent`), device class (compact/medium/expanded), screen size, touch vs mouse, locale,
-   timezone, dark-mode preference, reduced motion (`matchMedia`), font scale, referrer/UTM (wasm:
-   `document.referrer`, `?utm_*`), ms per onboarding screen, password pasted.
+9. **Device settings** (needed to adapt the UI; listed in "What we know about you"), `POST /me/signals`
+   once after terms: platform (web/desktop/android), browser family (not the full user agent), device
+   class (compact/medium/expanded), touch vs mouse, locale, timezone, dark-mode preference, reduced
+   motion (`matchMedia`), font scale. Nothing else (no referrer, no timing, no fingerprinting).
 
 **"What we know about you"** (`About`, from Home and Settings): `GET /me/about` returns a list of
-`{field, value_in_plain_words, purpose}`; e.g. "Your first password was 8 characters long. Purpose:
-your password lesson." Pwned results are **not** shown here (saved for the password chapter).
+`{field, value_in_plain_words, purpose}` covering **every** stored field, e.g. "Your password is 12
+characters long and uses 3 kinds of characters. Purpose: your password lesson."
 Includes "Delete my account" (confirm dialog → `DELETE /me` → clear local store → Language screen).
 Offline/guest: show local data only.
 
@@ -842,18 +858,22 @@ End of section: held-out item (all FADED) → `PracticeSummary`: per-step progre
 XP earned, streak, traps to watch, then `lesson_completed`.
 
 Leaderboard (`Leaderboard` screen, from Home and the summary): global weekly / all-time XP tabs,
-top 20 + "you". Hidden when offline. Button **"Compete with friends"** → `Contacts` screen: on web use the
-Contact Picker API when `'contacts' in navigator` (Chrome Android), otherwise manual entry of friends'
-emails; on Android request `READ_CONTACTS` only at this moment (declare it in the manifest with
-`tools:node` only in the Android flavour). Store via `POST /me/contacts`, emit `contacts_shared`.
-**Never use contacts for ranking and never contact them.**
+top 20 + "you". Hidden when offline. Button **"Invite a friend"** copies the app link (system share
+sheet where available). The app never reads, uploads or stores anyone's contacts.
 
-### 9.6 Readiness button (end of lesson; consent layer 2)
+### 9.6 Opt-in button (end of lesson; the consent for the practice email)
 
-Card with `readiness.prompt` ("Press this once you feel ready to spot a scam like this.") and button
-`readiness.button` ("I'm ready"). On press: emit `readiness_pressed`, call `POST /me/readiness
-{lesson_id}`, disable the button and show `readiness.done` ("Lesson complete"). **Never mention or hint
-at an email.** Offline: store the press locally and send it on sync (the server decides whether to send).
+The lesson ends with "Lesson complete" either way. Below it, an optional card:
+- `readiness.prompt`: "Want to test yourself for real? We'll send **one practice phishing email** to
+  {{email}} at a random moment in the next few minutes. It will look like a real scam but it is
+  harmless and never asks for a password. See if you spot it."
+- `readiness.button`: "Yes, send me one". A secondary text button "Not now" closes the card.
+- On press: emit `practice_email_opted_in`, call `POST /me/readiness {lesson_id}`, then show
+  `readiness.done` from the server answer: scheduled → "Done. Keep an eye on your inbox, and use the
+  four steps."; not scheduled → the reason in plain words (e.g. "Practice emails are paused in
+  Settings.", "You already did this lesson's test.", "Verify your email first.").
+- Never say when it will arrive or what it will look like (that is the test); never hide **that** it
+  will arrive. Offline: the button is disabled with "Needs a connection".
 
 ### 9.7 Home, Settings, Reveal
 
@@ -863,10 +883,11 @@ at an email.** Offline: store the press locally and send it on sync (the server 
   the careful wording: "If it came from us, well done for checking. If not, it could be a real scam: let's
   go through the four steps."). A Spider debrief card appears when the latest field send was
   clicked ("caught", links to Reveal) or reported ("dodged").
-- **Settings**: language, dark mode (system/light/dark), large text, daily goal, **Practice emails: on /
-  pause / stop** (`PUT /me/settings`), delete account, active backend URL with a field to change it.
+- **Settings**: language, dark mode (system/light/dark), large text, daily goal, **Practice emails:
+  allowed / paused / stopped** (`PUT /me/settings`; shows whether a practice email is pending, without
+  its time), delete account, active backend URL with a field to change it.
 - **Reveal** (`#/reveal/<token>`, reached from the practice email's link): short and blame-free: "This was
-  a ThisIsTea practice email. Nothing you did was stored except that the link was opened." Then the four
+  the ThisIsTea practice email you asked for. We only stored that the link was clicked." Then the four
   steps for that template, the hints that gave it away (from the template, §12) and one button "Practise
   this pattern" (starts a practice section focused on the learner's weakest step).
 
@@ -908,7 +929,7 @@ OPENROUTER_API_KEY=                                    # optional, AI variations
 | `GET /health` | – | → status | |
 | `POST /auth/start` | – | `{email, language}` → `204` | creates user if new (`registered`); new 6-digit code, hashed (SHA-256 + server pepper), 10-min expiry; rate limit 1/min and 5/hour per email, 20/hour per IP; sends mail |
 | `POST /auth/verify` | – | `{email, code}` → `{token, user_id, has_password}` | 5 tries per code; sets `email_verified_at` (`email_verified`, derive `email_provider`); creates session |
-| `POST /auth/password/attempt` | session | `{password, pasted}` → `{accepted, message}` | §10.4 |
+| `POST /auth/password/attempt` | session | `{password}` → `{accepted, reason?}` | §10.4; `reason`: `too_short` \| `breached` |
 | `POST /auth/login` | – | `{email, password}` → `{token}` | argon2id verify; 10/hour per email |
 | `POST /auth/logout` | session | → `204` | revoke |
 | `GET /me/profile`, `PUT /me/profile` | session | `Profile` | name fields also copied to `users` |
@@ -919,31 +940,28 @@ OPENROUTER_API_KEY=                                    # optional, AI variations
 | `GET /me/mastery`, `PUT /me/mastery` | session | `[MasteryState]` | last-write-wins by `updated_at` |
 | `POST /me/events` | session | `[AppEvent]` → `204` | idempotent on `client_id`; rejects `field_*` types |
 | `GET /me/events?type=field_*` | session | → `[event]` | prefix match on `*` |
-| `PUT /me/settings` | session | `{practice_emails: on|pause|stop, ...}` | `stop` cancels pending sends |
-| `POST /me/contacts` | session | `[{name?, email?, phone?, source}]` → `204` | |
+| `PUT /me/settings` | session | `{practice_emails: allowed|pause|stop, ...}` | `pause`/`stop` cancel pending sends |
 | `GET /leaderboard?period=week|all` | optional | → `{top: [{display_name, xp, rank}], me?}` | XP per §6.9; week = since Monday 00:00 Europe/Zurich |
-| `POST /me/readiness` | session | `{lesson_id}` → `202 {}` | part 5, §10.6; response never reveals scheduling |
+| `POST /me/readiness` | session | `{lesson_id}` → `200 {scheduled, reason?}` | part 5, §10.6; `reason`: `paused` \| `stopped` \| `not_verified` \| `already_done`; never returns the send time |
 | `POST /me/field/report` | session | → `204` | marks latest unreported send as reported |
-| `GET /f/o/{token}.gif` | – | → 1×1 gif | `field_opened` (unreliable: mail clients proxy images; fine) |
 | `GET /f/c/{token}` | – | → `302 APP_PUBLIC_URL#/reveal/{token}` | `field_clicked` |
 | `GET /field/reveal/{token}` | – | → `{template_id, steps, hints}` | read by the Reveal screen |
 | `POST /admin/field/cancel` | `X-Admin-Key` | `{user_id}` | demo reset |
 
 ### 10.4 Password analysis (`PasswordAnalyzer.kt`), in memory only
 
-Input: the plaintext password, attempt number, the user's first name, email local part, attempt-1
-features (kept in memory for the session only as derived features, not the password). Output stored in
-`password_findings`:
-- `length`, `classes` (count of lower/upper/digit/symbol present), `score` (nbvcxz 0–4),
-  `keyboard_pattern` (nbvcxz pattern type or a qwerty/azerty/qwertz row-walk check),
-  `contains_name`, `contains_email` (case-insensitive, leetspeak-normalised), `contains_year`
-  (`19\d\d|20\d\d`), `similar_to_attempt_1` (attempt 1 is a prefix/suffix of this one after stripping
-  digits/symbols, or Levenshtein ≤ 3).
+Input: the plaintext password, the user's first name, email local part.
 - `pwned` / `pwned_count`: Have I Been Pwned Pwned Passwords range API: SHA-1 the password, send only
   the first 5 hex chars to `https://api.pwnedpasswords.com/range/<prefix>` with header `Add-Padding: true`
   and a generic `User-Agent: ThisIsTea-server`, match the suffix locally. Timeout 2 s; on failure
   `pwned = false` and log "hibp unavailable".
-- Accept iff `length >= 10 && !pwned`. On accept: `password_hash = argon2id(password)` with Bouncy Castle
+- Accept iff `length >= 10 && !pwned`. **Rejected: answer with the reason, store nothing.**
+- **Accepted only:** store in `password_findings` (one row per user, replaced on password change):
+  `length`, `classes` (count of lower/upper/digit/symbol present), `score` (nbvcxz 0–4),
+  `keyboard_pattern` (nbvcxz pattern type or a qwerty/azerty/qwertz row-walk check),
+  `contains_name`, `contains_email` (case-insensitive, leetspeak-normalised), `contains_year`
+  (`19\d\d|20\d\d`), `pwned` / `pwned_count`. All of it is shown in "What we know about you".
+- On accept: `password_hash = argon2id(password)` with Bouncy Castle
   (`m = 19456 KiB, t = 2, p = 1`, 16-byte random salt, 32-byte hash, stored as a PHC string
   `$argon2id$v=19$m=19456,t=2,p=1$<salt>$<hash>`).
 - The plaintext is never logged, stored, returned or kept after the request (clear the CharArray).
@@ -959,18 +977,19 @@ email or a message." Localised (en/fr/es) from server-side string maps.
 ### 10.6 Part 5: field scheduler (contract with krishna)
 
 On `POST /me/readiness`:
-1. Emit `readiness_pressed` (if the client has not already sent it, deduplicated).
-2. Schedule only if all hold: `email_verified_at` set, `terms_accepted_at` set,
-   `practice_emails_allowed`, not paused, not stopped, and no previous `field_sends` row for this user and
-   lesson. Otherwise do nothing (same `202` response either way, so the client learns nothing).
+1. Emit `practice_email_opted_in` (if the client has not already sent it, deduplicated).
+2. Check: `email_verified_at` set, `terms_accepted_at` set, not paused, not stopped, and no previous
+   `field_sends` row for this user and lesson. If one fails, return `{scheduled: false, reason}` and do
+   nothing else. Otherwise set `practice_emails_allowed = true` (this press is the consent) and return
+   `{scheduled: true}`.
 3. Insert `field_sends` with a random 32-byte token (store only its SHA-256), `template_id =
    "practice-email-01"`, `scheduled_at = now + uniform(FIELD_DELAY_MIN_S, FIELD_DELAY_MAX_S)` seconds;
    log the delay at INFO; emit `field_scheduled`.
 4. `FieldScheduler` is a coroutine in the application scope: every 5 s it picks due, unsent, uncancelled
    rows (so pending sends survive a restart), renders the template (§12) in the user's language with
-   `{{first_name}}`, the open-pixel URL and the click URL, sends through `Mailer`, sets `sent_at`, emits
+   `{{first_name}}`, the click URL and the settings URL, sends through `Mailer`, sets `sent_at`, emits
    `field_sent`. If paused/stopped meanwhile: cancel, emit `field_cancelled`.
-5. Open / click / report endpoints set the timestamps once and emit the matching events.
+5. Click / report endpoints set the timestamps once and emit the matching events.
 One press = at most one email per lesson. No resend series in MVP 0.
 
 ---
@@ -1011,8 +1030,9 @@ interface VariationSource { fun variationsOf(seedId: String): List<Item> }   // 
 - **Field template** (`content/field/practice-email-01.<lang>.json`, server only, owned by krishna):
   `{ id, subject, text, html, reveal: { steps: {who, emotion, ask, verify}, hints: [..] } }`. The text is
   **written and reviewed by a human**, low-emotion (no threats, no family emergencies), sent honestly from
-  the plain Gmail account, does not imitate any real company or service, and contains exactly one link
-  (`{{click_url}}`) and the open pixel. Agents do not write this text; ship a placeholder template that
+  the plain Gmail account, does not imitate any real company or service, contains exactly one practice
+  link (`{{click_url}}`), no tracking pixel, and a small footer line "Manage ThisIsTea emails"
+  linking to Settings (`{{settings_url}}`). Agents do not write this text; ship a placeholder template that
   says "Placeholder practice email: replace before the demo" until krishna provides it.
 
 ---
@@ -1041,8 +1061,8 @@ interface VariationSource { fun variationsOf(seedId: String): List<Item> }   // 
 | M3 | Server skeleton: DB, `/health`, auth (start/verify/password/login), mailer, CORS, Docker Compose | `docker compose up` → `/health` ok; register via curl; code in the log |
 | M4 | Part 1 screens + local store + `ApiClient` + C5 + sync queue | register end to end against local server; guest mode with server down |
 | M5 | Part 2 placement screens with the 16 placement items | ~3 min run, result screen, mastery stored |
-| M6 | Part 4 practice + lesson renderer (stub lesson) + summary + leaderboard + contacts | prompts visibly fade; held-out at end; leaderboard shows the user |
-| M7 | Part 5 readiness + field scheduler + reveal + report + settings | ConsoleMailer prints the email 15–90 s after the press; click link → reveal; pause stops it |
+| M6 | Part 4 practice + lesson renderer (stub lesson) + summary + leaderboard + invite link | prompts visibly fade; held-out at end; leaderboard shows the user |
+| M7 | Part 5 opt-in button + field scheduler + reveal + report + settings | ConsoleMailer prints the email 15–90 s after the press; no press → no email; click link → reveal; pause stops it |
 | M8 | Pages + CI workflows, Android shell, fr/es strings, About screen, polish | Pages workflow green; app opens on Android |
 | M9 | Nicholas's lesson JSON ported, 20 practice items, krishna's template, art drop-in | full demo run (§16) |
 
@@ -1098,17 +1118,19 @@ gradle cache → `./gradlew :composeApp:wasmJsBrowserDistribution -Pstrict=true`
 
 1. `docker compose up` (server + db) behind a tunnel, plus the Pages site (or
    `:composeApp:wasmJsBrowserDevelopmentRun` opened with `?api=http://localhost:8080`).
-2. A new user registers with a real email, receives the code, enters it, sets a password (first attempt
-   recorded as findings only), answers onboarding, accepts the terms.
+2. A new user registers with a real email, receives the code, enters it, sets a password (a breached
+   one is refused with the reason; only the accepted one leaves findings), answers onboarding, accepts
+   the terms.
 3. Finishes placement in about 3 minutes and sees one strength and one focus.
 4. Plays lesson 1: content, tools, attacks hunt, status, practice where prompts visibly fade as they answer
    correctly, ends with the held-out email, sees the summary, appears on the global leaderboard.
-5. Presses the readiness button (which says nothing about email). 15–90 s later the practice email
-   arrives from `thisistea@gmail.com`; clicking its link opens the in-app Reveal; Home shows Spider's
-   debrief. Pausing in Settings before the send stops it.
+5. Presses "Yes, send me one" (which says plainly that one practice email is coming). 15–90 s later the
+   practice email arrives from `thisistea@gmail.com`; clicking its link opens the in-app Reveal; Home
+   shows Spider's debrief. Pausing in Settings before the send stops it. Without the press, no email.
 6. With the backend down, placement and practice still work as a guest and sync later.
-7. The database holds the user, profile, password findings (no plaintext, no password hash besides the
-   accepted argon2id), signals, mastery, attempts and the C1 events, including `field_*`.
+7. The database holds the user, profile, findings for the accepted password only (no plaintext, no hash
+   besides the argon2id), the device settings of §9.2.9, mastery, attempts and the C1 events, including
+   `field_*`. Every stored field appears in "What we know about you".
 8. Unit tests pass: placement search + stopping rule + warm-up retry, BKT update + evidence rules,
    support level + hysteresis, selector (no same seed twice, legit share, retry queue, held-out last),
    shortcut breaker, traps, XP, password analysis (HIBP mocked), item validation, route tests for auth and
@@ -1117,7 +1139,7 @@ gradle cache → `./gradlew :composeApp:wasmJsBrowserDistribution -Pstrict=true`
 10. Runs on ≥ 2 platforms: web (wasm) and desktop (jvm); Android shell builds.
 11. The Pages workflow is green on `main`. README states what is shared in `commonMain` (models, engines,
     content, i18n, theme, UI screens, AI interface) vs platform-specific (AppShell, KeyValueStore, HTTP
-    engine, platform info, contact picker).
+    engine, platform info, share sheet).
 
 ---
 
@@ -1125,11 +1147,15 @@ gradle cache → `./gradlew :composeApp:wasmJsBrowserDistribution -Pstrict=true`
 
 - **Two kinds of "email", kept separate.** (a) In-app email items: fictional teaching content, fictional
   brands, `.example` only. (b) The one real practice email: from our plain Gmail account, no look-alike
-  domain, click-only, no sign-in page, nothing typed is collected. Neither imitates a real service.
-- Practice emails need accepted terms (layer 1) **and** the readiness press (layer 2); pause/stop in
-  Settings at any time; one email per lesson press.
-- Passwords: plaintext only in memory during analysis; argon2id hash at rest for the accepted one;
-  findings only for the rest. Codes hashed, short-lived, rate-limited.
+  domain, click-only, no sign-in page, no tracking pixel, nothing typed is collected. Neither imitates a
+  real service.
+- **Honesty test for every screen:** if a learner would feel tricked when they find out what we did
+  (not *when* the practice email came, but *that* it came, or what we stored), change the design.
+- Practice emails are off by default. They need accepted terms **and** an explicit opt-in press whose
+  text says one practice email will come; pause/stop in Settings at any time; one email per press.
+- Passwords: plaintext only in memory during analysis; argon2id hash and findings for the accepted one
+  only; nothing for rejected attempts. Codes hashed, short-lived, rate-limited.
+- No contacts read or stored; device settings limited to §9.2.9.
 - No secrets in logs, images, the web build or git. `.env` is gitignored; `.env.example` has no values.
 - Every stored field has a purpose shown in "What we know about you"; delete-my-account works.
 - Core content human-written; AI only drafts variations for review; no live AI calls in the demo.
@@ -1148,7 +1174,9 @@ gradle cache → `./gradlew :composeApp:wasmJsBrowserDistribution -Pstrict=true`
 
 - The Gmail account exists and has an app password; Gmail SMTP volume is fine for a few team addresses.
 - Krishna: confirm the `field_sends` table and scheduler in §10.6 replace the in-memory scheduler, and
-  write `practice-email-01` text with the team.
+  write `practice-email-01` text with the team. Your `awareness-sim-*` docs still say the button must
+  not hint at a message and describe a mock login page; for MVP 0 the honest opt-in (§9.6) and
+  click-only email apply. Please align the later-loop design with §17 when you next touch it.
 - Nicholas: confirm §4.2 maps his five sections (the "answers" quiz becomes practice items).
 - Ferran: confirm the name ThisIsTea; deliver art as `persona_<name>_<mood>.png` (neutral, happy,
   worried, smug; 256×256, transparent).

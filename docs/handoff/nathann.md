@@ -29,6 +29,10 @@ Branch: `nathann` · Last updated: 2026-11-21
   (`thisistea@gmail.com`); keep KMP/Compose and port the HTML design; two-layer consent; click-only
   Gmail practice email; shared AI via Koog in `commonMain`; JetBrains/KMP scoring notes.
 
+- Merged Krishna's `awareness-sim-*` docs (they replace `docs/later/press-to-complete-trigger.md`).
+- Made docs/mvp0-plan.md honest: explicit opt-in for the practice email, password findings for the
+  accepted password only, no contacts, no tracking pixel, minimal device data (decisions.md entry).
+
 ## In progress
 - Getting team agreement on the idea (TASKS.md #1).
 
@@ -73,5 +77,11 @@ Branch: `nathann` · Last updated: 2026-11-21
   build prompt was deleted, because the landing page / resend series are out of scope for MVP 0. Your
   MVP 0 part is in docs/mvp0-plan.md §9.6, §10.6 and §12: the scheduler persists `field_sends` in the DB,
   and you write the `practice-email-01` text with the team. OK?
+
+- To krishna: I merged your `awareness-sim-*` docs (kept where you put them, as later-loop satellites).
+  Change for part 5 in MVP 0 (docs/mvp0-plan.md §9.6, §10.6): the button now **says plainly** that one
+  practice email will come ("Yes, send me one"); only the timing and look stay secret. The server
+  returns `{scheduled, reason?}` instead of hiding it, and there is no open pixel. The old "must not
+  hint" rule tripped AI safety filters and reads as deceptive to judges. OK with you?
 
 ## Answers
