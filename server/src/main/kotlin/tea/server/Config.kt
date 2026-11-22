@@ -37,6 +37,17 @@ data class Config(
     val adminKey: String = "",
     /** Secret mixed into verification-code hashes. Blank → a random per-process pepper. */
     val codePepper: String = "",
+    /**
+     * Secret keying the Vault drill's reuse fingerprints (PASSWORD_FP_PEPPER). Blank → a random
+     * per-process pepper, which means reuse detection stops matching rows written before a restart;
+     * logins keep working, because those verify against argon2id.
+     */
+    val passwordFpPepper: String = "",
+    /**
+     * How long after creating a drill account before it can be challenged. Real spacing is hours;
+     * the default is short so the whole loop fits a live demo, exactly like [fieldDelayMinS].
+     */
+    val vaultChallengeDelay: Duration = 60.seconds,
     /** Root of the content folder (items/, field/). */
     val contentDir: String = "content",
     /** false disables the per-email / per-IP rate limits (tests, local demo). */
@@ -82,6 +93,8 @@ data class Config(
                 fieldPollInterval = i("FIELD_POLL_S", 5).coerceAtLeast(1).seconds,
                 adminKey = s("ADMIN_KEY"),
                 codePepper = s("CODE_PEPPER"),
+                passwordFpPepper = s("PASSWORD_FP_PEPPER"),
+                vaultChallengeDelay = i("VAULT_CHALLENGE_DELAY_S", 60).coerceAtLeast(0).seconds,
                 contentDir = s("CONTENT_DIR", d.contentDir),
                 rateLimitsEnabled = s("RATE_LIMITS", "on").lowercase() !in setOf("off", "false", "0", "no"),
                 version = s("APP_VERSION", d.version),

@@ -13,12 +13,12 @@
     {
       "id": "passwords",
       "kind": "lesson",
-      "target": null,
+      "target": "password-01",
       "persona": "dog",
-      "title": "Contraseñas y segundo cerrojo",
-      "blurb": "Largas, distintas, y un segundo factor donde importa.",
-      "minutes": 8,
-      "status": "soon"
+      "title": "Contrasenas: deje de memorizarlas",
+      "blurb": "Cuatro reglas y cinco cuentas para demostrarlo.",
+      "minutes": 6,
+      "status": "available"
     },
     {
       "id": "boardroom-crisis",

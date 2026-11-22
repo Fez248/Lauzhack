@@ -23,6 +23,9 @@ object Routes {
         is Screen.Practice -> if (screen.focusWeakest) "/practice/focus" else "/practice"
         Screen.PracticeSummary -> "/practice/summary"
         is Screen.Reveal -> "/reveal/${screen.token}"
+        is Screen.VaultDrill -> if (screen.site == 0) "/vault" else "/vault/${screen.site}"
+        Screen.VaultDebrief -> "/vault/debrief"
+        Screen.VaultChallenge -> "/vault/login"
         Screen.About -> "/about"
         Screen.Settings -> "/settings"
         Screen.Leaderboard -> "/leaderboard"
@@ -58,6 +61,12 @@ object Routes {
                 else -> null
             }
             "reveal" -> rest.firstOrNull()?.takeIf { it.isNotBlank() }?.let { Screen.Reveal(it) }
+            "vault" -> when (val part = rest.firstOrNull()) {
+                null -> Screen.VaultDrill()
+                "debrief" -> Screen.VaultDebrief
+                "login" -> Screen.VaultChallenge
+                else -> part.toIntOrNull()?.let { Screen.VaultDrill(it.coerceAtLeast(0)) }
+            }
             "about" -> Screen.About
             "settings" -> Screen.Settings
             "leaderboard" -> Screen.Leaderboard

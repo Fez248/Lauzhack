@@ -38,6 +38,9 @@ RATE_LIMITS=off ./gradlew :server:run
 # 1b. or the same backend with Postgres, in Docker (no .env needed)
 docker compose -f deploy/docker-compose.dev.yml up --build
 
+# 1b. Same, but the database survives a restart (keeps accounts and Vault drill progress)
+RATE_LIMITS=off DATABASE_URL='jdbc:h2:file:./build/tea-dev;AUTO_SERVER=TRUE' ./gradlew :server:run
+
 # 2a. Web app on http://localhost:8081
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
 # 2b. or desktop app
@@ -60,6 +63,10 @@ Tests and checks:
 ```bash
 ./gradlew :shared:jvmTest :server:test          # unit, content validation, end-to-end against a real server
 ./gradlew :shared:jvmTest -Pstrict=true         # missing translations become errors
+
+# The server suite against another database (the schema is otherwise only ever built on H2).
+# {id} is replaced per test, so they do not share rows.
+./gradlew :server:test -Dtea.test.db.url='jdbc:h2:mem:pg-{id};MODE=PostgreSQL;DB_CLOSE_DELAY=-1'
 ./gradlew :androidApp:assembleDebug             # needs an Android SDK (local.properties sdk.dir or ANDROID_HOME)
 ```
 

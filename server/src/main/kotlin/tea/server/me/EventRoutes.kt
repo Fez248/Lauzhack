@@ -82,6 +82,9 @@ fun Route.eventRoutes() {
             if (e.type.startsWith(EventTypes.FIELD_PREFIX)) {
                 throw badRequest("forbidden_event_type", "Events starting with field_ are emitted by the server only.")
             }
+            if (e.type in EventTypes.vaultServerOnly) {
+                throw badRequest("forbidden_event_type", "This vault event is emitted by the server only.")
+            }
             if (!TYPE.matches(e.type)) throw badRequest("invalid_event_type", "Event types are lowercase snake_case.")
             if (e.clientId.isBlank() || e.clientId.length > 64) throw badRequest("invalid_client_id", "Every event needs a client_id.")
             if (e.payload.toString().length > MAX_PAYLOAD) throw badRequest("too_large", "Event payload is too large.")

@@ -53,6 +53,14 @@ import tea.model.SignalsRequest
 import tea.model.StartRequest
 import tea.model.StoredEvent
 import tea.model.TeaJson
+import tea.model.VaultAccountsResponse
+import tea.model.VaultChallengeResponse
+import tea.model.VaultCreateRequest
+import tea.model.VaultCreateResponse
+import tea.model.VaultDebriefResponse
+import tea.model.VaultLoginRequest
+import tea.model.VaultLoginResponse
+import tea.model.VaultSelfReportRequest
 import tea.model.VerifyRequest
 import tea.model.VerifyResponse
 
@@ -155,6 +163,26 @@ class ApiClient(
 
     override suspend fun reveal(token: String): ApiResult<RevealResponse> =
         get("/field/reveal/" + token.filter { it.isLetterOrDigit() || it == '-' || it == '_' })
+
+    override suspend fun vaultAccounts(): ApiResult<VaultAccountsResponse> = get("/me/vault/accounts")
+
+    override suspend fun vaultCreate(siteId: String, username: String, password: String): ApiResult<VaultCreateResponse> =
+        send(HttpMethod.Post, "/me/vault/accounts", VaultCreateRequest(siteId, username, password))
+
+    override suspend fun vaultDebrief(): ApiResult<VaultDebriefResponse> = get("/me/vault/debrief")
+
+    override suspend fun vaultChallenge(): ApiResult<VaultChallengeResponse> = get("/me/vault/challenge")
+
+    override suspend fun vaultLogin(request: VaultLoginRequest): ApiResult<VaultLoginResponse> =
+        send(HttpMethod.Post, "/me/vault/login", request)
+
+    override suspend fun vaultSelfReport(siteId: String, selfReport: String): ApiResult<Unit> =
+        sendUnit(HttpMethod.Post, "/me/vault/self-report", VaultSelfReportRequest(siteId, selfReport))
+
+    override suspend fun vaultReset(siteId: String): ApiResult<Unit> =
+        sendUnit(HttpMethod.Post, "/me/vault/" + siteId.filter { it.isLetterOrDigit() } + "/reset")
+
+    override suspend fun vaultClear(): ApiResult<Unit> = sendUnit(HttpMethod.Delete, "/me/vault")
 
     /** `{ "api": "..." }` from the web build's `config.json` (absolute [url]); null if missing. */
     suspend fun fetchConfigApi(url: String): String? = try {

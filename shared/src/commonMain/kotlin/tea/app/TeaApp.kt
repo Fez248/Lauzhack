@@ -38,6 +38,13 @@ sealed interface Screen {
     data class Practice(val focusWeakest: Boolean = false) : Screen
     data object PracticeSummary : Screen
     data class Reveal(val token: String) : Screen
+
+    /** The Vault drill: the disclosure card, then one sign-up screen per site (0-based). */
+    data class VaultDrill(val site: Int = 0) : Screen
+    data object VaultDebrief : Screen
+
+    /** The login drill: one of the five at random, in a later session. */
+    data object VaultChallenge : Screen
     data object About : Screen
     data object Settings : Screen
     data object Leaderboard : Screen

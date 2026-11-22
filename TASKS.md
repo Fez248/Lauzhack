@@ -36,3 +36,6 @@ Areas: engine, phone-ui, content-seniors, content-ngo, content-ch, ai-pipeline, 
 | 28 | Placement test: 8–10 items (scam or fine, which is fake, tap the warning sign, what next, "how sure?") → per-step starting mastery | engine | nathann | review |
 | 29 | Write placement items incl. legitimate twins and one fake-news pair | content-seniors | nathann | review |
 | 30 | Stretch: field mode, email only, opt-in team members; report button + "did you send this?" check + reveal page | engine | nathann | review |
+| 31 | Lesson 2: passwords — four rules + password-manager tool cards ([docs/password-drill.md](docs/password-drill.md)) | engine | krishna | review |
+| 32 | Vault drill: 5 fictional accounts (Cat Land, Dog's Den, Spider Web Design, Zoo Card Club, Sea Turtle Fan Club), strength + breach + reuse checks, debrief, login-on-reopen ([docs/password-drill-prompt.md](docs/password-drill-prompt.md)) | engine | krishna | review |
+| 33 | Add password managers to `resources.json` (bitwarden exists; proton-pass, keepassxc, 1password, built-in) — verify links per #24 | resources | krishna | review |

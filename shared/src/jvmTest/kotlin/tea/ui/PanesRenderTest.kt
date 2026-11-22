@@ -8,7 +8,9 @@ import tea.app.AppState
 import tea.app.FakePlatformInfo
 import tea.app.Screen
 import tea.content.ContentRepository
+import tea.model.BOARDROOM_CHALLENGE_ID
 import tea.model.LESSON_1_ID
+import tea.model.LESSON_2_ID
 import tea.model.PlacementResult
 import tea.model.Profile
 import tea.model.StepKey
@@ -67,6 +69,10 @@ class PanesRenderTest {
         Screen.Settings -> "settings"
         Screen.Leaderboard -> "leaderboard"
         Screen.Gallery -> "gallery"
+        is Screen.Challenge -> "challenge_${screen.section}"
+        is Screen.VaultDrill -> "vault_drill_${screen.site}"
+        Screen.VaultDebrief -> "vault_debrief"
+        Screen.VaultChallenge -> "vault_login"
     }
 
     /** Every pane, in the order a learner meets them. */
@@ -91,6 +97,12 @@ class PanesRenderTest {
         add(Screen.About)
         add(Screen.Leaderboard)
         add(Screen.Gallery)
+        add(Screen.Challenge(BOARDROOM_CHALLENGE_ID))
+        // Lesson 2 (passwords: rules, tools, status) and the Vault drill it hands over to.
+        (0..2).forEach { add(Screen.Lesson(LESSON_2_ID, it)) }
+        add(Screen.VaultDrill(0))
+        add(Screen.VaultDebrief)
+        add(Screen.VaultChallenge)
     }
 
     private fun app(screen: Screen): AppState {

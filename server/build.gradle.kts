@@ -48,6 +48,14 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    // Run the suite against another database, e.g. the compose Postgres or H2's Postgres dialect:
+    //   ./gradlew :server:test -Dtea.test.db.url='jdbc:h2:mem:pg;MODE=PostgreSQL;DB_CLOSE_DELAY=-1'
+    //   ./gradlew :server:test -Dtea.test.db.url=jdbc:postgresql://localhost:5432/tea \
+    //       -Dtea.test.db.user=tea -Dtea.test.db.password=tea-dev
+    // Unset, every test gets its own in-memory H2 as before.
+    for (key in listOf("tea.test.db.url", "tea.test.db.user", "tea.test.db.password")) {
+        System.getProperty(key)?.let { systemProperty(key, it) }
+    }
 }
 
 // `./gradlew :server:run` runs from the repo root, so the default CONTENT_DIR=content finds the

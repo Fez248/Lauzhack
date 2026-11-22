@@ -1,0 +1,268 @@
+# Build prompt: password lesson and the Vault drill (lesson 2)
+
+> A ready-to-paste prompt for a coding agent to build krishna's password piece.
+> **Built on 2026-11-21** — see "What was built" in [password-drill.md](password-drill.md). Kept as the
+> spec the code answers to; where the code and this file differ, the code is right and this is a bug.
+> Design: [password-drill.md](password-drill.md). Keep the two in sync.
+> **The plan wins:** [docs/mvp0-plan.md](mvp0-plan.md) §4.2 (C3), §5 (C1), §9.2, §10.4, §17.
+> MVP 0 ships `email-01` only; build this **after** the MVP 0 demo stands up (§1.4).
+
+---
+
+You are building one piece of **ThisIsTea, a cyber security literacy course** (LauzHack hackathon).
+Lesson 2 teaches passwords. Instead of a practice email, the learner then does the **Vault drill**: they
+open accounts on **five fictional sites** (Cat Land, Dog's Den, Spider Web Design, the Zoo Card Club
+and the Sea Turtle Fan Club), inventing a username and password for each. You grade every password, check it against known breached passwords,
+refuse bad ones with the real reason, and keep the good ones. **Opening the password chapter again IS the test:**
+once the five exist, that chapter asks for a login to one of them, picked at random. Three rules must hold in your code:
+
+1. **Nothing here unlocks anything.** The five sites are fictional and local to the app. A vault login
+   grants no session and no access. `.example` domains, invented animals, no real brand or service.
+2. **You never hold a password.** Plaintext exists in memory for one request, then is cleared. You store
+   an argon2id hash, two keyed fingerprints and a few facts. Never the password, in any table, log,
+   response or error.
+3. **The learner is told before the first keystroke.** The drill opens with a card saying what you keep
+   and telling them to invent new passwords, not reuse a real one.
+
+## Stack
+
+- **Kotlin.** Server: **Ktor**. UI: **Compose Multiplatform**. Do not introduce another language.
+- Reuse the plan's `PasswordAnalyzer` (§10.4) rather than writing a second strength checker.
+- nbvcxz for scoring, Bouncy Castle for argon2id — both already in the plan's dependencies.
+- **No AI calls anywhere in this module.** Rules, one library, one cached HTTP request.
+
+## Build this
+
+1. **Lesson 2 content screens.** Reuse the existing lesson renderer and contract C3 (§4.2):
+   a `content` section with Cat's four rules, then a `tools` section (Dog) that walks the learner
+   through installing a password manager now. Copy comes from
+   `content/lessons/password-01/lesson.<lang>.json`; ship an `en` draft with `"status": "draft"`.
+   Tool rows reference `resourceId`s in `content/resources/resources.json` — add entries for
+   `bitwarden` (exists), `proton-pass`, `keepassxc`, `1password` and a built-in-manager row, each with
+   `"verified": false`.
+
+2. **Five sign-up screens.** One Compose screen, five skins driven by data:
+
+   ```kotlin
+   @Serializable
+   data class VaultSite(val siteId: String, val shownAs: String, val domain: String,
+                        val holds: String, val accent: String)
+   ```
+
+   The five, with the cast member whose page each one is:
+
+   | `siteId` | `shownAs` | `domain` | persona |
+   |---|---|---|---|
+   | `catland` | Cat Land | `catland.example` | `CAT` |
+   | `dogsden` | Dog's Den | `dogsden.example` | `DOG` |
+   | `spiderweb` | Spider Web Design | `spiderweb.example` | `SPIDER` |
+   | `zoocard` | Zoo Card Club | `zoocard.example` | none |
+   | `seaturtle` | Sea Turtle Fan Club | `seaturtle.example` | `TURTLE` |
+
+   **Each site wears its own colours.** Take them from the owner's `personaStyle`; the Zoo Card Club
+   has no owner, so give it one colour of its own next to the drill rather than in the theme. Use
+   `PersonaAvatar` for the badge, which already falls back to a letter when the art is missing, and
+   a letter badge for the Zoo. Five sign-ups must look like five places, not one form five times.
+   Each screen: username field, password field with show/hide, live meter, "Create account".
+   Before site one, a card the learner dismisses once: *"Invent five new passwords for these five
+   pretend sites. Don't type a password you really use anywhere — not even once. We keep a scrambled
+   fingerprint so you can log back in later, plus a few facts like how long it was. We never keep the
+   password itself, and these five accounts unlock nothing."*
+
+3. **Live client-side meter** (no network): length, character classes, nbvcxz score, keyboard-row walk,
+   and whether the password contains the site name, the learner's first name, their email local part or
+   a `19\d\d|20\d\d` year. Use the shared `VaultWords.containsSiteWord` for the site-name check so the
+   meter and the server can never disagree: short words like `cat` match **whole words only**, so
+   `scattered` is not refused, while `catland` matches anywhere. Also compare against the passwords typed earlier **in this drill session**,
+   held in memory only, so reuse is caught before submit. Show the specific reason, never a bare
+   coloured bar, and **never a "time to crack" figure**.
+
+4. **`POST /me/vault/accounts`** (session auth) with `{site_id, username, password}`:
+   - Analyse via `PasswordAnalyzer`: `length`, `classes`, `score` (0–4), `keyboard_pattern`,
+     `contains_name`, `contains_email`, `contains_year`, `contains_site`.
+   - **Breach check**, exactly as §10.4: SHA-1 the password, send only the **first 5 hex chars** to
+     `https://api.pwnedpasswords.com/range/<prefix>` with `Add-Padding: true` and
+     `User-Agent: ThisIsTea-server`, match the suffix locally. Timeout 2 s; on failure `pwned = false`
+     and log "hibp unavailable". **Cache prefixes in memory for 1 hour.**
+   - **Reuse check** against this learner's other vault accounts **and their account password**:
+     `reuse_fp = HMAC-SHA256(PASSWORD_FP_PEPPER, password)` for exact matches, and
+     `family_fp = HMAC-SHA256(PASSWORD_FP_PEPPER, normalise(password))` where `normalise` lowercases,
+     strips trailing digits and punctuation, and folds leetspeak (`4→a 3→e 0→o 1→l $→s`).
+   - **Accept iff** `length >= 10 && score >= 2 && !pwned && no exact reuse`. A `family_fp` match is
+     **accepted**, with `family_match = true` returned for the debrief.
+   - **Rejected:** return `{accepted: false, reason}` and **store nothing whatsoever** — no row, no
+     counter, no log line containing any part of the password.
+   - **Accepted:** store `vault_accounts` (with `password_hash = argon2id(password)`,
+     `m = 19456 KiB, t = 2, p = 1`, 16-byte salt, PHC string) and `vault_findings`. Clear the
+     `CharArray`. Emit `vault_account_created`.
+
+   Reasons map to this copy:
+
+   | `reason` | Learner reads |
+   |---|---|
+   | `too_short` | "At least 10 characters, please. Length is the part that actually helps." |
+   | `weak` | "A guesser would get this quickly: it's close to a common one. Try four unrelated words." |
+   | `pwned` | "This one is in known breach lists (seen `<count>` times). Attackers try these first." |
+   | `contains_site` / `contains_name` / `contains_year` | "It has `catland` in it — the first thing anyone guessing this site tries." |
+   | `reused` | "That's the password you used for Dog's Den. One leak would open both. Try another." |
+
+5. **Debrief screen** from `GET /me/vault/debrief` — the five findings side by side (never a password,
+   never a fingerprint). Three parts: **family links** between sites whose `family_fp` matches; a
+   **tiering sort** where the learner ranks the five sites by what each holds, compared against the
+   strength they actually chose; and **where these came from** (name / year / site name / keyboard
+   counts). Spider ranks them weakest-first with the reason, and takes nothing.
+   The sort is a real sort — the learner moves the five with up/down buttons and asks for the
+   comparison, which then names the site whose place and password disagree most. Take strength from
+   the response's own weakest-first `guess_order` rather than re-ranking on the device, so Spider's
+   order and the comparison cannot disagree. Emit `vault_drill_completed` here, once.
+
+6. **Login drill, reached from the password chapter itself.** Once all five accounts exist, opening
+   that chapter on Home must ask for a login instead of replaying the lesson — no separate card, no
+   retyping exercise. Set a local flag when the fifth account is created so Home decides without a
+   round trip, clear it when a site is reset, and branch in `chapterTarget`. When nothing is due,
+   that screen offers the debrief rather than dead-ending.
+   `GET /me/vault/challenge` returns **one site chosen uniformly at random** among the
+   learner's accounts that have not graduated; `Review.kt` (§6.8) decides only *when* it is due (first
+   challenge at least a few hours later, **one site per session**). Do not order the challenges by
+   creation or by weakness — the learner must not be able to prepare for a specific one. A challenge
+   that already has a failed attempt against it is **resumed, not re-rolled**: otherwise leaving the
+   screen and coming back deals a new site, which is a free re-roll of the one they could not
+   remember.
+   `POST /me/vault/login {site_id, username, password}` verifies against the argon2id hash:
+   - Three attempts, each emitting `vault_login_attempted`. Username is shown; the password is not.
+   - Success → set `graduated_at`, award XP (once per site, for the graduation itself — never for
+     how the password arrived), Cat: "that is the habit — you didn't remember it, you looked it up."
+   - Three failures → "Open your password manager and look it up. If it isn't in there, that is the
+     lesson: we can't tell you either — we only kept a scrambled fingerprint." Offer a reset that runs
+     a new password through step 4 and reschedules the challenge.
+   - **Never** give a hint derived from the findings (length, first character, anything).
+
+7. **Manager-habit signals** (only after the card below has been shown; see the design doc's
+   "Are they using a manager?" — **this step needs a `decisions.md` entry before you build it**, because
+   §1.4 lists paste detection as out of scope):
+   - The login drill's card must say: *"We notice whether you paste, autofill or type this, and how long
+     you take — that is how we tell whether the manager habit is working. We never read your clipboard,
+     and we never record what you type."*
+   - Record exactly three things on the `vault_logins` row: `input_method` (`paste` from the paste
+     event, `autofill` from an `input` event with no preceding keystroke plus the `:-webkit-autofill`
+     hook, else `typed`), `time_to_first_input_ms` (focus → first character), and an optional
+     `self_report` from one tap after the attempt ("looked it up" / "remembered it" / "had it written
+     down"). The self-report is asked **after** the verdict comes back, so it cannot ride along with
+     the login request: send it on its own to `POST /me/vault/self-report {site_id, self_report}`,
+     which writes it onto that attempt's row. Say it back in "What we know about you".
+   - **Never** collect per-key timings or typing dynamics (behavioural biometrics under the GDPR and the
+     Swiss nFADP), never read clipboard contents, never try to identify which manager is in use.
+   - The signal **never** changes the verdict, the XP or the mastery estimate — it only picks the
+     follow-up line: pasted and correct → "that is the habit"; typed and correct → "did you look it up,
+     or remember it?"; typed and wrong three times → the teaching moment.
+   - Also compute **graduation rate** across the five accounts. It needs no detection at all and is the
+     real measure; if the team declines the input-method signal, this alone is enough.
+
+8. **Transparency and deletion.** Add every vault field to `GET /me/about` ("What we know about you",
+   §9.2) with its purpose in plain words. Extend `DELETE /me` to wipe `vault_accounts`,
+   `vault_findings` and `vault_logins`. Add `DELETE /me/vault` for demo resets.
+
+9. **A one-minute demo**, as a second (secondary) button under the password chapter's Start on Home:
+   `1-minute demo`. The same module with less of it, for a stage slot — a short lesson
+   (`content/lessons/password-01-demo`: two rules, the status question, the drill card, `minutes: 1`)
+   and the drill cut to **two sites**, Cat Land and the Zoo Card Club, so the debrief's tiering
+   question keeps its contrast (a pet forum against a card number). Change nothing else: same checks,
+   same argon2id, same fingerprints, same random login test. Hold the mode in one local flag set by
+   the button and cleared by the chapter's own Start, so the chapter itself is always the five, and
+   give each run its own "finished" flag so completing the demo does not tell the chapter that its
+   five are done. Send a finished demo run straight to the login test so it can be shown twice in a
+   row. Opening the
+   drill on a site that already has an account must skip to the first one that does not.
+
+## Data shape
+
+```kotlin
+@Serializable
+data class VaultCreateRequest(val siteId: String, val username: String, val password: String)
+
+@Serializable
+data class VaultCreateResponse(
+    val accepted: Boolean,
+    val reason: String? = null,          // too_short | weak | pwned | contains_site |
+                                         // contains_name | contains_year | reused
+    val pwnedCount: Int? = null,
+    val findings: VaultFindings? = null, // accepted only
+    val familyMatch: Boolean = false,
+)
+
+@Serializable
+data class VaultFindings(
+    val length: Int, val classes: Int, val score: Int,
+    val pwned: Boolean, val pwnedCount: Int,
+    val containsName: Boolean, val containsEmail: Boolean,
+    val containsYear: Boolean, val containsSite: Boolean,
+    val keyboardPattern: String? = null,
+)
+
+@Serializable
+data class VaultLoginResponse(val ok: Boolean, val attemptNo: Int, val hint: String? = null)
+```
+
+### Tables (additive to contract C1, §5)
+
+```
+vault_accounts(id, user_id, site_id, username, password_hash, created_at,
+    graduated_at?, UNIQUE(user_id, site_id))                                      (add)
+vault_findings(account_id PK, length, classes, score, pwned, pwned_count,
+    contains_name, contains_email, contains_year, contains_site, keyboard_pattern,
+    reuse_fp, family_fp, analysed_at)                                             (add)
+vault_logins(id, user_id, site_id, succeeded, attempt_no, input_method,
+    time_to_first_input_ms, self_report?, at)                                     (add)
+```
+
+### Events (additive to §5.1)
+
+`vault_drill_started` `{lesson_id}` · `vault_account_created` `{site_id, score, pwned, family_match}` ·
+`vault_attempt_rejected` `{site_id, reason}` · `vault_drill_completed`
+`{accounts, rejections, families}` · `vault_login_attempted`
+`{site_id, succeeded, attempt_no, input_method}`
+
+### Config
+
+`PASSWORD_FP_PEPPER` in `.env` (32+ random bytes, base64), with a valueless entry in
+`deploy/.env.example`. **Never committed.** Rotating it invalidates reuse detection for existing rows,
+not logins — say so in a comment.
+
+## Rules (non-negotiable)
+
+- Plaintext in memory for one request only, then cleared. Never stored, logged, returned, or included
+  in an error or stack trace. No plaintext column, in any table, for any reason.
+- Rejected attempts store **nothing** — no row, no counter, no paste detection (§1.4).
+- Only the 5-character HIBP prefix leaves the server. No other outbound request carries learner data.
+- Fictional sites, `.example` domains, no real brand or service imitated. Real password-manager names
+  appear only as `resources.json` entries, shipped `verified: false`.
+- A vault login grants no session, no token and no access to anything.
+- Every stored field is listed in "What we know about you" with its purpose; `DELETE /me` removes all of
+  it; the honesty test (§17) applies to every screen.
+- Lesson copy is human-written; AI only drafts variations for human review.
+- A weak or breached password is caught **at creation**, while the plaintext is in memory, and the
+  verdict (`score`, `pwned`, `pwned_count`, the `contains_*` flags) is stored instead of the password.
+  Nothing later needs to re-read it: XP, mastery and the debrief all read the findings.
+- Input method only (`paste | autofill | typed`), disclosed first. Never per-key timings, never
+  clipboard contents, never which manager. It changes no verdict and no XP.
+
+## Done when
+
+- A learner can open five accounts; weak, breached and exactly-reused passwords are refused with the
+  real reason, and nothing is stored for a refusal.
+- `grep -ri` over the database schema, the logs of a full drill run, and every response body finds no
+  plaintext password.
+- A password already in a breach list (`password1`) is refused with its breach count; with the network
+  off, the drill still works and the log says "hibp unavailable".
+- `catland1` then `catland2` both get in, and the debrief draws the family link between them.
+- `scattered velvet keys` is accepted for Cat Land, and `my catland words` is not.
+- Opening the password chapter with five accounts set up asks for a login, not the lesson.
+- The debrief shows five rows built only from findings — no password, no fingerprint.
+- A later session challenges exactly one site, **picked at random** among the non-graduated ones; over
+  repeated runs the challenged site varies. The right password graduates it; three wrong ones give the
+  honest "we can't tell you either" message and never a derived hint.
+- A pasted login and a typed login both succeed and are recorded as such, the card said so beforehand,
+  and neither changes the XP awarded.
+- "What we know about you" lists every vault field; `DELETE /me` leaves no vault rows behind.
+- The `1-minute demo` button runs the short lesson, two sign-ups, the debrief and one login test, and
+  pressing the chapter's own Start afterwards goes back to the five.

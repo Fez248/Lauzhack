@@ -81,7 +81,10 @@
     <string name="lesson_section_status">Bilan</string>
     <string name="lesson_section_practice">Entraînement</string>
     <string name="lesson_section_readiness">Fin</string>
-    <string name="lesson_minutes">Environ %1$d minutes</string>
+    <plurals name="lesson_minutes_n">
+        <item quantity="one">Environ %1$d minute</item>
+        <item quantity="other">Environ %1$d minutes</item>
+    </plurals>
     <string name="lesson_continue">Continuer</string>
     <string name="lesson_home">Retour à l'accueil</string>
     <string name="lesson_loading">Chargement de la leçon</string>
@@ -204,4 +207,6 @@
     <string name="summary_practise_again">S'entraîner encore</string>
     <string name="summary_continue">Continuer</string>
     <string name="summary_empty">Il n'y a pas encore de bilan d'entraînement.</string>
+    <string name="lesson_to_drill">Ouvrir cinq comptes</string>
+    <string name="lesson_to_drill_demo">Ouvrir deux comptes</string>
 </resources>

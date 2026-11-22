@@ -11,6 +11,8 @@ import tea.server.field.FieldTemplates
 import tea.server.leaderboard.ItemCatalog
 import tea.server.mail.Mailer
 import tea.server.password.PasswordAnalyzer
+import tea.server.password.PwnedClient
+import tea.server.vault.VaultService
 
 /** Everything the routes need, wired once in [module] (no DI framework). */
 class Services(
@@ -19,6 +21,8 @@ class Services(
     val mailer: Mailer,
     val clock: Clock,
     val analyzer: PasswordAnalyzer,
+    /** Shared with [analyzer]; the Vault drill needs the breach count, not just a verdict. */
+    val pwned: PwnedClient,
     val limiter: RateLimiter,
     val items: ItemCatalog,
     val templates: FieldTemplates,
@@ -26,6 +30,7 @@ class Services(
     val codePepper: String,
 ) {
     val field: FieldScheduler by lazy { FieldScheduler(this) }
+    val vault: VaultService by lazy { VaultService(this) }
 }
 
 val ServicesKey = AttributeKey<Services>("tea.services")

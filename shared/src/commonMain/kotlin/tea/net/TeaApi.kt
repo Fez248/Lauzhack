@@ -4,6 +4,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 
 import tea.model.AboutEntry
+import tea.model.VaultAccountsResponse
+import tea.model.VaultChallengeResponse
+import tea.model.VaultCreateResponse
+import tea.model.VaultDebriefResponse
+import tea.model.VaultLoginRequest
+import tea.model.VaultLoginResponse
 import tea.model.AppEvent
 import tea.model.Attempt
 import tea.model.AttemptsResponse
@@ -73,4 +79,14 @@ interface TeaApi {
     suspend fun readiness(lessonId: String): ApiResult<ReadinessResponse>
     suspend fun reportField(): ApiResult<Unit>
     suspend fun reveal(token: String): ApiResult<RevealResponse>
+
+    // the Vault drill (docs/password-drill.md)
+    suspend fun vaultAccounts(): ApiResult<VaultAccountsResponse>
+    suspend fun vaultCreate(siteId: String, username: String, password: String): ApiResult<VaultCreateResponse>
+    suspend fun vaultDebrief(): ApiResult<VaultDebriefResponse>
+    suspend fun vaultChallenge(): ApiResult<VaultChallengeResponse>
+    suspend fun vaultLogin(request: VaultLoginRequest): ApiResult<VaultLoginResponse>
+    suspend fun vaultSelfReport(siteId: String, selfReport: String): ApiResult<Unit>
+    suspend fun vaultReset(siteId: String): ApiResult<Unit>
+    suspend fun vaultClear(): ApiResult<Unit>
 }

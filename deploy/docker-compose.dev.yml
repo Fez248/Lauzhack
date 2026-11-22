@@ -26,6 +26,9 @@ services:
       DATABASE_USER: tea
       DATABASE_PASSWORD: tea-dev
       RATE_LIMITS: "off"
+      # The Vault drill's login challenge is due this many seconds after a password is made. The
+      # real gap is hours; 10 s keeps the whole lesson-2 loop demoable, like RATE_LIMITS above.
+      VAULT_CHALLENGE_DELAY_S: "10"
       APP_PUBLIC_URL: http://localhost:8081/
       API_PUBLIC_URL: http://localhost:8080
     ports: [ "127.0.0.1:8080:8080" ]
