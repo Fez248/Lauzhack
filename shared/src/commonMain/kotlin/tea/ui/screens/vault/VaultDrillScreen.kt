@@ -27,11 +27,17 @@ import org.jetbrains.compose.resources.stringResource
 import tea.app.AppState
 import tea.app.Screen
 import tea.generated.resources.*
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import tea.model.EventTypes
+import tea.model.LESSON_2_DEMO_ID
+import tea.model.LESSON_2_ID
 import tea.model.VaultCreateResponse
 import tea.model.VaultReason
 import tea.model.VaultSite
 import tea.net.ApiResult
 import tea.ui.screens.learn.LearnKeys
+import tea.ui.screens.learn.emitOnce
 import tea.ui.components.Banner
 import tea.ui.components.OfflineBanner
 import tea.ui.components.ScreenColumn
@@ -65,11 +71,24 @@ fun VaultDrillScreen(app: AppState, siteIndex: Int) {
     var busy by remember(siteIndex) { mutableStateOf(false) }
     var failed by remember(siteIndex) { mutableStateOf(false) }
 
+    // Two sites in the one-minute demo, five otherwise. Everything else about the drill is the same.
+    val demo = app.load(LearnKeys.VAULT_DEMO, LearnKeys.BOOL) == true
+
+    LaunchedEffect(demo) {
+        // The drill is lesson 2's test, so the event carries the lesson it belongs to — the
+        // one-minute version included, so the two runs can be told apart later.
+        app.emitOnce(
+            LearnKeys.VAULT_STARTED,
+            EventTypes.VAULT_DRILL_STARTED,
+            JsonObject(mapOf("lesson_id" to JsonPrimitive(if (demo) LESSON_2_DEMO_ID else LESSON_2_ID))),
+        )
+    }
+
     LaunchedEffect(online) {
         if (sites.isEmpty() && online) {
             when (val r = app.vaultAccounts()) {
                 is ApiResult.Ok -> {
-                    sites = r.value.sites
+                    sites = VaultDemo.sitesFor(r.value.sites, demo)
                     done = r.value.accounts.map { it.siteId }.toSet()
                 }
                 else -> Unit
@@ -78,17 +97,32 @@ fun VaultDrillScreen(app: AppState, siteIndex: Int) {
     }
 
     val site = sites.getOrNull(siteIndex)
+    val runTitle = stringResource(if (demo) Res.string.vault_title_demo else Res.string.vault_title)
     if (!online && sites.isEmpty()) {
-        ScreenColumn(title = stringResource(Res.string.vault_title), onBack = app::back) { OfflineBanner() }
+        ScreenColumn(title = runTitle, onBack = app::back) { OfflineBanner() }
         return
     }
     if (site == null) {
-        ScreenColumn(title = stringResource(Res.string.vault_title), onBack = app::back) {}
+        ScreenColumn(title = runTitle, onBack = app::back) {}
+        return
+    }
+
+    // Coming back to the drill (after the demo, or after leaving halfway) must not open a form whose
+    // only possible answer is "you already have an account on this site".
+    val alreadyOpen = site.siteId in done && result == null
+    LaunchedEffect(alreadyOpen, done, sites) {
+        if (alreadyOpen) {
+            val next = sites.indexOfFirst { it.siteId !in done }
+            if (next >= 0) app.navigate(Screen.VaultDrill(next)) else app.navigate(Screen.VaultDebrief)
+        }
+    }
+    if (alreadyOpen) {
+        ScreenColumn(title = site.shownAs, onBack = app::back) {}
         return
     }
 
     if (!acknowledged && siteIndex == 0 && done.isEmpty()) {
-        VaultIntro(onStart = { acknowledged = true }, onBack = app::back)
+        VaultIntro(demo = demo, onStart = { acknowledged = true }, onBack = app::back)
         return
     }
 
@@ -169,14 +203,21 @@ fun VaultDrillScreen(app: AppState, siteIndex: Int) {
                         when (val r = app.vaultCreate(site.siteId, username.trim(), password)) {
                             is ApiResult.Ok -> {
                                 result = r.value
+                                if (!r.value.accepted) {
+                                    // A number only: the server keeps nothing at all for a refusal,
+                                    // and neither do we. It is here so the debrief can say how many
+                                    // tries the five took.
+                                    val seen = app.load(LearnKeys.VAULT_REJECTIONS, LearnKeys.INT) ?: 0
+                                    app.save(LearnKeys.VAULT_REJECTIONS, LearnKeys.INT, seen + 1)
+                                }
                                 if (r.value.accepted) {
                                     typedHere += password
                                     done = done + site.siteId
                                     password = ""
                                     // From here on, opening the password chapter asks for a login
                                     // instead of replaying the lesson.
-                                    if (done.size >= sites.size) {
-                                        app.save(LearnKeys.VAULT_DRILL_DONE, LearnKeys.BOOL, true)
+                                    if (sites.all { it.siteId in done }) {
+                                        app.save(LearnKeys.vaultDone(demo), LearnKeys.BOOL, true)
                                     }
                                 }
                             }
@@ -200,12 +241,17 @@ fun VaultDrillScreen(app: AppState, siteIndex: Int) {
     }
 }
 
+/** The card the learner dismisses once, before the first field. The demo says "two", not "five". */
 @Composable
-private fun VaultIntro(onStart: () -> Unit, onBack: () -> Unit) {
-    ScreenColumn(title = stringResource(Res.string.vault_title), onBack = onBack) {
-        SectionHeading(stringResource(Res.string.vault_intro_title), large = true)
+private fun VaultIntro(demo: Boolean, onStart: () -> Unit, onBack: () -> Unit) {
+    ScreenColumn(title = stringResource(if (demo) Res.string.vault_title_demo else Res.string.vault_title), onBack = onBack) {
+        SectionHeading(stringResource(if (demo) Res.string.vault_intro_title_demo else Res.string.vault_intro_title), large = true)
         TeaCard {
-            Text(stringResource(Res.string.vault_intro_card), style = TeaTheme.type.body, color = TeaTheme.colors.ink)
+            Text(
+                stringResource(if (demo) Res.string.vault_intro_card_demo else Res.string.vault_intro_card),
+                style = TeaTheme.type.body,
+                color = TeaTheme.colors.ink,
+            )
         }
         TeaButton(stringResource(Res.string.vault_intro_start), onStart, modifier = Modifier.fillMaxWidth())
     }

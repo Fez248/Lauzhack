@@ -1,0 +1,77 @@
+{
+  "id": "password-01-demo",
+  "language": "fr",
+  "title": "Les mots de passe en une minute",
+  "subtitle": "Deux regles, deux comptes, et l'un des deux revient",
+  "minutes": 1,
+  "sections": [
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Securite personnelle",
+          "title": "Deux regles, puis vous le faites",
+          "say": "Nous avons une minute, voici donc la version courte. La machine qui devine se moque de votre point d'exclamation. Ce qui compte, c'est la quantite a parcourir, et si elle a deja vu votre mot de passe ailleurs.",
+          "rules": [
+            {
+              "headline": "Long vaut mieux que malin.",
+              "body": "Quatre mots sans rapport. Un mot de passe court reste court, meme avec des symboles."
+            },
+            {
+              "headline": "Jamais deux fois le meme.",
+              "body": "Un site compromis les devient tous, parce que les attaquants rejouent les couples qu'ils possedent deja."
+            }
+          ],
+          "sign_off": "La lecon complete ajoute deux regles et cinq gestionnaires de mots de passe au choix. Ceci en est la version d'une minute."
+        }
+      ]
+    },
+    {
+      "type": "status",
+      "question": "Comment vous sentez-vous ?",
+      "levels": [
+        {
+          "key": "LOW",
+          "label": "Encore hesitant",
+          "persona": "turtle",
+          "reply": "C'est tout a fait normal. Deux comptes, et rien de ce que vous tapez ici n'ouvre quoi que ce soit."
+        },
+        {
+          "key": "MEDIUM",
+          "label": "Ca vient",
+          "persona": "cat",
+          "reply": "Bien. Prouvez-le sur deux comptes, et enregistrez les deux au passage."
+        },
+        {
+          "key": "HIGH",
+          "label": "Confiant",
+          "persona": "spider",
+          "reply": "Confiant ? Deux ne devraient poser aucun probleme. Je vous attends a la fin pour dire lequel j'aurais essaye en premier."
+        }
+      ]
+    },
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Securite personnelle",
+          "title": "Maintenant, la preuve",
+          "say": "Deux sites fictifs, dont un qui garde un numero de carte. Inventez un nouveau mot de passe pour chacun. Nous gardons une empreinte brouillee pour que vous puissiez vous reconnecter, et rien d'autre : ni le mot de passe, ni un indice, ni le moyen de vous le rappeler.",
+          "rules": [
+            {
+              "headline": "Deux sites, deux nouveaux mots de passe.",
+              "body": "Tous les deux fictifs, tous les deux a nous, et ils n'ouvrent rien. N'utilisez pas un mot de passe que vous avez vraiment, pas une seule fois."
+            },
+            {
+              "headline": "Nous en redemanderons un.",
+              "body": "Dans un instant, l'un des deux au hasard. Nous ne dirons pas lequel : la seule facon de passer est de les avoir enregistres tous les deux."
+            }
+          ],
+          "sign_off": "Deux comptes. Ensuite on verra si l'habitude est reelle."
+        }
+      ]
+    }
+  ]
+}

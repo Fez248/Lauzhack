@@ -57,6 +57,7 @@
     <string name="home_ch_continue">Continue</string>
     <string name="home_ch_review">Review</string>
     <string name="home_ch_replay">Replay</string>
+    <string name="home_ch_demo">1-minute demo</string>
     <string name="home_ch_section">Section %1$d of %2$d</string>
     <string name="home_ch_decision">%1$d of %2$d decisions made</string>
     <string name="home_ch_done">Done</string>

@@ -295,6 +295,7 @@ vault_logins(id, user_id, site_id, succeeded, attempt_no, input_method,
 | `GET /me/vault/debrief` | the five findings side by side for the debrief screen |
 | `GET /me/vault/challenge` | which site to ask about now, or `null` if none is due |
 | `POST /me/vault/login` | `{site_id, username, password}` → `{ok, attempt_no, hint?}` |
+| `POST /me/vault/self-report` | `{site_id, self_report}` → the answer tapped after the attempt, onto that attempt's row |
 | `DELETE /me/vault` | demo reset (admin key or the learner's own session) |
 
 ## The debrief
@@ -428,6 +429,29 @@ From [mvp0-plan.md §17](mvp0-plan.md) and [AGENTS.md](../AGENTS.md):
 - **Human-written copy.** Cat's rules, Spider's lines and the tool cards are written by a person; AI may
   draft variations for human review (§17).
 
+## The one-minute demo
+
+Home's password chapter carries a second, quieter button under **Start**: **1-minute demo**. It is
+the same module with less of it, for a stage slot where five accounts do not fit:
+
+- `content/lessons/password-01-demo/lesson.{en,fr,es}.json` — two rules in Cat's voice, the status
+  question, and the card that sets up the drill. Three taps instead of eight, `minutes: 1`.
+- The drill runs **two sites**: Cat Land (a pet forum, nothing but posts) and the Zoo Card Club (an
+  address and a card number). That pair is chosen so the debrief's tiering question still has the
+  contrast it needs — one account would teach nothing about reuse, and these two still show that the
+  valuable site deserves the better password.
+- Everything else is untouched: the same checks, the same argon2id and fingerprints, the same
+  debrief, the same random login test, the same honest failure. `VAULT_CHALLENGE_DELAY_S` is what
+  makes the login test reachable inside the minute, as it already does for the whole drill.
+- The mode is one local flag (`vault.demo`), set by the demo button and cleared by the chapter's own
+  Start, so the real chapter is always the five. Each run also keeps its own "finished" flag
+  (`vault.demo.done` beside `vault.drill.done`), so finishing the demo never tells the real chapter
+  that its five are done — the chapter still opens its own lesson. A finished demo run starts at the
+  login test rather than replaying the short lesson, which is what lets it be shown twice in a row.
+- Opening the drill on a site that already has an account now skips ahead to the first one that does
+  not, instead of offering a form whose only possible answer is "you already have an account here" —
+  the demo makes that case common, but it was always reachable.
+
 ## Open questions
 
 - **Hashed, not plaintext** (see Storage): this doc overrides the brief. It needs nathann's confirmation
@@ -438,8 +462,10 @@ From [mvp0-plan.md §17](mvp0-plan.md) and [AGENTS.md](../AGENTS.md):
 - **Does the drill count as placement input?** Password behaviour is a different skill from scam
   spotting; it probably wants its own mastery skill key rather than the four steps. Needs a `skill`
   name agreed with whoever owns `Bkt.kt`.
-- **Five sites or three for the demo?** Five teaches reuse properly; three fits a two-minute stage slot.
-  Proposed: five in the app, and the demo shows sites one, three and five.
+- ~~**Five sites or three for the demo?**~~ **Settled** (krishna, 2026-11-22): five in the app, and a
+  **two-site** demo behind its own button, with the short lesson in front of it. See "The one-minute
+  demo" above. Two rather than three because the minute is the constraint, and the Cat Land / Zoo
+  Card Club pair already carries the tiering point.
 - **Paste / autofill detection** (see "Are they using a manager?") reverses a recorded decision and
   needs its own `decisions.md` entry. Disclosed up front and stored as one enum, it is a different
   thing from the silent version that was cut — but nathann decides, and graduation rate works without it.
@@ -456,8 +482,31 @@ All of the Must rows below are in, with 263 tests passing across `:server` and `
   "What we know about you" and wiped by `DELETE /me`.
 - **Client** — `shared/src/commonMain/kotlin/tea/ui/screens/vault/`: the five sign-up screens, the
   live meter, the debrief, the login drill, and `InputMethodWatcher`; strings in en, fr and es.
-- **Tests** — `server/.../VaultTest.kt` (17) and `shared/.../PasswordMeterTest.kt` (13), including a
-  check that no stored value, response body or About line can contain a password.
+- **Tests** — `server/.../VaultTest.kt` (19), `shared/.../PasswordMeterTest.kt` (13) and
+  `shared/.../VaultDebriefTest.kt` (5), including a check that no stored value, response body or
+  About line can contain a password.
+
+The pieces the prompt asked for that the first build left out are in too, after a second pass against
+the spec:
+
+- **The tiering question is a sort, not a list.** The learner moves the five sites into the order they
+  would least like to lose, and only then does the screen lay that order next to the strength they
+  actually chose, naming the site whose place and password disagree most. Strength comes from the
+  server's own weakest-first `guess_order`, so Spider's ranking and this comparison can never
+  disagree. Spider's order now carries the reason per site (score, length, and which guessable facts
+  went in) instead of a bare list.
+- **`vault_drill_started` and `vault_drill_completed` are emitted.** They were declared and never
+  sent. The client emits the first when the sign-ups open (`{lesson_id}`) and the second on the
+  debrief once all five exist (`{accounts, rejections, families}`). The rejection count is the
+  device's own tally and a number only: the server still stores nothing at all for a refusal.
+- **Graduating a site awards XP** (`Xp.VAULT_GRADUATED`, once per site). The input method still
+  changes no XP and no verdict — only the follow-up line.
+- **The self-report reaches the row that asked for it.** It is tapped *after* the attempt, so it
+  could never have travelled with the login request it was attached to; `POST /me/vault/self-report`
+  puts it on that attempt's row, and "What we know about you" says the answer back.
+- **One site per session is enforced.** A challenge with a failed attempt against it is resumed
+  rather than re-rolled, so leaving the screen and coming back is no longer a free re-roll of the one
+  site the learner could not remember.
 
 | Priority | Piece | Owner |
 |---|---|---|

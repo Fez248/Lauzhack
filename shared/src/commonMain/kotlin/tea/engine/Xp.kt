@@ -22,6 +22,12 @@ object Xp {
     const val CHALLENGE_COMPLETED = 50
 
     /**
+     * Logging back in to one of the five Vault sites (docs/password-drill.md). Awarded once per
+     * site, on the graduation itself — never for the input method, which changes no XP.
+     */
+    const val VAULT_GRADUATED = 20
+
+    /**
      * XP for one attempt. Placement attempts earn nothing (the placement bonus is an event bonus).
      * `item` may be null when the item is unknown (e.g. removed content): then only the verdict counts.
      */

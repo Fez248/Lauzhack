@@ -86,6 +86,7 @@ interface TeaApi {
     suspend fun vaultDebrief(): ApiResult<VaultDebriefResponse>
     suspend fun vaultChallenge(): ApiResult<VaultChallengeResponse>
     suspend fun vaultLogin(request: VaultLoginRequest): ApiResult<VaultLoginResponse>
+    suspend fun vaultSelfReport(siteId: String, selfReport: String): ApiResult<Unit>
     suspend fun vaultReset(siteId: String): ApiResult<Unit>
     suspend fun vaultClear(): ApiResult<Unit>
 }

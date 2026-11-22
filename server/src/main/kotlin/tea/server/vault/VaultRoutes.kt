@@ -10,6 +10,8 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import tea.model.VaultCreateRequest
 import tea.model.VaultLoginRequest
+import tea.model.VaultSelfReport
+import tea.model.VaultSelfReportRequest
 import tea.server.auth.requireUser
 import tea.server.badRequest
 import tea.server.services
@@ -74,6 +76,19 @@ fun Route.vaultRoutes() = route("/me/vault") {
         } finally {
             chars.fill('\u0000')
         }
+    }
+
+    /**
+     * The learner's own answer after an attempt, on that attempt's row. Never a verdict, never XP.
+     * Asked only after the card said we look at how the password arrived.
+     */
+    post("/self-report") {
+        val session = call.requireUser()
+        val req = call.receive<VaultSelfReportRequest>()
+        if (!VaultSites.isValid(req.siteId)) throw badRequest("invalid_site", "Unknown site.")
+        if (req.selfReport !in VaultSelfReport.all) throw badRequest("invalid_self_report", "Unknown answer.")
+        call.services.vault.selfReport(session.userId, req.siteId, req.selfReport)
+        call.respond(HttpStatusCode.NoContent)
     }
 
     /** After three misses: start that one site again, through the same checks. */

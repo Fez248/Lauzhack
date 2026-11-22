@@ -60,6 +60,7 @@ import tea.model.VaultCreateResponse
 import tea.model.VaultDebriefResponse
 import tea.model.VaultLoginRequest
 import tea.model.VaultLoginResponse
+import tea.model.VaultSelfReportRequest
 import tea.model.VerifyRequest
 import tea.model.VerifyResponse
 
@@ -174,6 +175,9 @@ class ApiClient(
 
     override suspend fun vaultLogin(request: VaultLoginRequest): ApiResult<VaultLoginResponse> =
         send(HttpMethod.Post, "/me/vault/login", request)
+
+    override suspend fun vaultSelfReport(siteId: String, selfReport: String): ApiResult<Unit> =
+        sendUnit(HttpMethod.Post, "/me/vault/self-report", VaultSelfReportRequest(siteId, selfReport))
 
     override suspend fun vaultReset(siteId: String): ApiResult<Unit> =
         sendUnit(HttpMethod.Post, "/me/vault/" + siteId.filter { it.isLetterOrDigit() } + "/reset")

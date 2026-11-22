@@ -111,6 +111,10 @@ once the five exist, that chapter asks for a login to one of them, picked at ran
    **tiering sort** where the learner ranks the five sites by what each holds, compared against the
    strength they actually chose; and **where these came from** (name / year / site name / keyboard
    counts). Spider ranks them weakest-first with the reason, and takes nothing.
+   The sort is a real sort — the learner moves the five with up/down buttons and asks for the
+   comparison, which then names the site whose place and password disagree most. Take strength from
+   the response's own weakest-first `guess_order` rather than re-ranking on the device, so Spider's
+   order and the comparison cannot disagree. Emit `vault_drill_completed` here, once.
 
 6. **Login drill, reached from the password chapter itself.** Once all five accounts exist, opening
    that chapter on Home must ask for a login instead of replaying the lesson — no separate card, no
@@ -120,11 +124,14 @@ once the five exist, that chapter asks for a login to one of them, picked at ran
    `GET /me/vault/challenge` returns **one site chosen uniformly at random** among the
    learner's accounts that have not graduated; `Review.kt` (§6.8) decides only *when* it is due (first
    challenge at least a few hours later, **one site per session**). Do not order the challenges by
-   creation or by weakness — the learner must not be able to prepare for a specific one.
+   creation or by weakness — the learner must not be able to prepare for a specific one. A challenge
+   that already has a failed attempt against it is **resumed, not re-rolled**: otherwise leaving the
+   screen and coming back deals a new site, which is a free re-roll of the one they could not
+   remember.
    `POST /me/vault/login {site_id, username, password}` verifies against the argon2id hash:
    - Three attempts, each emitting `vault_login_attempted`. Username is shown; the password is not.
-   - Success → set `graduated_at`, award XP, Cat: "that is the habit — you didn't remember it, you
-     looked it up."
+   - Success → set `graduated_at`, award XP (once per site, for the graduation itself — never for
+     how the password arrived), Cat: "that is the habit — you didn't remember it, you looked it up."
    - Three failures → "Open your password manager and look it up. If it isn't in there, that is the
      lesson: we can't tell you either — we only kept a scrambled fingerprint." Offer a reset that runs
      a new password through step 4 and reschedules the challenge.
@@ -140,7 +147,9 @@ once the five exist, that chapter asks for a login to one of them, picked at ran
      event, `autofill` from an `input` event with no preceding keystroke plus the `:-webkit-autofill`
      hook, else `typed`), `time_to_first_input_ms` (focus → first character), and an optional
      `self_report` from one tap after the attempt ("looked it up" / "remembered it" / "had it written
-     down").
+     down"). The self-report is asked **after** the verdict comes back, so it cannot ride along with
+     the login request: send it on its own to `POST /me/vault/self-report {site_id, self_report}`,
+     which writes it onto that attempt's row. Say it back in "What we know about you".
    - **Never** collect per-key timings or typing dynamics (behavioural biometrics under the GDPR and the
      Swiss nFADP), never read clipboard contents, never try to identify which manager is in use.
    - The signal **never** changes the verdict, the XP or the mastery estimate — it only picks the
@@ -152,6 +161,18 @@ once the five exist, that chapter asks for a login to one of them, picked at ran
 8. **Transparency and deletion.** Add every vault field to `GET /me/about` ("What we know about you",
    §9.2) with its purpose in plain words. Extend `DELETE /me` to wipe `vault_accounts`,
    `vault_findings` and `vault_logins`. Add `DELETE /me/vault` for demo resets.
+
+9. **A one-minute demo**, as a second (secondary) button under the password chapter's Start on Home:
+   `1-minute demo`. The same module with less of it, for a stage slot — a short lesson
+   (`content/lessons/password-01-demo`: two rules, the status question, the drill card, `minutes: 1`)
+   and the drill cut to **two sites**, Cat Land and the Zoo Card Club, so the debrief's tiering
+   question keeps its contrast (a pet forum against a card number). Change nothing else: same checks,
+   same argon2id, same fingerprints, same random login test. Hold the mode in one local flag set by
+   the button and cleared by the chapter's own Start, so the chapter itself is always the five, and
+   give each run its own "finished" flag so completing the demo does not tell the chapter that its
+   five are done. Send a finished demo run straight to the login test so it can be shown twice in a
+   row. Opening the
+   drill on a site that already has an account must skip to the first one that does not.
 
 ## Data shape
 
@@ -243,3 +264,5 @@ not logins — say so in a comment.
 - A pasted login and a typed login both succeed and are recorded as such, the card said so beforehand,
   and neither changes the XP awarded.
 - "What we know about you" lists every vault field; `DELETE /me` leaves no vault rows behind.
+- The `1-minute demo` button runs the short lesson, two sign-ups, the debrief and one login test, and
+  pressing the chapter's own Start afterwards goes back to the five.

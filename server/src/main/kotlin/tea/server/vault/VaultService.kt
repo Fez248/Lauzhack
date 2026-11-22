@@ -143,7 +143,14 @@ class VaultService(
                     (VaultAccounts.createdAt lessEq due.toOdt())
             }
             .toList()
-        val pick = candidates.randomOrNull(random) ?: return@tx VaultChallengeResponse()
+        // One site per session: a challenge already under way is resumed rather than re-rolled.
+        // Without this, leaving the screen and coming back deals a new site, which is a free
+        // re-roll — the learner could skip the one they did not save, and the drill would stop
+        // testing the only strategy that works (having saved all five). A site whose three attempts
+        // are spent stays the one named, because the way on from there is the reset the screen
+        // offers, not another site.
+        val started = candidates.filter { failedSince(userId, it[VaultAccounts.siteId]) > 0 }
+        val pick = started.firstOrNull() ?: candidates.randomOrNull(random) ?: return@tx VaultChallengeResponse()
         VaultChallengeResponse(
             siteId = pick[VaultAccounts.siteId],
             username = pick[VaultAccounts.username],
@@ -376,6 +383,26 @@ class VaultService(
             graduated = ok,
             followUp = followUp,
         )
+    }
+
+    /**
+     * The learner's own answer to "how did you get it?", tapped once **after** the attempt — so it
+     * cannot travel with the login request that asked the question. It lands on that attempt's own
+     * row, changes no verdict and no XP, and is the only one of the three signals that is not a
+     * guess (docs/password-drill.md, "Are they using a manager?").
+     */
+    suspend fun selfReport(userId: String, siteId: String, report: String): Boolean {
+        if (report !in VaultSelfReport.all) return false
+        return services.db.tx {
+            val last = VaultLogins.selectAll()
+                .where { (VaultLogins.userId eq userId) and (VaultLogins.siteId eq siteId) }
+                .orderBy(VaultLogins.at, SortOrder.DESC)
+                .firstOrNull() ?: return@tx false
+            VaultLogins.update({ VaultLogins.id eq last[VaultLogins.id] }) {
+                it[VaultLogins.selfReport] = report
+            }
+            true
+        }
     }
 
     /** Starts one site over after three misses, so the learner can set a password they will save. */

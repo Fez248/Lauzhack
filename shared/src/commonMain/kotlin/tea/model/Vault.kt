@@ -146,6 +146,17 @@ data class VaultChallengeResponse(
     @SerialName("attempts_allowed") val attemptsAllowed: Int = 3,
 )
 
+/**
+ * The one tap after an attempt ("looked it up" / "remembered it" / "had it written down"). It is a
+ * request of its own because the question is asked *after* the login answer comes back, so it
+ * cannot ride along with [VaultLoginRequest].
+ */
+@Serializable
+data class VaultSelfReportRequest(
+    @SerialName("site_id") val siteId: String,
+    @SerialName("self_report") val selfReport: String,
+)
+
 @Serializable
 data class VaultLoginRequest(
     @SerialName("site_id") val siteId: String,

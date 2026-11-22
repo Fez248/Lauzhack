@@ -66,6 +66,9 @@ class FakeApi(var token: () -> String? = { null }) : TeaApi {
     val vaultGraduated = mutableSetOf<String>()
     val vaultLogins = mutableListOf<VaultLoginRequest>()
 
+    /** site id -> the learner's own answer, as the self-report endpoint received it. */
+    val vaultSelfReports = mutableListOf<Pair<String, String>>()
+
     /** Which site the next challenge names; null = nothing due. */
     var vaultChallengeSite: String? = null
     var vaultSites: List<VaultSite> = listOf(
@@ -242,6 +245,11 @@ class FakeApi(var token: () -> String? = { null }) : TeaApi {
         )
     }
 
+    override suspend fun vaultSelfReport(siteId: String, selfReport: String) = net("vaultSelfReport", true) {
+        vaultSelfReports += siteId to selfReport
+        ApiResult.Ok(Unit)
+    }
+
     override suspend fun vaultReset(siteId: String) = net("vaultReset", true) {
         vault.remove(siteId)
         vaultGraduated -= siteId
@@ -250,7 +258,7 @@ class FakeApi(var token: () -> String? = { null }) : TeaApi {
     }
 
     override suspend fun vaultClear() = net("vaultClear", true) {
-        vault.clear(); vaultGraduated.clear(); vaultLogins.clear()
+        vault.clear(); vaultGraduated.clear(); vaultLogins.clear(); vaultSelfReports.clear()
         ApiResult.Ok(Unit)
     }
 

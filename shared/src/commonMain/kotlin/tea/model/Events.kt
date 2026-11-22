@@ -49,6 +49,8 @@ object EventTypes {
     const val FIELD_PREFIX = "field_"
 
     // the Vault drill (docs/password-drill.md). Clients may never post types starting with "vault_".
+
+    /** payload {lesson_id} — from the client, when the five sign-ups open. */
     const val VAULT_DRILL_STARTED = "vault_drill_started"
 
     /** payload {site_id, score, pwned, family_match} */
@@ -56,6 +58,7 @@ object EventTypes {
 
     /** payload {site_id, reason} — the reason only; nothing about the password itself. */
     const val VAULT_ATTEMPT_REJECTED = "vault_attempt_rejected"
+    /** payload {accounts, rejections, families} — from the client, on the debrief. */
     const val VAULT_DRILL_COMPLETED = "vault_drill_completed"
 
     /** payload {site_id, succeeded, attempt_no, input_method} */
@@ -70,5 +73,14 @@ const val LESSON_1_ID = "email-01"
 
 /** Lesson 2: passwords, ending in the Vault drill (docs/password-drill.md). */
 const val LESSON_2_ID = "password-01"
+
+/**
+ * The one-minute version of lesson 2, for a stage slot: two rules, the status question, and the
+ * drill cut to two sites. Same engine, same checks, same login test — only shorter.
+ */
+const val LESSON_2_DEMO_ID = "password-01-demo"
+
+/** True for either version of the password lesson, both of which end in the Vault drill. */
+fun isPasswordLesson(lessonId: String): Boolean = lessonId == LESSON_2_ID || lessonId == LESSON_2_DEMO_ID
 const val BOARDROOM_CHALLENGE_ID = "boardroom-crisis"
 const val FIELD_TEMPLATE_ID = "practice-email-01"

@@ -26,6 +26,7 @@ import tea.model.VaultLoginRequest
 import tea.model.VaultLoginResponse
 import tea.model.VaultReason
 import tea.model.VaultSelfReport
+import tea.model.VaultSelfReportRequest
 import tea.server.db.VaultAccounts
 import tea.server.db.VaultFindings
 import tea.server.db.VaultLogins
@@ -271,6 +272,63 @@ class VaultTest {
             decode<VaultChallengeResponse>(get("/me/vault/challenge", s.token).bodyText()).siteId?.let { after += it }
         }
         assertFalse("catland" in after)
+    }
+
+    @Test
+    fun aChallengeAlreadyUnderWayIsResumedNotRerolled() = teaTest {
+        val s = register()
+        createAll(s.token)
+        clock.advance(120.seconds)
+
+        // one attempt on whichever site was dealt, then that site must keep coming back: leaving
+        // the screen and returning is not a free re-roll of the site they could not remember
+        val first = decode<VaultChallengeResponse>(get("/me/vault/challenge", s.token).bodyText()).siteId
+        assertNotNull(first)
+        assertFalse(login(s.token, first, "not the one").ok)
+        repeat(20) {
+            val again = decode<VaultChallengeResponse>(get("/me/vault/challenge", s.token).bodyText())
+            assertEquals(first, again.siteId)
+            assertEquals(1, again.attemptsUsed)
+        }
+
+        // the right password graduates it, and the pool moves on
+        assertTrue(login(s.token, first, PW.getValue(first)).ok)
+        val next = decode<VaultChallengeResponse>(get("/me/vault/challenge", s.token).bodyText()).siteId
+        assertNotNull(next)
+        assertFalse(next == first)
+    }
+
+    @Test
+    fun theSelfReportLandsOnTheAttemptThatAskedForIt() = teaTest {
+        val s = register()
+        createAll(s.token)
+        clock.advance(120.seconds)
+        assertTrue(login(s.token, "catland", PW["catland"]!!, VaultInputMethod.TYPED).ok)
+
+        // the question is asked after the answer comes back, so it arrives on its own
+        assertEquals(
+            HttpStatusCode.NoContent,
+            post("/me/vault/self-report", s.token, VaultSelfReportRequest("catland", VaultSelfReport.LOOKED_IT_UP)).status,
+        )
+        services.db.tx {
+            val row = VaultLogins.selectAll().where { VaultLogins.siteId eq "catland" }.single()
+            assertEquals(VaultSelfReport.LOOKED_IT_UP, row[VaultLogins.selfReport])
+        }
+
+        // it is a stored field, so "What we know about you" says it back (plan §9.2)
+        val about = get("/me/about", s.token).bodyText()
+        assertTrue("looked it up" in about, "about must say the answer back")
+        for (pw in PW.values) assertFalse(pw in about, "about leaks a password")
+
+        // and only the three answers we offer, on a site of the drill
+        assertEquals(
+            HttpStatusCode.BadRequest,
+            post("/me/vault/self-report", s.token, VaultSelfReportRequest("catland", "typed-it-from-memory")).status,
+        )
+        assertEquals(
+            HttpStatusCode.BadRequest,
+            post("/me/vault/self-report", s.token, VaultSelfReportRequest("nosuchsite", VaultSelfReport.REMEMBERED)).status,
+        )
     }
 
     @Test

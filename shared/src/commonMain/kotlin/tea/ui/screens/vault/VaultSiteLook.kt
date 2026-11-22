@@ -72,3 +72,19 @@ fun SiteBadge(site: VaultSite, modifier: Modifier = Modifier, size: Dp = TeaSize
         )
     }
 }
+
+/**
+ * The one-minute demo (Home's second button under the password chapter): the same drill, cut to
+ * two sites so the whole loop — sign up, debrief, log back in — fits a stage slot.
+ *
+ * The two are chosen for the contrast the debrief's tiering question needs: a pet forum that holds
+ * nothing, and a card club that holds an address and a card number. One account would teach nothing
+ * about reuse; these two still make the point that the valuable one deserves the better password.
+ */
+object VaultDemo {
+    val siteIds = listOf("catland", "zoocard")
+
+    /** The sites this run walks through: two in the demo, all five otherwise. */
+    fun sitesFor(all: List<VaultSite>, demo: Boolean): List<VaultSite> =
+        if (!demo) all else siteIds.mapNotNull { id -> all.firstOrNull { it.siteId == id } }.ifEmpty { all.take(siteIds.size) }
+}

@@ -1,6 +1,6 @@
 # Handoff: krishna
 
-Branch: `Krishna` · Last updated: 2026-11-21 (second session)
+Branch: `Krishna` · Last updated: 2026-11-22 (third session)
 
 ## Done
 
@@ -127,6 +127,42 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
   match whole words only.
 - Cleared the drill rows from the dev database (`build/tea-demo`), which the rename would have
   orphaned anyway. Accounts and users were left alone.
+
+- **Second pass over the prompt** ([docs/password-drill-prompt.md](../password-drill-prompt.md)),
+  closing the five places where the built module was behind its own spec. 300 tests pass, strict
+  mode included.
+  - **The tiering question was a list, not a sort.** The copy already said "put the five in order,
+    then compare", and the screen only showed the five with what each holds. It is now a real sort
+    (up/down per card, then "compare with the passwords I chose"), and the comparison names the site
+    whose place and password disagree most — the saved card number behind the weakest password, which
+    is the point of the question. Strength comes from the server's own weakest-first `guess_order`,
+    so Spider's ranking and the comparison cannot drift apart. Spider's order now gives the reason
+    per site instead of five bare names.
+  - **`vault_drill_started` and `vault_drill_completed` were declared and never emitted.** The client
+    sends the first when the sign-ups open and the second on the debrief once all five exist. The
+    rejection count in that payload is counted on the device, as a number: the server still keeps
+    nothing whatever for a refused attempt.
+  - **Nothing awarded XP.** Graduating a site is worth `Xp.VAULT_GRADUATED` (20), once per site, on
+    the graduation itself. The input method still moves no XP and no verdict — only the follow-up
+    line, which is the rule the decision entry rests on.
+  - **The self-report never left the device.** It is tapped after the verdict, so it could not travel
+    with the login request it was wired to; `POST /me/vault/self-report` now puts it on that
+    attempt's row, and "What we know about you" says the answer back (§9.2 wants every stored field,
+    and this one was finally being stored).
+  - **"One site per session" was a free re-roll.** Every `GET /me/vault/challenge` dealt a new random
+    site, so leaving the screen and coming back skipped the one the learner could not remember. A
+    challenge with a failed attempt against it is now resumed; the pick stays random otherwise.
+  - Prompt and design doc updated for all of it, including the new endpoint and the sort.
+
+- **A one-minute demo of the password module**, as a second button under the chapter's Start on
+  Home (`1-minute demo`). Same engine, less of it: the short lesson
+  `content/lessons/password-01-demo` (two rules, the status question, the drill card, `minutes: 1`)
+  and the drill cut to **two sites** — Cat Land and the Zoo Card Club, the pair that keeps the
+  debrief's tiering contrast. The mode is one local flag set by the button and cleared by the
+  chapter's own Start, so the real chapter is always five; a finished demo run opens straight at the
+  login test, so it can be shown twice in a row. Also fixed on the way: entering the drill on a site
+  that already has an account used to show a form that could only be refused, and now skips to the
+  first site without one. 306 tests pass, strict mode included.
 
 ## In progress
 

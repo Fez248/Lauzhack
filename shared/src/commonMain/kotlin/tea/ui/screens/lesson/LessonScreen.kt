@@ -40,6 +40,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import tea.app.Screen
 import tea.app.TeaApp
@@ -50,7 +51,7 @@ import tea.generated.resources.lesson_complete_body
 import tea.generated.resources.lesson_continue
 import tea.generated.resources.lesson_home
 import tea.generated.resources.lesson_loading
-import tea.generated.resources.lesson_minutes
+import tea.generated.resources.lesson_minutes_n
 import tea.generated.resources.lesson_missing
 import tea.generated.resources.lesson_practice_intro
 import tea.generated.resources.lesson_practice_title
@@ -80,6 +81,7 @@ import tea.generated.resources.lesson_status_not_rated
 import tea.generated.resources.lesson_status_now
 import tea.generated.resources.lesson_status_title
 import tea.generated.resources.lesson_to_drill
+import tea.generated.resources.lesson_to_drill_demo
 import tea.generated.resources.lesson_tools_title
 import tea.generated.resources.summary_continue
 import tea.generated.resources.summary_practise_again
@@ -92,7 +94,8 @@ import tea.model.LessonSection
 import tea.model.Mood
 import tea.model.Persona
 import tea.model.PracticeSection
-import tea.model.LESSON_2_ID
+import tea.model.LESSON_2_DEMO_ID
+import tea.model.isPasswordLesson
 import tea.model.ReadinessSection
 import tea.model.RuleCard
 import tea.model.StatusSection
@@ -174,7 +177,7 @@ fun LessonContent(app: TeaApp, id: String, section: Int) {
 fun goToSection(app: TeaApp, lesson: Lesson, n: Int) {
     if (n < lesson.sections.size) {
         app.navigate(Screen.Lesson(lesson.id, n))
-    } else if (lesson.id == LESSON_2_ID) {
+    } else if (isPasswordLesson(lesson.id)) {
         app.navigate(Screen.VaultDrill(0))
     } else {
         app.navigateRoot(Screen.Home)
@@ -214,7 +217,7 @@ fun LessonSectionView(app: TeaApp, lesson: Lesson, index: Int, modifier: Modifie
                 if (lesson.subtitle.isNotBlank()) {
                     Text(lesson.subtitle, style = TeaTheme.type.body, color = TeaTheme.colors.inkSoft)
                 }
-                Text(stringResource(Res.string.lesson_minutes, lesson.minutes), style = TeaTheme.type.smallStrong, color = TeaTheme.colors.inkSoft)
+                Text(pluralStringResource(Res.plurals.lesson_minutes_n, lesson.minutes, lesson.minutes), style = TeaTheme.type.smallStrong, color = TeaTheme.colors.inkSoft)
             }
             when (s) {
                 is ContentSection -> RulesSection(s, index + 1)
@@ -227,10 +230,11 @@ fun LessonSectionView(app: TeaApp, lesson: Lesson, index: Int, modifier: Modifie
             val last = index == lesson.sections.lastIndex
             // lesson 2's last button opens the drill, so it stays a primary action rather than
             // reading like a way out of the lesson
-            val toDrill = last && lesson.id == LESSON_2_ID
+            val toDrill = last && isPasswordLesson(lesson.id)
             TeaButton(
                 stringResource(
                     when {
+                        toDrill && lesson.id == LESSON_2_DEMO_ID -> Res.string.lesson_to_drill_demo
                         toDrill -> Res.string.lesson_to_drill
                         last -> Res.string.lesson_home
                         else -> Res.string.lesson_continue

@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import tea.app.AppState
 import tea.app.Screen
+import tea.engine.Xp
 import tea.generated.resources.*
 import tea.model.VaultChallengeResponse
 import tea.model.VaultLoginRequest
@@ -66,7 +67,9 @@ fun VaultChallengeScreen(app: AppState) {
 
     LaunchedEffect(online, round) {
         if (online) {
-            if (sites.isEmpty()) (app.vaultAccounts() as? ApiResult.Ok)?.let { sites = it.value.sites }
+            if (sites.isEmpty()) (app.vaultAccounts() as? ApiResult.Ok)?.let {
+                sites = VaultDemo.sitesFor(it.value.sites, app.load(LearnKeys.VAULT_DEMO, LearnKeys.BOOL) == true)
+            }
             (app.vaultChallenge() as? ApiResult.Ok)?.let { challenge = it.value }
         }
     }
@@ -153,9 +156,23 @@ fun VaultChallengeScreen(app: AppState) {
                             password = password,
                             inputMethod = watcher.method(),
                             timeToFirstInputMs = watcher.timeToFirstInputMs(),
-                            selfReport = selfReport,
+                            // The self-report is asked after this answer comes back, so it travels
+                            // on its own; sending a previous round's answer here would date it.
+                            selfReport = null,
                         )
-                        (app.vaultLogin(request) as? ApiResult.Ok)?.let { result = it.value }
+                        selfReport = null
+                        (app.vaultLogin(request) as? ApiResult.Ok)?.let {
+                            result = it.value
+                            // The graduation earns the XP, once per site. The input method never
+                            // does: it picks the follow-up line and nothing else.
+                            if (it.value.graduated) {
+                                val key = LearnKeys.vaultGraduated(c.siteId)
+                                if (app.load(key, LearnKeys.BOOL) != true) {
+                                    app.addXp(Xp.VAULT_GRADUATED)
+                                    app.save(key, LearnKeys.BOOL, true)
+                                }
+                            }
+                        }
                         password = ""
                         busy = false
                     }
@@ -182,7 +199,12 @@ fun VaultChallengeScreen(app: AppState) {
                 ChoiceRow(
                     text = label,
                     state = if (selfReport == key) ChoiceState.Selected else ChoiceState.Idle,
-                    onClick = { selfReport = key },
+                    // The question is asked after the attempt, so the answer cannot ride along with
+                    // the login request: it is sent on its own and lands on that attempt's row.
+                    onClick = {
+                        selfReport = key
+                        scope.launch { app.vaultSelfReport(c.siteId, key) }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -193,7 +215,7 @@ fun VaultChallengeScreen(app: AppState) {
                         scope.launch {
                             app.vaultReset(c.siteId)
                             // one of the five is gone again, so the chapter goes back to the drill
-                            app.save(LearnKeys.VAULT_DRILL_DONE, LearnKeys.BOOL, false)
+                            app.save(LearnKeys.vaultDone(app.load(LearnKeys.VAULT_DEMO, LearnKeys.BOOL) == true), LearnKeys.BOOL, false)
                             val index = sites.indexOfFirst { it.siteId == c.siteId }.coerceAtLeast(0)
                             app.navigate(Screen.VaultDrill(index))
                         }

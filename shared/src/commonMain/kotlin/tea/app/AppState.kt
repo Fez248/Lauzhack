@@ -535,6 +535,10 @@ class AppState(
     suspend fun vaultLogin(request: VaultLoginRequest): ApiResult<VaultLoginResponse> =
         api.vaultLogin(request).also { checkAuth(it) }
 
+    /** The one tap after an attempt. It lands on that attempt's row and changes nothing else. */
+    suspend fun vaultSelfReport(siteId: String, selfReport: String): ApiResult<Unit> =
+        api.vaultSelfReport(siteId, selfReport).also { checkAuth(it) }
+
     suspend fun vaultReset(siteId: String): ApiResult<Unit> = api.vaultReset(siteId).also { checkAuth(it) }
 
     suspend fun vaultClear(): ApiResult<Unit> = api.vaultClear().also { checkAuth(it) }

@@ -1,0 +1,77 @@
+{
+  "id": "password-01-demo",
+  "language": "es",
+  "title": "Contrasenas en un minuto",
+  "subtitle": "Dos reglas, dos cuentas, y una de ellas vuelve",
+  "minutes": 1,
+  "sections": [
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Seguridad personal",
+          "title": "Dos reglas y luego lo hace usted",
+          "say": "Tenemos un minuto, asi que esta es la version corta. A la maquina que adivina no le importa su signo de exclamacion. Le importa cuanto hay que recorrer, y si ya ha visto su contrasena en otro sitio.",
+          "rules": [
+            {
+              "headline": "Larga gana a ingeniosa.",
+              "body": "Cuatro palabras sin relacion. Una contrasena corta sigue siendo corta, aunque lleve simbolos."
+            },
+            {
+              "headline": "Nunca la misma dos veces.",
+              "body": "Un sitio filtrado se convierte en todos, porque los atacantes reutilizan los pares que ya tienen."
+            }
+          ],
+          "sign_off": "La leccion completa anade dos reglas mas y cinco gestores de contrasenas para elegir. Esta es la version de un minuto."
+        }
+      ]
+    },
+    {
+      "type": "status",
+      "question": "Como se siente con esto?",
+      "levels": [
+        {
+          "key": "LOW",
+          "label": "Todavia con dudas",
+          "persona": "turtle",
+          "reply": "Es completamente normal. Dos cuentas, y nada de lo que escriba aqui abre nada en ningun sitio."
+        },
+        {
+          "key": "MEDIUM",
+          "label": "Mejorando",
+          "persona": "cat",
+          "reply": "Bien. Demuestrelo en dos cuentas, y guarde las dos sobre la marcha."
+        },
+        {
+          "key": "HIGH",
+          "label": "Con confianza",
+          "persona": "spider",
+          "reply": "Con confianza? Entonces dos no seran problema. Le espero al final para decirle cual habria probado primero."
+        }
+      ]
+    },
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Seguridad personal",
+          "title": "Ahora la parte que lo demuestra",
+          "say": "Dos sitios ficticios, uno de ellos con un numero de tarjeta. Invente una contrasena nueva para cada uno. Guardamos una huella cifrada para que pueda volver a entrar, y nada mas: ni la contrasena, ni una pista, ni forma de recordarsela.",
+          "rules": [
+            {
+              "headline": "Dos sitios, dos contrasenas nuevas.",
+              "body": "Los dos ficticios, los dos nuestros, y no abren nada. No use una contrasena que tenga de verdad, ni una sola vez."
+            },
+            {
+              "headline": "Le pediremos una de las dos.",
+              "body": "En un momento, una al azar. No diremos cual: la unica forma de pasar es haber guardado las dos."
+            }
+          ],
+          "sign_off": "Dos cuentas. Despues veremos si el habito es real."
+        }
+      ]
+    }
+  ]
+}

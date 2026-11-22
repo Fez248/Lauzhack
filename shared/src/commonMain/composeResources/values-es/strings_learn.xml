@@ -81,7 +81,10 @@
     <string name="lesson_section_status">Estado</string>
     <string name="lesson_section_practice">Práctica</string>
     <string name="lesson_section_readiness">Final</string>
-    <string name="lesson_minutes">Unos %1$d minutos</string>
+    <plurals name="lesson_minutes_n">
+        <item quantity="one">Un %1$d minuto</item>
+        <item quantity="other">Unos %1$d minutos</item>
+    </plurals>
     <string name="lesson_continue">Continuar</string>
     <string name="lesson_home">Volver al inicio</string>
     <string name="lesson_loading">Cargando la lección</string>
@@ -205,4 +208,5 @@
     <string name="summary_continue">Continuar</string>
     <string name="summary_empty">Todavía no hay resumen de práctica.</string>
     <string name="lesson_to_drill">Abrir cinco cuentas</string>
+    <string name="lesson_to_drill_demo">Abrir dos cuentas</string>
 </resources>
