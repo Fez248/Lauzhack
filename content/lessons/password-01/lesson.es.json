@@ -1,0 +1,139 @@
+{
+  "id": "password-01",
+  "language": "es",
+  "title": "Contrasenas: deje de memorizarlas",
+  "subtitle": "Cuatro reglas y cinco cuentas para demostrarlo",
+  "minutes": 6,
+  "sections": [
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Seguridad personal",
+          "title": "Solo la longitud gana tiempo",
+          "say": "La gente me da signos de puntuacion y cree haber hecho algo. A la maquina que adivina no le importa su signo de exclamacion. Le importa cuanto hay que recorrer.",
+          "rules": [
+            {
+              "headline": "Larga gana a ingeniosa.",
+              "body": "Cuatro o cinco palabras sin relacion. Una contrasena corta sigue siendo corta, aunque lleve simbolos."
+            },
+            {
+              "headline": "Nunca la misma dos veces.",
+              "body": "Un sitio filtrado se convierte en cinco por si solo: los atacantes reutilizan los pares que ya tienen."
+            }
+          ],
+          "sign_off": "Cuatro palabras sin relacion superan a P@ssw0rd! por una distancia que ningun simbolo cierra."
+        },
+        {
+          "persona": "cat",
+          "role": "Seguridad personal",
+          "title": "La parte que nadie quiere oir",
+          "say": "No se supone que las recuerde. Eso no es un fallo suyo, es aritmetica. Nadie guarda cuarenta contrasenas distintas en la cabeza, asi que se reutiliza una, y ahi esta todo el problema.",
+          "rules": [
+            {
+              "headline": "Que no hable de usted.",
+              "body": "Su nombre, su ano de nacimiento, su mascota, su equipo. Todo eso ya esta en internet, y es lo primero que prueba quien adivina."
+            },
+            {
+              "headline": "No se supone que las recuerde.",
+              "body": "Ese es el trabajo del gestor. Usted recuerda una frase de paso fuerte y el guarda las demas."
+            }
+          ],
+          "sign_off": "Una buena frase de paso, un gestor para el resto, y doble factor donde se ofrezca."
+        }
+      ]
+    },
+    {
+      "type": "tools",
+      "intro": "Bien, esta es la parte que de verdad lo arregla. Elija uno ahora, no mas tarde. Todos son mejores que su memoria, y cuatro de los cinco no cuestan nada.",
+      "tools": [
+        {
+          "resource_id": "bitwarden",
+          "name": "Bitwarden",
+          "what": "Gratuito, de codigo abierto, auditado, se sincroniza en todos los dispositivos.",
+          "dog_says": "Mi amigo mas viejo. Recuerda todas sus contrasenas y no rellena ninguna en un sitio falso. Si se queda callado, esa es su advertencia.",
+          "button": "Abrir Bitwarden"
+        },
+        {
+          "resource_id": "proton-pass",
+          "name": "Proton Pass",
+          "what": "Suizo, con plan gratuito, la misma cuenta que Proton Mail.",
+          "dog_says": "Mas joven que los otros y alojado aqui en Suiza. Buena eleccion si ya usa su correo.",
+          "button": "Abrir Proton Pass"
+        },
+        {
+          "resource_id": "keepassxc",
+          "name": "KeePassXC",
+          "what": "Lo guarda todo en un archivo en su propio dispositivo. Sin empresas de por medio.",
+          "dog_says": "Para quien no confia en nadie. Me parece justo, amigo. Pero las copias de seguridad tambien son suyas.",
+          "button": "Abrir KeePassXC"
+        },
+        {
+          "resource_id": "1password",
+          "name": "1Password",
+          "what": "De pago, y el mas facil de configurar para toda una familia.",
+          "dog_says": "Cuesta dinero, lo digo claro. Vale la pena si tambien esta resolviendo esto para sus padres.",
+          "button": "Abrir 1Password"
+        },
+        {
+          "resource_id": "builtin-manager",
+          "name": "El que ya tiene en el telefono",
+          "what": "Apple Passwords, Google Password Manager o Firefox.",
+          "dog_says": "Ya esta ahi, ya tiene copia, nada que instalar. Atado a un solo ecosistema, asi que incomoda si cambia. Aun asi, mucho mejor que reutilizar.",
+          "button": "Como activarlo"
+        }
+      ]
+    },
+    {
+      "type": "status",
+      "question": "Como se siente con esto?",
+      "levels": [
+        {
+          "key": "LOW",
+          "label": "Todavia dudo",
+          "persona": "turtle",
+          "reply": "Esta muy bien asi, querido. Hoy solo hace falta una cosa: instalar uno de los gestores del Perro. Lo demas viene de ahi, e iremos despacio."
+        },
+        {
+          "key": "MEDIUM",
+          "label": "Ya casi",
+          "persona": "cat",
+          "reply": "Bien. Ahora demuestrelo en cinco cuentas seguidas, porque ahi es donde memorizar deja de funcionar."
+        },
+        {
+          "key": "HIGH",
+          "label": "Con confianza",
+          "persona": "spider",
+          "reply": "Con confianza? Entonces cinco cuentas no seran nada. Esperare al final para mostrarle cual habria roto primero."
+        }
+      ]
+    },
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Seguridad personal",
+          "title": "Ahora la parte que lo demuestra",
+          "say": "Saberse las reglas no cuesta nada. Cinco cuentas seguidas si: en la tercera su memoria se rinde y el gestor es la unica salida. Esa es la leccion, y no se puede leer, hay que vivirla.",
+          "rules": [
+            {
+              "headline": "Cinco sitios, cinco contrasenas nuevas.",
+              "body": "Todos ficticios, todos nuestros, y no abren nada. No use una contrasena que tenga de verdad, ni una sola vez."
+            },
+            {
+              "headline": "Guarde cada una sobre la marcha.",
+              "body": "En el gestor que acaba de instalar. No en una nota, no en su cabeza."
+            },
+            {
+              "headline": "Le pediremos una de vuelta.",
+              "body": "En una sesion posterior, una de las cinco elegida al azar. No diremos cual, asi que la unica salida es haberlas guardado todas. No podremos ayudarle: nunca las guardamos."
+            }
+          ],
+          "sign_off": "Cinco cuentas. Luego veremos si el habito es real."
+        }
+      ]
+    }
+  ]
+}

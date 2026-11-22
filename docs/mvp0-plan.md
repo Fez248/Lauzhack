@@ -91,8 +91,10 @@ Internal step keys: `who`, `emotion`, `ask`, `verify`. Plus the end-of-item `ver
 5. **Collect only what teaching needs, and say so.** Password findings only for the password the
    learner actually sets; a short list of device settings for the UI; no contacts; every stored field
    listed in "What we know about you".
-6. **Hosting:** wasm build as static files on GitHub Pages; Ktor server + Postgres in Docker Compose on a
-   team laptop behind a cloudflared/ngrok tunnel; backend URL chosen at runtime.
+6. **Hosting:** one Docker Compose stack (`deploy/docker-compose.prod.yml`) on a machine with a public
+   domain: Caddy serves the wasm build at `/` and proxies the Ktor server at `/api`, with automatic
+   HTTPS; Postgres alongside. GitHub Pages stays an optional mirror. Backend URL chosen at runtime
+   (`config.json` served by Caddy). Local development: `deploy/docker-compose.dev.yml`.
 7. **Shared AI** (free-text grading, cached variations) behind an interface in `commonMain`, rules/stub
    fallback, optional Koog implementation. No live AI calls in the demo.
 
@@ -909,9 +911,10 @@ POST, PUT, DELETE; header `Authorization`, `Content-Type`), RateLimit, Bearer au
 DATABASE_URL=jdbc:postgresql://db:5432/tea
 DATABASE_USER=tea
 DATABASE_PASSWORD=change-me
-ALLOWED_ORIGINS=https://<org>.github.io
-APP_PUBLIC_URL=https://<org>.github.io/<repo>/        # used in links inside emails
-API_PUBLIC_URL=https://<tunnel-host>                   # used in click/open links inside emails
+PUBLIC_URL=https://<domain>                           # one origin: app at /, API at /api
+ALLOWED_ORIGINS=                                       # extra origins only (e.g. the Pages mirror)
+APP_PUBLIC_URL=                                        # links inside emails; default PUBLIC_URL/
+API_PUBLIC_URL=                                        # click links inside emails; default PUBLIC_URL/api
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=thisistea@gmail.com
@@ -1100,9 +1103,11 @@ services:
 volumes: { tea-db: {} }
 ```
 
-Tunnel (README): `cloudflared tunnel --url http://localhost:8080` (quick URLs change on restart: update
-the `API_URL` repo variable or open the site with `?api=`), or ngrok with a fixed domain. The same image
-runs on Fly.io / Railway / Cloud Run later: one URL change.
+**Superseded (no tunnel):** the files above are the original sketch. What is built: `deploy/Dockerfile`
+with two targets (`server`, `web` = Caddy + the wasm build), `deploy/Caddyfile` (app at `/`, API at
+`/api`, `config.json` generated from `PUBLIC_URL`), `deploy/docker-compose.dev.yml` (local, no `.env`;
+profile `web` adds Caddy on http://localhost:8081) and `deploy/docker-compose.prod.yml` (Caddy on
+80/443 with automatic HTTPS; the app port is not published). See README "Deploy".
 
 `.github/workflows/pages.yml`: on push to `main` (and `workflow_dispatch`): checkout → setup-java 21 →
 gradle cache → `./gradlew :composeApp:wasmJsBrowserDistribution -Pstrict=true` → write
@@ -1116,8 +1121,8 @@ gradle cache → `./gradlew :composeApp:wasmJsBrowserDistribution -Pstrict=true`
 
 ## 16. Definition of done (the demo run)
 
-1. `docker compose up` (server + db) behind a tunnel, plus the Pages site (or
-   `:composeApp:wasmJsBrowserDevelopmentRun` opened with `?api=http://localhost:8080`).
+1. `docker compose -f deploy/docker-compose.prod.yml up -d --build` on the demo host (or locally
+   `deploy/docker-compose.dev.yml` plus `:composeApp:wasmJsBrowserDevelopmentRun`).
 2. A new user registers with a real email, receives the code, enters it, sets a password (a breached
    one is refused with the reason; only the accepted one leaves findings), answers onboarding, accepts
    the terms.

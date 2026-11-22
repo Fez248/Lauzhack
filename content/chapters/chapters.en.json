@@ -14,12 +14,12 @@
     {
       "id": "passwords",
       "kind": "lesson",
-      "target": null,
+      "target": "password-01",
       "persona": "dog",
-      "title": "Passwords and second locks",
-      "blurb": "Long, different, and a second factor everywhere it matters.",
-      "minutes": 8,
-      "status": "soon"
+      "title": "Passwords: stop remembering them",
+      "blurb": "Four rules, then five accounts to prove it.",
+      "minutes": 6,
+      "status": "available"
     },
     {
       "id": "boardroom-crisis",

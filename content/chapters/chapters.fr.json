@@ -14,12 +14,12 @@
     {
       "id": "passwords",
       "kind": "lesson",
-      "target": null,
+      "target": "password-01",
       "persona": "dog",
-      "title": "Mots de passe et deuxième verrou",
-      "blurb": "Longs, différents, et un deuxième facteur partout où ça compte.",
-      "minutes": 8,
-      "status": "soon"
+      "title": "Mots de passe : arretez de les retenir",
+      "blurb": "Quatre regles, puis cinq comptes pour le prouver.",
+      "minutes": 6,
+      "status": "available"
     },
     {
       "id": "boardroom-crisis",

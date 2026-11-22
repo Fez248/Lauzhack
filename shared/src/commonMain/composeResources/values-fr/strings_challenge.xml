@@ -58,6 +58,7 @@
     <string name="home_ch_continue">Continuer</string>
     <string name="home_ch_review">Revoir</string>
     <string name="home_ch_replay">Rejouer</string>
+    <string name="home_ch_demo">Demo d'une minute</string>
     <string name="home_ch_section">Partie %1$d sur %2$d</string>
     <string name="home_ch_decision">%1$d décisions prises sur %2$d</string>
     <string name="home_ch_done">Terminé</string>

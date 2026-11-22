@@ -48,6 +48,9 @@ import tea.ui.screens.onboarding.OnboardingScreen
 import tea.ui.screens.onboarding.PasswordScreen
 import tea.ui.screens.onboarding.TermsScreen
 import tea.ui.screens.reveal.RevealScreen
+import tea.ui.screens.vault.VaultChallengeScreen
+import tea.ui.screens.vault.VaultDebriefScreen
+import tea.ui.screens.vault.VaultDrillScreen
 import tea.ui.screens.settings.SettingsScreen
 import tea.ui.theme.TeaSize
 import tea.ui.theme.TeaSpacing
@@ -121,6 +124,9 @@ fun Router(app: AppState, screen: Screen) {
         is Screen.Practice -> FreePracticeScreen(app, screen.focusWeakest)
         Screen.PracticeSummary -> PracticeSummaryScreen(app)
         is Screen.Reveal -> RevealScreen(app, screen.token)
+        is Screen.VaultDrill -> VaultDrillScreen(app, screen.site)
+        Screen.VaultDebrief -> VaultDebriefScreen(app)
+        Screen.VaultChallenge -> VaultChallengeScreen(app)
         Screen.About -> AboutScreen(app)
         Screen.Settings -> SettingsScreen(app)
         Screen.Leaderboard -> LeaderboardScreen(app)

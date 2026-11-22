@@ -9,6 +9,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
@@ -29,6 +30,9 @@ import tea.server.db.PasswordFindings
 import tea.server.db.Profiles
 import tea.server.db.Sessions
 import tea.server.db.Users
+import tea.server.db.VaultAccounts
+import tea.server.db.VaultFindings
+import tea.server.db.VaultLogins
 import tea.server.field.practiceEmailsStatus
 import tea.server.services
 
@@ -101,6 +105,18 @@ private val F = mapOf(
         L("For your password lesson.", "Pour votre leçon sur les mots de passe.", "Para tu lección de contraseñas.")),
     "pw_pattern" to (L("Your password: keyboard patterns", "Votre mot de passe : motifs de clavier", "Tu contraseña: patrones de teclado") to
         L("For your password lesson.", "Pour votre leçon sur les mots de passe.", "Para tu lección de contraseñas.")),
+    "vault_accounts" to (L("Practice accounts", "Comptes d'entraînement", "Cuentas de práctica") to
+        L("The pretend sites you signed up to in the password lesson, and the username you chose. Purpose: your password lesson.",
+            "Les sites fictifs auxquels vous vous êtes inscrit dans la leçon sur les mots de passe, et le nom d'utilisateur choisi. Objectif : votre leçon sur les mots de passe.",
+            "Los sitios ficticios en los que te registraste en la lección de contraseñas, y el nombre de usuario que elegiste. Finalidad: tu lección de contraseñas.")),
+    "vault_passwords" to (L("Practice passwords", "Mots de passe d'entraînement", "Contraseñas de práctica") to
+        L("Never kept. We store a scrambled fingerprint so you can log in again and so we can tell whether you reused one, plus facts like the length. Purpose: your password lesson.",
+            "Jamais conservés. Nous gardons une empreinte brouillée pour que vous puissiez vous reconnecter et pour voir si vous en avez réutilisé un, plus des faits comme la longueur. Objectif : votre leçon sur les mots de passe.",
+            "Nunca se guardan. Guardamos una huella cifrada para que puedas volver a entrar y para ver si reutilizaste alguna, además de datos como la longitud. Finalidad: tu lección de contraseñas.")),
+    "vault_logins" to (L("Practice logins", "Connexions d'entraînement", "Inicios de sesión de práctica") to
+        L("Whether you got back in, whether you pasted, autofilled or typed it, how long you paused before typing, and your own answer to \"how did you get it?\". Purpose: to see whether the password-manager habit is working. We never read your clipboard or record what you type.",
+            "Si vous avez réussi à vous reconnecter, si vous l'avez collé, rempli automatiquement ou tapé, le temps avant la première frappe, et votre propre réponse à « comment l'avez-vous retrouvé ? ». Objectif : voir si l'habitude du gestionnaire de mots de passe fonctionne. Nous ne lisons jamais votre presse-papiers ni n'enregistrons ce que vous tapez.",
+            "Si volviste a entrar, si lo pegaste, se rellenó automáticamente o lo escribiste, cuánto tardaste en empezar, y tu propia respuesta a «¿cómo lo conseguiste?». Finalidad: ver si el hábito del gestor de contraseñas funciona. Nunca leemos tu portapapeles ni registramos lo que escribes.")),
     "device" to (L("Device settings", "Réglages de l'appareil", "Ajustes del dispositivo") to
         L("To fit the layout, text size and motion to your device. Nothing else about your device is kept.",
             "Pour adapter la mise en page, la taille du texte et les animations. Rien d'autre sur votre appareil n'est gardé.",
@@ -226,6 +242,54 @@ fun aboutEntries(userId: String): List<AboutEntry> {
         } ?: NONE.of(lang))
     }
 
+    // the Vault drill (docs/password-drill.md): accounts, what we keep instead of the passwords,
+    // and the login attempts. Findings only; no password and no fingerprint is ever shown.
+    val vaultRows = VaultAccounts.selectAll().where { VaultAccounts.userId eq userId }
+        .orderBy(VaultAccounts.createdAt, SortOrder.ASC).toList()
+    if (vaultRows.isEmpty()) {
+        for (k in listOf("vault_accounts", "vault_passwords", "vault_logins")) add(k, NONE.of(lang))
+    } else {
+        add("vault_accounts", vaultRows.joinToString(", ") { "${it[VaultAccounts.siteId]} (${it[VaultAccounts.username]})" })
+        val vaultFindings = vaultRows.mapNotNull { row ->
+            VaultFindings.selectAll().where { VaultFindings.accountId eq row[VaultAccounts.id] }.singleOrNull()
+        }
+        val shape = vaultFindings.joinToString(", ") { "${it[VaultFindings.length]}" }
+        val unchecked = vaultFindings.count { !it[VaultFindings.breachChecked] }
+        // `l` already resolves to the learner's language, so the caveat is appended after it
+        val caveat = if (unchecked == 0) "" else l(
+            " We could not reach the breach list for $unchecked of them, so those were not checked.",
+            " Nous n'avons pas pu joindre la liste des fuites pour $unchecked d'entre eux : ceux-là n'ont pas été vérifiés.",
+            " No pudimos consultar la lista de filtraciones para $unchecked de ellas, así que esas no se comprobaron.",
+        )
+        add(
+            "vault_passwords",
+            l(
+                "Not stored. Lengths of the ones you chose: $shape characters.",
+                "Non conservés. Longueurs de ceux que vous avez choisis : $shape caractères.",
+                "No se guardan. Longitudes de las que elegiste: $shape caracteres.",
+            ) + caveat,
+        )
+        val logins = VaultLogins.selectAll().where { VaultLogins.userId eq userId }.toList()
+        val back = vaultRows.count { it[VaultAccounts.graduatedAt] != null }
+        val methods = logins.mapNotNull { it[VaultLogins.inputMethod] }.groupingBy { it }.eachCount()
+        val how = if (methods.isEmpty()) "" else " (" + methods.entries.joinToString(", ") { "${it.key}: ${it.value}" } + ")"
+        // The learner's own answer is stored too, so §9.2 wants it on this line by name.
+        val said = logins.mapNotNull { it[VaultLogins.selfReport] }.groupingBy { it }.eachCount()
+        val toldUs = if (said.isEmpty()) "" else l(
+            ". You told us: " + said.entries.joinToString(", ") { "${words(it.key)} (${it.value})" },
+            ". Vous nous avez dit : " + said.entries.joinToString(", ") { "${words(it.key)} (${it.value})" },
+            ". Nos dijiste: " + said.entries.joinToString(", ") { "${words(it.key)} (${it.value})" },
+        )
+        add(
+            "vault_logins",
+            l(
+                "${logins.size} attempts, $back of ${vaultRows.size} logged back in$how",
+                "${logins.size} tentatives, $back sur ${vaultRows.size} reconnectés$how",
+                "${logins.size} intentos, $back de ${vaultRows.size} con sesión recuperada$how",
+            ) + toldUs,
+        )
+    }
+
     // client signals
     val sig = ClientSignals.selectAll().where { ClientSignals.userId eq userId }.toList()
     add("device", sig.joinToString(" | ") { row ->
@@ -267,6 +331,10 @@ fun deleteUser(userId: String) {
     PasswordFindings.deleteWhere { PasswordFindings.userId eq userId }
     ClientSignals.deleteWhere { ClientSignals.userId eq userId }
     FieldSends.deleteWhere { FieldSends.userId eq userId }
+    val vaultIds = VaultAccounts.selectAll().where { VaultAccounts.userId eq userId }.map { it[VaultAccounts.id] }
+    for (accountId in vaultIds) VaultFindings.deleteWhere { VaultFindings.accountId eq accountId }
+    VaultLogins.deleteWhere { VaultLogins.userId eq userId }
+    VaultAccounts.deleteWhere { VaultAccounts.userId eq userId }
     GroupMembers.deleteWhere { GroupMembers.userId eq userId }
     Sessions.deleteWhere { Sessions.userId eq userId }
     if (email != null) EmailCodes.deleteWhere { EmailCodes.email eq email }

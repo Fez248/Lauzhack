@@ -58,6 +58,39 @@ object LearnKeys {
     /** Int: the challenge section the learner is on. */
     fun challengeSection(challengeId: String) = "challenge.$challengeId.section"
 
+    /** True once all five drill accounts exist: opening the password chapter then asks for a login. */
+    const val VAULT_DRILL_DONE = "vault.drill.done"
+
+    /**
+     * The same, for the one-minute demo's two sites. Kept apart from [VAULT_DRILL_DONE] so finishing
+     * the demo does not tell the real chapter that its five are done.
+     */
+    const val VAULT_DEMO_DONE = "vault.demo.done"
+
+    /** Which "the drill is finished" flag this run writes. */
+    fun vaultDone(demo: Boolean) = if (demo) VAULT_DEMO_DONE else VAULT_DRILL_DONE
+
+    /**
+     * Boolean: the learner is in the one-minute demo, so the drill is cut to two sites
+     * ([tea.ui.screens.vault.VaultDemo]). Set by Home's demo button, cleared by its normal Start.
+     */
+    const val VAULT_DEMO = "vault.demo"
+
+    /** Boolean: `vault_drill_started` already emitted. */
+    const val VAULT_STARTED = "vault.drill.started"
+
+    /** Boolean: `vault_drill_completed` already emitted. */
+    const val VAULT_COMPLETED = "vault.drill.completed"
+
+    /**
+     * Int: refusals during the drill, counted on the device. The server stores nothing at all for a
+     * rejected attempt (plan §1.4), so this count exists only here, and only as a number.
+     */
+    const val VAULT_REJECTIONS = "vault.drill.rejections"
+
+    /** Boolean: XP for logging back in to this site is already in. One award per site. */
+    fun vaultGraduated(siteId: String) = "vault.$siteId.graduated"
+
     /** [tea.engine.ChallengeBest]: best finished run (kept across replays). */
     fun challengeBest(challengeId: String) = "challenge.$challengeId.best"
 

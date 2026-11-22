@@ -46,6 +46,10 @@ Branch: `nathann` · Last updated: 2026-11-21
   lesson, fading practice, held-out item, leaderboard, opt-in, practice email in the console, click,
   reveal, pause, guest mode then sync). Web build loaded in a headless browser. Android APK builds.
 - Debug code `426769` for email verification while no SMTP password is set (decisions.md).
+- Screenshot doc: `.github/workflows/screenshots.yml` + `scripts/screenshot_doc.py` build a README of
+  every pane (artifact on every run, `screenshots` branch on main). `PanesRenderTest` renders each
+  `Screen` through the real app shell (compile error if a new screen is missing). It found and I fixed
+  a crash: the Gallery's inline dialog card nested a vertical scroll inside the screen's scroll.
 
 ## In progress
 - Getting team agreement on the idea (TASKS.md #1).
@@ -60,7 +64,7 @@ Branch: `nathann` · Last updated: 2026-11-21
 - After merge, each person `git merge origin/main` into their branch, then code lands per part in
   small PRs (milestones M0–M9 in docs/mvp0-plan.md §14).
 
-- **Not verified yet:** real Gmail SMTP sending; Docker Compose + tunnel with the final build; the
+- **Not verified yet:** real Gmail SMTP sending; `deploy/docker-compose.prod.yml` on a real domain (HTTPS via Caddy; the dev compose incl. profile `web` was run end to end locally); the
   Pages and CI workflows on GitHub (never run); the Android app on a device; a timed placement run
   with a person (item timings suggest 5 to 6 minutes, the intro says "About 3 minutes").
 - **Needs a human before the demo:** review every content item and the lesson (all `draft`), incl. the

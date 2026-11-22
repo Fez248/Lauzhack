@@ -49,6 +49,8 @@ import tea.generated.resources.*
 import tea.model.Chapter
 import tea.model.ChapterKind
 import tea.model.ChapterStatus
+import tea.model.LESSON_2_DEMO_ID
+import tea.model.LESSON_2_ID
 import tea.model.LeaderboardResponse
 import tea.model.Mood
 import tea.model.Persona
@@ -156,10 +158,32 @@ fun chapterProgress(app: TeaApp, flags: LocalFlags, chapter: Chapter, total: Int
 fun chapterTarget(app: AppState, ui: ChapterUi): Screen? {
     val id = ui.chapter.target ?: return null
     if (ui.chapter.status != ChapterStatus.AVAILABLE) return null
+    // Once the five drill accounts exist, the password chapter *is* the test: opening it asks the
+    // learner to log back in to one of them, chosen at random, rather than replaying the lesson.
+    if (id == LESSON_2_ID) {
+        // Opening the chapter itself is always the full five; the demo button below it is the only
+        // way into the two-site run, and pressing Start leaves that mode behind.
+        app.save(LearnKeys.VAULT_DEMO, LearnKeys.BOOL, false)
+        if (app.load(LearnKeys.VAULT_DRILL_DONE, LearnKeys.BOOL) == true) return Screen.VaultChallenge
+    }
     return when (ui.chapter.kind) {
         ChapterKind.LESSON -> Screen.Lesson(id, if (ui.progress == ChapterProgress.LessonDone) 0 else app.savedSection(id))
         ChapterKind.CHALLENGE -> Screen.Challenge(id, app.load(LearnKeys.challengeSection(id), LearnKeys.INT) ?: 0)
     }
+}
+
+/**
+ * The one-minute demo of the password chapter (Home's second button): the short lesson, the drill
+ * cut to two sites, the debrief and the login test. Nothing about the checks or the storage
+ * changes — only how much of it there is, so the whole loop fits a stage slot.
+ *
+ * A run already finished (two accounts, nothing left to log back in to) starts at the login test
+ * rather than replaying the lesson, which is what makes the demo repeatable in front of a judge.
+ */
+fun startPasswordDemo(app: AppState): Screen {
+    app.save(LearnKeys.VAULT_DEMO, LearnKeys.BOOL, true)
+    if (app.load(LearnKeys.VAULT_DEMO_DONE, LearnKeys.BOOL) == true) return Screen.VaultChallenge
+    return Screen.Lesson(LESSON_2_DEMO_ID, app.savedSection(LESSON_2_DEMO_ID))
 }
 
 @Composable
@@ -221,7 +245,9 @@ fun HomeScreen(app: AppState) {
         HomeActions(
             openChapter = { c -> chapterTarget(app, c)?.let(app::navigate) },
             openDemo = { c ->
-                c.chapter.demoTarget?.let {
+                // The password chapter's one-minute demo: two rules, two accounts, one login back.
+                if (c.chapter.target == LESSON_2_ID) app.navigate(startPasswordDemo(app))
+                else c.chapter.demoTarget?.let {
                     app.navigate(if (c.chapter.kind == ChapterKind.LESSON) Screen.Lesson(it, 0) else Screen.Challenge(it, 0))
                 }
             },
@@ -317,12 +343,15 @@ private fun ColumnScope.MainColumn(ui: HomeUi, actions: HomeActions, columns: In
         Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(TeaSpacing.s3)) {
             items.forEachIndexed { col, c ->
                 val i = row * columns + col
+                val passwordDemo = c.chapter.target == LESSON_2_ID && c.chapter.status == ChapterStatus.AVAILABLE
+                val hasDemo = passwordDemo || c.chapter.demoTarget != null
                 ChapterCard(
                     c,
                     onOpen = { actions.openChapter(c) },
-                    onDemo = if (c.chapter.demoTarget != null) ({ actions.openDemo(c) }) else null,
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                     tilt = if (TeaTheme.isCompact) 0f else if (i % 2 == 0) -0.6f else 0.6f,
+                    demoLabel = if (!hasDemo) null else stringResource(if (passwordDemo) Res.string.home_ch_demo else Res.string.challenge_demo_start),
+                    onDemo = if (hasDemo) ({ actions.openDemo(c) }) else null,
                 )
             }
             repeat(columns - items.size) { Box(Modifier.weight(1f)) }
@@ -332,7 +361,15 @@ private fun ColumnScope.MainColumn(ui: HomeUi, actions: HomeActions, columns: In
 
 /** One chapter (lesson or challenge): persona, kind, minutes, title, blurb, progress, action. */
 @Composable
-fun ChapterCard(ui: ChapterUi, onOpen: () -> Unit, modifier: Modifier = Modifier, tilt: Float = 0f, onDemo: (() -> Unit)? = null) {
+fun ChapterCard(
+    ui: ChapterUi,
+    onOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+    tilt: Float = 0f,
+    /** A second, quieter action under the main button: the password chapter's one-minute demo. */
+    demoLabel: String? = null,
+    onDemo: (() -> Unit)? = null,
+) {
     val c = ui.chapter
     val colors = TeaTheme.colors
     val soon = c.status == ChapterStatus.SOON || c.target == null
@@ -362,8 +399,8 @@ fun ChapterCard(ui: ChapterUi, onOpen: () -> Unit, modifier: Modifier = Modifier
         } else {
             ProgressLine(ui.progress)
             TeaButton(stringResource(buttonLabel(ui.progress)), onOpen, Modifier.fillMaxWidth())
-            if (onDemo != null) {
-                TeaButton(stringResource(Res.string.challenge_demo_start), onDemo, Modifier.fillMaxWidth(), variant = TeaButtonVariant.Secondary)
+            if (onDemo != null && demoLabel != null) {
+                TeaButton(demoLabel, onDemo, Modifier.fillMaxWidth(), variant = TeaButtonVariant.Secondary)
             }
         }
     }
