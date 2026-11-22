@@ -24,6 +24,12 @@ import tea.BuildInfo
 import tea.content.ContentRepository
 import tea.i18n.Lang
 import tea.model.AboutEntry
+import tea.model.VaultAccountsResponse
+import tea.model.VaultChallengeResponse
+import tea.model.VaultCreateResponse
+import tea.model.VaultDebriefResponse
+import tea.model.VaultLoginRequest
+import tea.model.VaultLoginResponse
 import tea.model.AppEvent
 import tea.model.Attempt
 import tea.model.EventTypes
@@ -510,6 +516,32 @@ class AppState(
     suspend fun setPracticeEmails(value: String): ApiResult<SettingsResponse> = api.putSettings(value).also { checkAuth(it) }
 
     suspend fun aboutRows(): ApiResult<List<AboutEntry>> = api.about().also { checkAuth(it) }
+
+    // ---- the Vault drill (docs/password-drill.md) ----
+
+    suspend fun vaultAccounts(): ApiResult<VaultAccountsResponse> = api.vaultAccounts().also { checkAuth(it) }
+
+    /**
+     * Sends one invented password to be graded. The string is handed straight to the client and not
+     * kept in any state holder: the server answers with the verdict, never with the password.
+     */
+    suspend fun vaultCreate(siteId: String, username: String, password: String): ApiResult<VaultCreateResponse> =
+        api.vaultCreate(siteId, username, password).also { checkAuth(it) }
+
+    suspend fun vaultDebrief(): ApiResult<VaultDebriefResponse> = api.vaultDebrief().also { checkAuth(it) }
+
+    suspend fun vaultChallenge(): ApiResult<VaultChallengeResponse> = api.vaultChallenge().also { checkAuth(it) }
+
+    suspend fun vaultLogin(request: VaultLoginRequest): ApiResult<VaultLoginResponse> =
+        api.vaultLogin(request).also { checkAuth(it) }
+
+    /** The one tap after an attempt. It lands on that attempt's row and changes nothing else. */
+    suspend fun vaultSelfReport(siteId: String, selfReport: String): ApiResult<Unit> =
+        api.vaultSelfReport(siteId, selfReport).also { checkAuth(it) }
+
+    suspend fun vaultReset(siteId: String): ApiResult<Unit> = api.vaultReset(siteId).also { checkAuth(it) }
+
+    suspend fun vaultClear(): ApiResult<Unit> = api.vaultClear().also { checkAuth(it) }
 
     suspend fun leaderboard(period: String): ApiResult<LeaderboardResponse> = api.leaderboard(period)
 
