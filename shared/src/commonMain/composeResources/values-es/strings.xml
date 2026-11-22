@@ -374,4 +374,5 @@
     <string name="home_vault_body">Hora de comprobar que el habito cuajo: vuelva a entrar en una de las cinco cuentas que creo. No le diremos cual hasta que empiece.</string>
     <string name="home_vault_action">Volver a entrar</string>
     <string name="home_vault_done">%1$d de %2$d con sesion recuperada</string>
+    <string name="vault_login_none_see">Ver sus cinco</string>
 </resources>

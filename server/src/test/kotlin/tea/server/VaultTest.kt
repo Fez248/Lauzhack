@@ -35,10 +35,10 @@ import tea.server.vault.VaultService
 /** Five invented passphrases that pass the checks and contain none of the five site names. */
 private val PW = mapOf(
     "catland" to "velvet otter marble",
-    "dogland" to "harbour lantern quilt",
-    "fishland" to "copper thistle wagon",
-    "birdland" to "meadow bicycle plum",
-    "bunnyland" to "crimson kettle fern",
+    "dogsden" to "harbour lantern quilt",
+    "spiderweb" to "copper thistle wagon",
+    "zoocard" to "meadow bicycle plum",
+    "seaturtle" to "crimson kettle fern",
 )
 
 class VaultTest {
@@ -78,7 +78,7 @@ class VaultTest {
         // the site's own name, including through leetspeak
         assertEquals(VaultReason.CONTAINS_SITE, create(s.token, "catland", "my catland words").reason)
         assertEquals(VaultReason.CONTAINS_SITE, create(s.token, "catland", "sly c4t marbles").reason)
-        assertEquals(VaultReason.CONTAINS_SITE, create(s.token, "bunnyland", "quiet bunny marble").reason)
+        assertEquals(VaultReason.CONTAINS_SITE, create(s.token, "seaturtle", "quiet turtle marble").reason)
 
         // nothing whatsoever is stored for a refused attempt (plan §1.4)
         services.db.tx {
@@ -104,10 +104,19 @@ class VaultTest {
     }
 
     @Test
+    fun aShortSiteWordOnlyCountsAsAWholeWord() = teaTest {
+        val s = register()
+        // "cat" blocked anywhere would refuse these, teach nothing, and make the drill feel broken
+        assertTrue(create(s.token, "catland", "scattered velvet keys").accepted)
+        // the compound still matches anywhere: nobody types "dogsden" by accident
+        assertEquals(VaultReason.CONTAINS_SITE, create(s.token, "dogsden", "mydogsdenpass").reason)
+    }
+
+    @Test
     fun refusesExactReuseAcrossTheirOwnSitesAndNamesTheOne() = teaTest {
         val s = register()
         assertTrue(create(s.token, "catland", PW["catland"]!!).accepted)
-        val again = create(s.token, "dogland", PW["catland"]!!)
+        val again = create(s.token, "dogsden", PW["catland"]!!)
         assertEquals(VaultReason.REUSED, again.reason)
         assertEquals("catland", again.reusedWith)
         assertNull(again.findings)
@@ -130,7 +139,7 @@ class VaultTest {
     fun oneAccountPerSite() = teaTest {
         val s = register()
         assertTrue(create(s.token, "catland", PW["catland"]!!).accepted)
-        assertEquals(VaultReason.ALREADY_EXISTS, create(s.token, "catland", PW["dogland"]!!).reason)
+        assertEquals(VaultReason.ALREADY_EXISTS, create(s.token, "catland", PW["dogsden"]!!).reason)
     }
 
     // ------------------------------------------------------------------ families
@@ -140,13 +149,13 @@ class VaultTest {
         val s = register()
         assertTrue(create(s.token, "catland", "velvet otter marble").accepted)
         // the family people actually build: same stem, a digit on the end
-        val second = create(s.token, "dogland", "velvet otter marble2!")
+        val second = create(s.token, "dogsden", "velvet otter marble2!")
         assertTrue(second.accepted, "a family member is accepted, not walled off")
         assertTrue(second.familyMatch)
         assertEquals("catland", second.familyWith)
 
         val debrief = decode<VaultDebriefResponse>(get("/me/vault/debrief", s.token).bodyText())
-        assertEquals(listOf(listOf("catland", "dogland")), debrief.families)
+        assertEquals(listOf(listOf("catland", "dogsden")), debrief.families)
     }
 
     @Test
@@ -155,7 +164,7 @@ class VaultTest {
         assertEquals("catland", n("CatLand1"))
         assertEquals("catland", n("catland2!"))
         assertEquals("catland", n("C4tL4nd3"))
-        assertEquals("fishland", n("f1shland"))
+        assertEquals("seaturtle", n("s3aturtle"))
         // an all-digit password has nothing to trim down to, so it keeps its folded form
         assertEquals("iooooooooo", n("1000000000"))
     }
@@ -275,7 +284,7 @@ class VaultTest {
         assertTrue(pasted.graduated)
         assertEquals(VaultService.FOLLOW_UP_MANAGER, pasted.followUp)
 
-        val typed = login(s.token, "dogland", PW["dogland"]!!, VaultInputMethod.TYPED, VaultSelfReport.REMEMBERED)
+        val typed = login(s.token, "dogsden", PW["dogsden"]!!, VaultInputMethod.TYPED, VaultSelfReport.REMEMBERED)
         assertTrue(typed.ok, "typing is not a wrong answer")
         assertTrue(typed.graduated)
         assertEquals(VaultService.FOLLOW_UP_RECALL, typed.followUp)
@@ -407,9 +416,9 @@ class VaultTest {
         val first = pwned.calls.size
         assertEquals(1, first)
         // the same password on another site is refused for reuse before HIBP is consulted again
-        create(s.token, "dogland", PW["catland"]!!)
+        create(s.token, "dogsden", PW["catland"]!!)
         // a different password is a different hash, so it does cost one lookup
-        assertTrue(create(s.token, "dogland", PW["dogland"]!!).accepted)
+        assertTrue(create(s.token, "dogsden", PW["dogsden"]!!).accepted)
         assertEquals(2, pwned.calls.size)
         // and asking about the first one again is free
         runBlocking {

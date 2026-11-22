@@ -3,6 +3,7 @@ package tea.ui.screens.vault
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,6 +31,7 @@ import tea.model.VaultCreateResponse
 import tea.model.VaultReason
 import tea.model.VaultSite
 import tea.net.ApiResult
+import tea.ui.screens.learn.LearnKeys
 import tea.ui.components.Banner
 import tea.ui.components.OfflineBanner
 import tea.ui.components.ScreenColumn
@@ -93,12 +95,24 @@ fun VaultDrillScreen(app: AppState, siteIndex: Int) {
     val meter = meterState(password, siteWords(site), typedHere.toSet())
     val accepted = result?.accepted == true
 
+    val look = siteLook(site)
+
     ScreenColumn(title = site.shownAs, onBack = app::back) {
         Text(
             stringResource(Res.string.vault_progress, siteIndex + 1, sites.size),
             style = TeaTheme.type.label,
             color = TeaTheme.colors.inkSoft,
         )
+        // the site's own banner, so five sign-ups read as five different places
+        TeaCard(background = look.soft) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(TeaSpacing.s2)) {
+                SiteBadge(site)
+                Column {
+                    Text(site.shownAs, style = TeaTheme.type.h3, color = TeaTheme.colors.ink)
+                    Text(site.domain, style = TeaTheme.type.label, color = TeaTheme.colors.inkSoft)
+                }
+            }
+        }
         SectionHeading(stringResource(Res.string.vault_signup_title), intro = stringResource(Res.string.vault_holds, site.holds))
 
         TeaCard {
@@ -159,6 +173,11 @@ fun VaultDrillScreen(app: AppState, siteIndex: Int) {
                                     typedHere += password
                                     done = done + site.siteId
                                     password = ""
+                                    // From here on, opening the password chapter asks for a login
+                                    // instead of replaying the lesson.
+                                    if (done.size >= sites.size) {
+                                        app.save(LearnKeys.VAULT_DRILL_DONE, LearnKeys.BOOL, true)
+                                    }
                                 }
                             }
                             else -> failed = true
@@ -238,9 +257,8 @@ private fun reasonText(r: VaultCreateResponse): String = when (r.reason) {
     else -> stringResource(Res.string.shell_error_generic)
 }
 
-/** Words the local meter refuses for this site, mirroring the server's list. */
-internal fun siteWords(site: VaultSite): List<String> =
-    listOf(site.siteId, site.shownAs.lowercase(), site.siteId.removeSuffix("land")).filter { it.length >= 3 }.distinct()
+/** Words the local meter refuses for this site: the server's own list, carried on the site. */
+internal fun siteWords(site: VaultSite): List<String> = site.words
 
 internal fun shownName(sites: List<VaultSite>, siteId: String?): String =
     sites.firstOrNull { it.siteId == siteId }?.shownAs ?: siteId.orEmpty()

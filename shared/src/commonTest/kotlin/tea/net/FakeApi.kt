@@ -69,11 +69,16 @@ class FakeApi(var token: () -> String? = { null }) : TeaApi {
     /** Which site the next challenge names; null = nothing due. */
     var vaultChallengeSite: String? = null
     var vaultSites: List<VaultSite> = listOf(
-        VaultSite("catland", "catLand", "catland.example", "A pet forum. Nothing but posts.", "cat"),
-        VaultSite("dogland", "dogLand", "dogland.example", "A shop. A saved card.", "dog"),
-        VaultSite("fishland", "fishLand", "fishland.example", "Aquarium supplies. Your home address.", "fish"),
-        VaultSite("birdland", "birdLand", "birdland.example", "A birdwatching club. Your real name and photo.", "bird"),
-        VaultSite("bunnyland", "bunnyLand", "bunnyland.example", "A newsletter. Your email, nothing else.", "bunny"),
+        VaultSite("catland", "Cat Land", "catland.example", "A pet forum. Nothing but posts.",
+            tea.model.Persona.CAT, listOf("catland", "cat land", "cat")),
+        VaultSite("dogsden", "Dog's Den", "dogsden.example", "A shop. A saved card.",
+            tea.model.Persona.DOG, listOf("dogsden", "dogs den", "dog")),
+        VaultSite("spiderweb", "Spider Web Design", "spiderweb.example", "A studio account. Your client list and invoices.",
+            tea.model.Persona.SPIDER, listOf("spiderweb", "spider web", "spider")),
+        VaultSite("zoocard", "Zoo Card Club", "zoocard.example", "A membership card. Your address and your card number.",
+            null, listOf("zoocard", "zoo card", "zoo")),
+        VaultSite("seaturtle", "Sea Turtle Fan Club", "seaturtle.example", "A fan page. Your real name and your photo.",
+            tea.model.Persona.TURTLE, listOf("seaturtle", "sea turtle", "turtle")),
     )
 
     var passwordAccepted: (String) -> PasswordAttemptResponse = { pw ->
@@ -169,11 +174,11 @@ class FakeApi(var token: () -> String? = { null }) : TeaApi {
 
     /** Mirrors the server's order of checks closely enough for the screens to be exercised. */
     override suspend fun vaultCreate(siteId: String, username: String, password: String) = net("vaultCreate", true) {
-        val words = listOf(siteId, siteId.removeSuffix("land"))
+        val words = vaultSites.firstOrNull { it.siteId == siteId }?.words.orEmpty()
         when {
             siteId in vault -> ApiResult.Ok(VaultCreateResponse(false, VaultReason.ALREADY_EXISTS))
             password.length < 10 -> ApiResult.Ok(VaultCreateResponse(false, VaultReason.TOO_SHORT))
-            words.any { it.length >= 3 && password.lowercase().contains(it) } ->
+            tea.model.VaultWords.containsSiteWord(password, words) ->
                 ApiResult.Ok(VaultCreateResponse(false, VaultReason.CONTAINS_SITE))
             vault.values.any { it.second == password } -> ApiResult.Ok(
                 VaultCreateResponse(false, VaultReason.REUSED, reusedWith = vault.entries.first { it.value.second == password }.key),

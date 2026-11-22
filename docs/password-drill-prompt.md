@@ -11,10 +11,10 @@
 
 You are building one piece of **ThisIsTea, a cyber security literacy course** (LauzHack hackathon).
 Lesson 2 teaches passwords. Instead of a practice email, the learner then does the **Vault drill**: they
-open accounts on **five fictional sites** (catLand, dogLand, fishLand, birdLand, bunnyLand), inventing a
-username and password for each. You grade every password, check it against known breached passwords,
-refuse bad ones with the real reason, and keep the good ones. **A later session asks the learner to log
-back in to one of the five.** Three rules must hold in your code:
+open accounts on **five fictional sites** (Cat Land, Dog's Den, Spider Web Design, the Zoo Card Club
+and the Sea Turtle Fan Club), inventing a username and password for each. You grade every password, check it against known breached passwords,
+refuse bad ones with the real reason, and keep the good ones. **Opening the password chapter again IS the test:**
+once the five exist, that chapter asks for a login to one of them, picked at random. Three rules must hold in your code:
 
 1. **Nothing here unlocks anything.** The five sites are fictional and local to the app. A vault login
    grants no session and no access. `.example` domains, invented animals, no real brand or service.
@@ -49,7 +49,20 @@ back in to one of the five.** Three rules must hold in your code:
                         val holds: String, val accent: String)
    ```
 
-   `catland` / catLand / `catland.example`, then `dogland`, `fishland`, `birdland`, `bunnyland`.
+   The five, with the cast member whose page each one is:
+
+   | `siteId` | `shownAs` | `domain` | persona |
+   |---|---|---|---|
+   | `catland` | Cat Land | `catland.example` | `CAT` |
+   | `dogsden` | Dog's Den | `dogsden.example` | `DOG` |
+   | `spiderweb` | Spider Web Design | `spiderweb.example` | `SPIDER` |
+   | `zoocard` | Zoo Card Club | `zoocard.example` | none |
+   | `seaturtle` | Sea Turtle Fan Club | `seaturtle.example` | `TURTLE` |
+
+   **Each site wears its own colours.** Take them from the owner's `personaStyle`; the Zoo Card Club
+   has no owner, so give it one colour of its own next to the drill rather than in the theme. Use
+   `PersonaAvatar` for the badge, which already falls back to a letter when the art is missing, and
+   a letter badge for the Zoo. Five sign-ups must look like five places, not one form five times.
    Each screen: username field, password field with show/hide, live meter, "Create account".
    Before site one, a card the learner dismisses once: *"Invent five new passwords for these five
    pretend sites. Don't type a password you really use anywhere — not even once. We keep a scrambled
@@ -58,7 +71,9 @@ back in to one of the five.** Three rules must hold in your code:
 
 3. **Live client-side meter** (no network): length, character classes, nbvcxz score, keyboard-row walk,
    and whether the password contains the site name, the learner's first name, their email local part or
-   a `19\d\d|20\d\d` year. Also compare against the passwords typed earlier **in this drill session**,
+   a `19\d\d|20\d\d` year. Use the shared `VaultWords.containsSiteWord` for the site-name check so the
+   meter and the server can never disagree: short words like `cat` match **whole words only**, so
+   `scattered` is not refused, while `catland` matches anywhere. Also compare against the passwords typed earlier **in this drill session**,
    held in memory only, so reuse is caught before submit. Show the specific reason, never a bare
    coloured bar, and **never a "time to crack" figure**.
 
@@ -89,7 +104,7 @@ back in to one of the five.** Three rules must hold in your code:
    | `weak` | "A guesser would get this quickly: it's close to a common one. Try four unrelated words." |
    | `pwned` | "This one is in known breach lists (seen `<count>` times). Attackers try these first." |
    | `contains_site` / `contains_name` / `contains_year` | "It has `catland` in it — the first thing anyone guessing this site tries." |
-   | `reused` | "That's the password you used for dogLand. One leak would open both. Try another." |
+   | `reused` | "That's the password you used for Dog's Den. One leak would open both. Try another." |
 
 5. **Debrief screen** from `GET /me/vault/debrief` — the five findings side by side (never a password,
    never a fingerprint). Three parts: **family links** between sites whose `family_fp` matches; a
@@ -97,7 +112,12 @@ back in to one of the five.** Three rules must hold in your code:
    strength they actually chose; and **where these came from** (name / year / site name / keyboard
    counts). Spider ranks them weakest-first with the reason, and takes nothing.
 
-6. **Login drill.** `GET /me/vault/challenge` returns **one site chosen uniformly at random** among the
+6. **Login drill, reached from the password chapter itself.** Once all five accounts exist, opening
+   that chapter on Home must ask for a login instead of replaying the lesson — no separate card, no
+   retyping exercise. Set a local flag when the fifth account is created so Home decides without a
+   round trip, clear it when a site is reset, and branch in `chapterTarget`. When nothing is due,
+   that screen offers the debrief rather than dead-ending.
+   `GET /me/vault/challenge` returns **one site chosen uniformly at random** among the
    learner's accounts that have not graduated; `Review.kt` (§6.8) decides only *when* it is due (first
    challenge at least a few hours later, **one site per session**). Do not order the challenges by
    creation or by weakness — the learner must not be able to prepare for a specific one.
@@ -214,6 +234,8 @@ not logins — say so in a comment.
 - A password already in a breach list (`password1`) is refused with its breach count; with the network
   off, the drill still works and the log says "hibp unavailable".
 - `catland1` then `catland2` both get in, and the debrief draws the family link between them.
+- `scattered velvet keys` is accepted for Cat Land, and `my catland words` is not.
+- Opening the password chapter with five accounts set up asks for a login, not the lesson.
 - The debrief shows five rows built only from findings — no password, no fingerprint.
 - A later session challenges exactly one site, **picked at random** among the non-graduated ones; over
   repeated runs the challenged site varies. The right password graduates it; three wrong ones give the

@@ -28,6 +28,7 @@ import tea.model.VaultLoginRequest
 import tea.model.VaultLoginResponse
 import tea.model.VaultReason
 import tea.model.VaultSelfReport
+import tea.model.VaultWords
 import tea.server.Crypto
 import tea.server.Services
 import tea.server.auth.PasswordHasher
@@ -184,7 +185,8 @@ class VaultService(
         val folded = PasswordAnalyzer.leet(raw.lowercase())
 
         // 2. The site's own name inside the password: the first thing anyone guessing it tries.
-        if (VaultSites.words(siteId).any { folded.contains(PasswordAnalyzer.leet(it)) }) {
+        //    VaultWords is shared with the client's meter so the two can never disagree.
+        if (VaultWords.containsSiteWord(raw, VaultSites.words(siteId))) {
             return refuse(userId, siteId, VaultReason.CONTAINS_SITE)
         }
 

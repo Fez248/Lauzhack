@@ -1,5 +1,10 @@
 package tea.ui.screens.vault
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
+import tea.ui.theme.TeaSpacing
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +28,7 @@ import tea.model.VaultLoginResponse
 import tea.model.VaultSelfReport
 import tea.model.VaultSite
 import tea.net.ApiResult
+import tea.ui.screens.learn.LearnKeys
 import tea.ui.components.Banner
 import tea.ui.components.BannerKind
 import tea.ui.components.ChoiceRow
@@ -72,11 +78,37 @@ fun VaultChallengeScreen(app: AppState) {
             return@ScreenColumn
         }
         if (c.siteId == null) {
+            // The password chapter leads here once the five exist, so this is a real destination,
+            // not an error: nothing is due yet, or every account has graduated. Offer the debrief
+            // rather than leaving the learner at a dead end.
             Text(stringResource(Res.string.vault_login_none), style = TeaTheme.type.body, color = TeaTheme.colors.ink)
-            TeaButton(stringResource(Res.string.shell_back_home), { app.navigate(Screen.Home) }, modifier = Modifier.fillMaxWidth())
+            TeaButton(
+                stringResource(Res.string.vault_login_none_see),
+                { app.navigate(Screen.VaultDebrief) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            TeaButton(
+                stringResource(Res.string.shell_back_home),
+                { app.navigate(Screen.Home) },
+                modifier = Modifier.fillMaxWidth(),
+                variant = tea.ui.components.TeaButtonVariant.Secondary,
+            )
             return@ScreenColumn
         }
 
+        // the site's own banner again, so the learner recognises which of the five they are at
+        val site = sites.firstOrNull { it.siteId == c.siteId }
+        if (site != null) {
+            TeaCard(background = siteLook(site).soft) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(TeaSpacing.s2)) {
+                    SiteBadge(site)
+                    Column {
+                        Text(site.shownAs, style = TeaTheme.type.h3, color = TeaTheme.colors.ink)
+                        Text(site.domain, style = TeaTheme.type.label, color = TeaTheme.colors.inkSoft)
+                    }
+                }
+            }
+        }
         SectionHeading(
             stringResource(Res.string.vault_login_title),
             intro = stringResource(Res.string.vault_login_lead, shownName(sites, c.siteId), c.username.orEmpty()),
@@ -159,7 +191,9 @@ fun VaultChallengeScreen(app: AppState) {
                     stringResource(Res.string.vault_login_reset),
                     onClick = {
                         scope.launch {
-                            c.siteId.let { app.vaultReset(it) }
+                            app.vaultReset(c.siteId)
+                            // one of the five is gone again, so the chapter goes back to the drill
+                            app.save(LearnKeys.VAULT_DRILL_DONE, LearnKeys.BOOL, false)
                             val index = sites.indexOfFirst { it.siteId == c.siteId }.coerceAtLeast(0)
                             app.navigate(Screen.VaultDrill(index))
                         }

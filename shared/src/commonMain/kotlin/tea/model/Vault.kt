@@ -11,7 +11,12 @@ import kotlinx.serialization.Serializable
  * keeps an argon2id hash, two keyed fingerprints and the findings. See docs/password-drill-prompt.md.
  */
 
-/** One of the five fictional sites. Static content, bundled; `.example` domains only (plan §17). */
+/**
+ * One of the five fictional sites. Static content, bundled; `.example` domains only (plan §17).
+ *
+ * Four of them are pages belonging to the cast, so each sign-up wears that persona's own colours and
+ * avatar; the Zoo Card Club belongs to nobody, and the UI gives it its own colour and a letter badge.
+ */
 @Serializable
 data class VaultSite(
     @SerialName("site_id") val siteId: String,
@@ -19,8 +24,13 @@ data class VaultSite(
     val domain: String,
     /** What this site holds, for the tiering question in the debrief. */
     val holds: String,
-    /** Theme accent key, resolved by the UI. */
-    val accent: String,
+    /** Whose page this is; null for the Zoo Card Club, which has no persona. */
+    val persona: Persona? = null,
+    /**
+     * Words a password for this site must not contain. Short ones (the animal) match whole words
+     * only, so "scatter" is not refused for Cat Land; the rest match anywhere.
+     */
+    val words: List<String> = emptyList(),
 )
 
 /** How the password reached the field. Disclosed on the card before the learner types. */
@@ -160,3 +170,49 @@ data class VaultLoginResponse(
     /** Which follow-up line to show: "manager" | "recall" | "missed". Never a password clue. */
     @SerialName("follow_up") val followUp: String? = null,
 )
+
+/**
+ * The site-name check of the drill, shared so the live meter on the device and the verdict on the
+ * server can never disagree about it.
+ *
+ * Short words match whole words only. Blocking "cat" anywhere would refuse "scatter" and
+ * "delicate", which teaches nothing and just makes the drill feel broken; "my cat pass" is still
+ * refused, which is the behaviour the lesson is about.
+ */
+object VaultWords {
+    /** Lowercase plus the leetspeak folding, so `C4tL4nd` reads as `catland`. */
+    fun fold(s: String): String = buildString(s.length) {
+        for (c in s.lowercase()) append(
+            when (c) {
+                '0' -> 'o'; '1', '!', '|' -> 'i'; '3' -> 'e'; '4', '@' -> 'a'
+                '5', '$' -> 's'; '7' -> 't'; '8' -> 'b'; '9' -> 'g'
+                else -> c
+            },
+        )
+    }
+
+    /** True when [password] carries one of this site's own words. */
+    fun containsSiteWord(password: String, words: List<String>): Boolean {
+        val folded = fold(password)
+        return words.any { raw ->
+            val w = fold(raw)
+            when {
+                w.length < 3 -> false
+                w.length <= 4 && ' ' !in w -> wholeWord(folded, w)
+                else -> folded.contains(w)
+            }
+        }
+    }
+
+    private fun wholeWord(haystack: String, word: String): Boolean {
+        var i = haystack.indexOf(word)
+        while (i >= 0) {
+            val before = i == 0 || !haystack[i - 1].isLetter()
+            val end = i + word.length
+            val after = end == haystack.length || !haystack[end].isLetter()
+            if (before && after) return true
+            i = haystack.indexOf(word, i + 1)
+        }
+        return false
+    }
+}

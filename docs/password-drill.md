@@ -14,8 +14,9 @@
 
 Lesson 2 of ThisIsTea teaches **passwords**: why length beats punctuation, why reuse is the thing that
 actually hurts you, and how to hand the whole problem to a password manager. Then, instead of a practice
-email, the learner does the **Vault drill**: they open accounts on **five fictional sites** — catLand,
-dogLand, fishLand, birdLand, bunnyLand — inventing a username and a password for each. We grade each
+email, the learner does the **Vault drill**: they open accounts on **five fictional sites** — Cat Land,
+Dog's Den, Spider Web Design, the Zoo Card Club and the Sea Turtle Fan Club — inventing a username
+and a password for each. We grade each
 password as they type it, check it against known breached passwords, refuse the bad ones with the real
 reason, and keep the good ones. **In a later session we ask them to log back in to one of the five.**
 
@@ -45,7 +46,7 @@ is due to be logged back in.
 ```
 lesson 2: passwords (Cat's rules → Dog's tools: install a password manager)
    → Vault drill: "Let's open five accounts. Spider will try to guess every one."
-      → for each of catLand, dogLand, fishLand, birdLand, bunnyLand:
+      → for each of Cat Land, Dog's Den, Spider Web Design, Zoo Card Club, Sea Turtle Fan Club:
            learner invents a username + a password
              → live meter as they type (length, classes, pattern, "is this one of your others?")
              → submit → server: strength score + breach check + reuse check
@@ -53,8 +54,10 @@ lesson 2: passwords (Cat's rules → Dog's tools: install a password manager)
                  → accepted → argon2id hash + findings stored; "saved it in your manager?" nudge
       → debrief: five passwords, side by side, by what they have in common
          → Spider: "here's the one I'd have cracked first, and why"
-   → (a later session) login drill: one of the five, picked at random
-      → "log back in to dogLand"   ← they cannot know which, so all five have to be saved
+   → (a later session) the learner opens the password chapter again
+      → that IS the test now: no separate card, no retyping drill. The chapter asks them to log
+        back in to ONE OF THE FIVE, picked at random
+      → "log back in to Dog's Den"  ← they cannot know which, so all five have to be saved
       → as they answer: pasted, autofilled or typed? how long was the pause? (told up front)
          → right → the system holds; the account graduates
          → wrong 3× → "open your manager" → we show we can't help: we only kept a hash
@@ -71,7 +74,7 @@ human-written with the content owners; the password-manager links go in
 - **One account teaches nothing about reuse.** Reuse is a property of a *set* of passwords. You have to
   make several, in one sitting, before the problem is visible.
 - **Five is where the human runs out.** Two or three can be invented and remembered. By the fourth,
-  most people start a family: `catland1`, `dogland1`, `fishland1`. Catching that family in the act, with
+  most people start a family: `catland1`, `dogsden1`, `spiderweb1`. Catching that family in the act, with
   their own five passwords on screen, is the whole lesson in one picture.
 - **The sites differ in what they hold** (a pet forum vs. a shop with a saved card), so the debrief can
   ask the second question: which of these five would actually hurt if it leaked? That is password
@@ -123,13 +126,20 @@ Rules for this table, inherited from [AGENTS.md](../AGENTS.md) and §17:
 
 Five sites, fictional, served from the app. `.example` domains, per §17.
 
-| `site_id` | Shown as | Domain | What it holds (for the tiering debrief) |
-|---|---|---|---|
-| `catland` | catLand | `catland.example` | A pet forum. Nothing but posts. |
-| `dogland` | dogLand | `dogland.example` | A shop. A saved card. |
-| `fishland` | fishLand | `fishland.example` | Aquarium supplies. Your home address. |
-| `birdland` | birdLand | `birdland.example` | A birdwatching club. Your real name and photo. |
-| `bunnyland` | bunnyLand | `bunnyland.example` | A newsletter. Your email, nothing else. |
+| `site_id` | Shown as | Domain | Whose page | What it holds |
+|---|---|---|---|---|
+| `catland` | Cat Land | `catland.example` | Cat | A pet forum. Nothing but posts. |
+| `dogsden` | Dog's Den | `dogsden.example` | Dog | A shop. A saved card. |
+| `spiderweb` | Spider Web Design | `spiderweb.example` | Spider | A studio account. Your client list and invoices. |
+| `zoocard` | Zoo Card Club | `zoocard.example` | nobody | A membership card. Your address and your card number. |
+| `seaturtle` | Sea Turtle Fan Club | `seaturtle.example` | Turtle | A fan page. Your real name and your photo. |
+
+Four of the five are pages belonging to the cast, so **each sign-up wears that persona's own
+colours and avatar** — `PersonaAvatar` already falls back to a letter badge when a persona's art is
+missing, so a missing drawing degrades instead of breaking. The Zoo Card Club belongs to nobody: it
+carries its own purple and a letter badge, defined next to the drill rather than in the theme, since
+it is one drill's decoration and not a cast member. Five sign-ups in a row should look like five
+different places, not one form shown five times.
 
 Each site is one screen in the same generic sign-up shape: a username field, a password field with a
 show/hide toggle, a live meter, and a "Create account" button. Styling comes from the ported theme
@@ -149,7 +159,8 @@ Three checks per password. **None of them needs an AI call** — the whole modul
 one cached HTTP request, which is what [AGENTS.md](../AGENTS.md) means by frugal.
 
 1. **Strength**, client-side and instant: length, character classes, nbvcxz score (0–4),
-   keyboard-row walks, the site's own name inside the password (`catland` in the catLand password),
+   keyboard-row walks, the site's own name inside the password (`catland` in the Cat Land password;
+   short words like `cat` match whole words only, so `scattered` is not refused),
    the learner's first name, email local part, and a four-digit year. Reuse the plan's
    `PasswordAnalyzer` rules so the account password and the drill are graded identically.
 2. **Breached**, server-side: the HIBP Pwned Passwords range API exactly as
@@ -169,7 +180,7 @@ one cached HTTP request, which is what [AGENTS.md](../AGENTS.md) means by frugal
    - `reuse_fp = HMAC-SHA256(PEPPER, password)` → exact reuse.
    - `family_fp = HMAC-SHA256(PEPPER, normalise(password))` where `normalise` lowercases, strips
      trailing digits and punctuation, and folds obvious leetspeak (`4→a`, `3→e`, `0→o`, `1→l`,
-     `$→s`) → catches `CatLand1` / `dogland2!` / `f1shland3`, the family people actually build.
+     `$→s`) → catches `CatLand1` / `dogsden2!` / `sp1derweb3`, the family people actually build.
 
 Argon2id cannot answer "is this the same as another one", because every hash has its own salt. The
 keyed fingerprint is what makes reuse detection possible **without** keeping anything readable: it is
@@ -197,7 +208,7 @@ Messages say the real reason, in the learner's words, never a bare red bar:
 | weak score | "A guesser would get this quickly: it's close to a common one. Try four unrelated words." |
 | pwned | "This one is in known breach lists (seen `<count>` times). Attackers try these first." |
 | contains site / name / year | "It has `catland` in it — the first thing anyone guessing this site tries." |
-| exact reuse | "That's the password you used for dogLand. One leak would open both. Try another." |
+| exact reuse | "That's the password you used for Dog's Den. One leak would open both. Try another." |
 
 ## Storage
 
@@ -262,7 +273,7 @@ vault_logins(id, user_id, site_id, succeeded, attempt_no, input_method,
 - `reuse_fp` / `family_fp`: HMAC-SHA256 keyed by `PASSWORD_FP_PEPPER` from `.env` (never committed).
 - `DELETE /me` must delete every row in all three, per §5.
 - Every field appears in **"What we know about you"** (§9.2) with its purpose in plain words, e.g.
-  "Your catLand password is 14 characters long and was not in any breach list. We kept a scrambled
+  "Your Cat Land password is 14 characters long and was not in any breach list. We kept a scrambled
   fingerprint so you can log in again. Purpose: your password lesson."
 
 ### Events (additive to §5.1)
@@ -311,7 +322,14 @@ plays the guesser and takes nothing, per the framing in [decisions.md](decisions
 - **When:** `Review.kt` (§6.8) owns the timing only, **one site per session, never all five**. Real
   spacing is hours or days; the shipped default is `VAULT_CHALLENGE_DELAY_S=60`, short enough for the
   whole loop to fit a live demo, exactly as `FIELD_DELAY_*` does for the practice email.
-- **Ask:** "Log back in to dogLand." Username is shown (it is not the secret); password is not.
+- **Where from:** **the password chapter itself.** Once all five accounts exist, opening that
+  chapter on Home no longer replays the lesson — it asks for a login. There is no separate card and
+  no retyping exercise: the module *is* the test. A local flag set when the fifth account is created
+  decides this, so Home needs no round trip; resetting a site clears it and the chapter goes back to
+  the drill.
+- **Nothing due:** if the gap has not passed, or every account has graduated, that screen offers the
+  debrief rather than dead-ending, because it is now a destination a learner reaches on purpose.
+- **Ask:** "Log back in to Dog's Den." Username is shown (it is not the secret); password is not.
 - **Three attempts.** Each one records `vault_login_attempted`. No attempt reveals anything.
 - **On success:** the account graduates (`graduated_at`), XP, and Cat's line: "that is the habit —
   you didn't remember it, you looked it up."

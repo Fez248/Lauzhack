@@ -11,7 +11,8 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
   template as the `awareness-sim-*` pair.
   - Lesson: four rules (long beats clever · never twice · not about you · you're not meant to remember
     them), then Dog walks the learner through installing a password manager.
-  - Drill: five fictional sites (catLand, dogLand, fishLand, birdLand, bunnyLand, all `.example`),
+  - Drill: five fictional sites (Cat Land, Dog's Den, Spider Web Design, Zoo Card Club, Sea Turtle
+    Fan Club, all `.example`),
     one username + password each. Per password: client-side strength meter, HIBP prefix check,
     reuse + "family" check across the learner's own set. Rejections give the real reason and store
     nothing. Debrief is built from findings only. A later session asks for one login back.
@@ -82,8 +83,8 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
 
 - **Clicked the drill through in a browser** against the compose stack (web profile, Caddy at
   :8081 proxying /api to the server, real Postgres behind it). Registration, the disclosure card,
-  catLand's sign-up, the live meter (red with the site-name reason, green with the positive line),
-  account creation and the manager nudge, the family card on dogLand, and the debrief all render and
+  Cat Land's sign-up, the live meter (red with the site-name reason, green with the positive line),
+  account creation and the manager nudge, the family card on the second site, and the debrief all render and
   behave correctly. The debrief reads "We cannot show you the passwords, because we did not keep
   them" over two rows of findings and the family link, which is the lesson landing as intended.
 
@@ -110,6 +111,22 @@ Branch: `Krishna` · Last updated: 2026-11-21 (second session)
   - `EndToEndTest.definitionOfDone` fails: main changed `nextAfterSignIn` so registration ends on
     Home with placement as an optional card, and the comment says so, but the test still expected
     `PlacementIntro`. Updated the assertion to match the intent, not the other way round.
+
+- **Renamed the five sites and gave each its own look** (krishna's call after review): Cat Land,
+  Dog's Den, Spider Web Design, the Zoo Card Club and the Sea Turtle Fan Club. Four are pages of the
+  cast, so each sign-up and each login wears that persona's colours and avatar via `PersonaAvatar`,
+  which already degrades to a letter badge when the art is missing; the Zoo Card Club has no owner
+  and carries its own purple, defined beside the drill rather than in nicholas's theme.
+- **The last step changed shape.** There is no separate "one of your five is waiting" card and no
+  retyping exercise: once the five accounts exist, **opening the password chapter is the test** and
+  asks for a login to one of them at random. A local flag set on the fifth account lets `chapterTarget`
+  decide without a round trip; resetting a site clears it. When nothing is due, that screen now offers
+  the debrief instead of dead-ending, because it is a place learners now reach on purpose.
+- Fixed a wart the rename exposed: the site-name check blocked short words anywhere, so `scattered`
+  was refused for Cat Land. `VaultWords` is now shared by the meter and the server, and short words
+  match whole words only.
+- Cleared the drill rows from the dev database (`build/tea-demo`), which the rename would have
+  orphaned anyway. Accounts and users were left alone.
 
 ## In progress
 

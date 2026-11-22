@@ -1,5 +1,7 @@
 package tea.ui.screens.vault
 
+import tea.model.VaultWords
+
 /**
  * The live meter of the Vault drill (docs/password-drill.md): a fast, local hint while the learner
  * types, so an obviously poor password never needs a round trip.
@@ -31,16 +33,8 @@ private val ROWS = listOf(
     "azertyuiop", "qsdfghjklm", "wxcvbn", "qwertzuiop", "yxcvbnm",
 )
 
-/** Lowercase + the same leetspeak folding the server uses, so both see `c4t` as `cat`. */
-fun foldLeet(s: String): String = buildString(s.length) {
-    for (c in s.lowercase()) append(
-        when (c) {
-            '0' -> 'o'; '1', '!', '|' -> 'i'; '3' -> 'e'; '4', '@' -> 'a'
-            '5', '$' -> 's'; '7' -> 't'; '8' -> 'b'; '9' -> 'g'
-            else -> c
-        },
-    )
-}
+/** The same folding the server uses, so both see `c4t` as `cat`. */
+fun foldLeet(s: String): String = VaultWords.fold(s)
 
 /**
  * @param siteWords words this site's password must not contain (its id and shown name)
@@ -51,7 +45,8 @@ fun meterState(password: String, siteWords: List<String>, othersInDrill: Set<Str
     if (password.isEmpty()) return MeterState(MeterLevel.Empty, null, 0f)
     val folded = foldLeet(password)
 
-    if (siteWords.any { it.length >= 3 && folded.contains(foldLeet(it)) }) {
+    // the same matcher the server uses, so the meter never says one thing and the verdict another
+    if (VaultWords.containsSiteWord(password, siteWords)) {
         return MeterState(MeterLevel.Bad, MeterProblem.ContainsSite, 0.15f)
     }
     if (password in othersInDrill) {

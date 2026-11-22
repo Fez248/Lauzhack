@@ -58,6 +58,9 @@ object LearnKeys {
     /** Int: the challenge section the learner is on. */
     fun challengeSection(challengeId: String) = "challenge.$challengeId.section"
 
+    /** True once all five drill accounts exist: opening the password chapter then asks for a login. */
+    const val VAULT_DRILL_DONE = "vault.drill.done"
+
     /** [tea.engine.ChallengeBest]: best finished run (kept across replays). */
     fun challengeBest(challengeId: String) = "challenge.$challengeId.best"
 

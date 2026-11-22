@@ -49,6 +49,7 @@ import tea.generated.resources.*
 import tea.model.Chapter
 import tea.model.ChapterKind
 import tea.model.ChapterStatus
+import tea.model.LESSON_2_ID
 import tea.model.LeaderboardResponse
 import tea.model.Mood
 import tea.model.Persona
@@ -155,6 +156,11 @@ fun chapterProgress(app: TeaApp, flags: LocalFlags, chapter: Chapter, total: Int
 fun chapterTarget(app: AppState, ui: ChapterUi): Screen? {
     val id = ui.chapter.target ?: return null
     if (ui.chapter.status != ChapterStatus.AVAILABLE) return null
+    // Once the five drill accounts exist, the password chapter *is* the test: opening it asks the
+    // learner to log back in to one of them, chosen at random, rather than replaying the lesson.
+    if (id == LESSON_2_ID && app.load(LearnKeys.VAULT_DRILL_DONE, LearnKeys.BOOL) == true) {
+        return Screen.VaultChallenge
+    }
     return when (ui.chapter.kind) {
         ChapterKind.LESSON -> Screen.Lesson(id, if (ui.progress == ChapterProgress.LessonDone) 0 else app.savedSection(id))
         ChapterKind.CHALLENGE -> Screen.Challenge(id, app.load(LearnKeys.challengeSection(id), LearnKeys.INT) ?: 0)

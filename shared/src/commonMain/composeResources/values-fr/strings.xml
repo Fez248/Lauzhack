@@ -374,4 +374,5 @@
     <string name="home_vault_body">Le moment de verifier que l'habitude a pris : reconnectez-vous a l'un des cinq comptes que vous avez crees. Nous ne vous dirons pas lequel avant de commencer.</string>
     <string name="home_vault_action">Se reconnecter</string>
     <string name="home_vault_done">%1$d sur %2$d reconnectes</string>
+    <string name="vault_login_none_see">Voir vos cinq</string>
 </resources>

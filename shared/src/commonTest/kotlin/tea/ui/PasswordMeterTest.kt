@@ -10,7 +10,7 @@ import tea.ui.screens.vault.MeterProblem
 import tea.ui.screens.vault.foldLeet
 import tea.ui.screens.vault.meterState
 
-private val CATLAND = listOf("catland", "cat")
+private val CATLAND = listOf("catland", "cat land", "cat")
 
 class PasswordMeterTest {
 
@@ -27,6 +27,19 @@ class PasswordMeterTest {
         for (pw in listOf("catland forever", "my c4tland pass", "a quiet c4t sits")) {
             assertEquals(MeterProblem.ContainsSite, meterState(pw, CATLAND, emptySet()).problem, pw)
         }
+    }
+
+    @Test
+    fun aShortSiteWordOnlyCountsAsAWholeWord() {
+        // blocking "cat" anywhere would refuse these, teach nothing, and make the drill feel broken
+        for (pw in listOf("scattered velvet keys", "delicate amber hinge", "a catalogue of moths")) {
+            assertNull(meterState(pw, CATLAND, emptySet()).problem, pw)
+        }
+        // a longer site word still matches anywhere, because nobody types it by accident
+        assertEquals(
+            MeterProblem.ContainsSite,
+            meterState("myspiderwebpass", listOf("spiderweb", "spider web", "spider"), emptySet()).problem,
+        )
     }
 
     @Test
