@@ -44,6 +44,8 @@ import tea.server.me.settingsRoutes
 import tea.server.password.HibpClient
 import tea.server.password.PasswordAnalyzer
 import tea.server.password.PwnedClient
+import tea.server.vault.CachingPwnedClient
+import tea.server.vault.vaultRoutes
 
 private val log = LoggerFactory.getLogger("tea.server")
 
@@ -81,12 +83,15 @@ fun Application.module(
     val theMailer = mailer ?: if (config.smtpEnabled) SmtpMailer(config) else ConsoleMailer().also {
         log.warn("SMTP_PASSWORD is not set: mails are printed to the log (ConsoleMailer, dev only)")
     }
+    // One hour of memory, so a demo room reaching for the same obvious password costs one request.
+    val pwnedCached = CachingPwnedClient(pwned, clock)
     val services = Services(
         config = config,
         db = db,
         mailer = theMailer,
         clock = clock,
-        analyzer = PasswordAnalyzer(pwned),
+        analyzer = PasswordAnalyzer(pwnedCached),
+        pwned = pwnedCached,
         limiter = RateLimiter(clock, config.rateLimitsEnabled),
         items = ItemCatalog.load(config.contentDir),
         templates = FieldTemplates(config.contentDir),
@@ -153,6 +158,7 @@ fun Application.module(
         settingsRoutes()
         leaderboardRoutes()
         fieldRoutes()
+        vaultRoutes()
     }
 
     if (startScheduler) services.field.start(this)
