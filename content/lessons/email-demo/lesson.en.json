@@ -1,0 +1,115 @@
+{
+  "id": "email-demo",
+  "language": "en",
+  "title": "Phishing in 90 seconds",
+  "subtitle": "The rules, one hunt and two emails. Same app, faster.",
+  "minutes": 2,
+  "sections": [
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Personal security",
+          "title": "Protect yourself first",
+          "say": "I can't look after anyone if my own logins are wide open. Neither can you. So we start with you.",
+          "rules": [
+            {
+              "headline": "Read the domain after the @.",
+              "body": "Every letter. thisistea.example and thisistae-app.example belong to two different owners."
+            },
+            {
+              "headline": "Notice the rush.",
+              "body": "A two-hour deadline is a feeling someone else put in you. Feelings aren't evidence."
+            },
+            {
+              "headline": "Never type a password after clicking an email link.",
+              "body": "Open the site yourself, from a bookmark or by typing the address."
+            }
+          ],
+          "sign_off": "Zero trust isn't paranoia. It's checking."
+        },
+        {
+          "persona": "turtle",
+          "role": "Organisational security",
+          "title": "Shield the whole shell",
+          "say": "In all my years I've learned one thing: a single open door lets the tide into every room. When you guard your inbox, you guard your neighbours too. It works a little like a vaccine.",
+          "rules": [
+            {
+              "headline": "Confirm the unusual, together.",
+              "body": "A wire transfer, a password reset, an urgent file: check it on another channel. A phone call costs one minute."
+            },
+            {
+              "headline": "Tell the others.",
+              "body": "If a strange email reached you, it reached your colleagues too. Report it to IT so we can warn everyone."
+            },
+            {
+              "headline": "Give the whole team a second lock.",
+              "body": "With multi-factor authentication, one stolen password is a scratch, not a crack in the shell."
+            }
+          ],
+          "sign_off": "A team we can trust is a team that looks out for each other."
+        }
+      ]
+    },
+    {
+      "type": "attacks",
+      "hunt": {
+        "item_id": "email-lesson-hunt-01",
+        "intro": "I hid three tricks in that email. Click whatever you think is a trap. I won't say whether you're getting warm.",
+        "flags": [
+          {
+            "hotspot_id": "hs-from-address",
+            "title": "The address",
+            "spider_says": "I swapped two letters and moved one word. Who reads every letter when they're worried?"
+          },
+          {
+            "hotspot_id": "hs-clock",
+            "title": "The clock",
+            "spider_says": "\"Within 2 hours.\" Panic is my favourite accomplice. It quiets the part of you that checks."
+          },
+          {
+            "hotspot_id": "hs-ask",
+            "title": "The ask",
+            "spider_says": "ThisIsTea would never ask for your password by email. But I sounded like ThisIsTea, and that was enough."
+          }
+        ],
+        "debrief": "Every trick he just bragged about is one of my three rules. Address, rush, password. Go back and read them once more."
+      },
+      "recovery": {
+        "title_caught": "If a real one ever gets you, dear, do this.",
+        "lead_caught": "This time it was only practice and nothing was taken. A real one happens to the careful ones too, and then what matters is how fast we close the door. Here is the list.",
+        "title_default": "Keep this plan in your pocket",
+        "lead_default": "You walked past this one. Someday one will look better. Here is the five-step rescue plan: knowing it by heart is half the cure.",
+        "steps": [
+          {
+            "headline": "Change the password, on the real site.",
+            "body": "Open the site yourself, from a bookmark or by typing the address, never through the email. Then change that same password anywhere else you reused it."
+          },
+          {
+            "headline": "Turn on multi-factor authentication.",
+            "body": "A second lock means a stolen password alone no longer opens the door."
+          },
+          {
+            "headline": "Tell IT or security straight away.",
+            "body": "If you can, forward the email as an attachment. Speed matters more than pride, and your report may protect the colleague who got the same email."
+          },
+          {
+            "headline": "Look for strange activity.",
+            "body": "Check the sign-in history and connected devices, and look for mail rules that forward or delete messages. Sign out anywhere you don't recognise."
+          },
+          {
+            "headline": "Expect a second attempt.",
+            "body": "Attackers often follow up with a message that mentions the first one. Stay suspicious for the next few weeks."
+          }
+        ]
+      }
+    },
+    {
+      "type": "practice",
+      "count": 2,
+      "focus": [],
+      "end_with_held_out": true
+    }
+  ]
+}

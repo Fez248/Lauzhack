@@ -18,6 +18,8 @@ data class Chapter(
     val blurb: String,
     val minutes: Int = 10,
     val status: ChapterStatus = ChapterStatus.AVAILABLE,
+    /** Challenge id of a short demo of this chapter (about a minute); Home offers it as a second button. */
+    val demoTarget: String? = null,
 )
 
 @Serializable

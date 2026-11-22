@@ -123,14 +123,17 @@ fun ChallengeContent(app: TeaApp, id: String, section: Int) {
     val loaded by produceState<Loaded>(Loaded.Loading, id, lang) {
         value = Loaded.Done(runCatching { app.content.challenge(id, lang) }.getOrNull())
     }
-    LaunchedEffect(id) {
-        app.emitOnce(LearnKeys.challengeStarted(id), EventTypes.CHALLENGE_STARTED, JsonObject(mapOf("challenge_id" to JsonPrimitive(id))))
-    }
     val index = section.coerceIn(0, CHALLENGE_SECTIONS - 1)
     LaunchedEffect(id, index) { app.save(LearnKeys.challengeSection(id), LearnKeys.INT, index) }
 
     val state = loaded
     val challenge = (state as? Loaded.Done)?.value
+    // A demo is not a real run: it emits no start event (the controller also skips completion).
+    LaunchedEffect(id, challenge?.demo) {
+        if (challenge?.demo == false) {
+            app.emitOnce(LearnKeys.challengeStarted(id), EventTypes.CHALLENGE_STARTED, JsonObject(mapOf("challenge_id" to JsonPrimitive(id))))
+        }
+    }
     Column(Modifier.fillMaxSize().background(TeaTheme.colors.paper)) {
         TopBar(title = challenge?.title, onBack = { app.back() })
         if (challenge == null) {
@@ -144,7 +147,13 @@ fun ChallengeContent(app: TeaApp, id: String, section: Int) {
             return@Column
         }
         val controller = remember(challenge) { ChallengeController(app, challenge) }
-        ChallengeBody(controller, index, Modifier.weight(1f), goTo = { n -> goToChallengeSection(app, id, n) })
+        ChallengeBody(
+            controller,
+            index,
+            Modifier.weight(1f),
+            goTo = { n -> goToChallengeSection(app, id, n) },
+            onDemo = challenge.demoId?.let { demoId -> { app.navigate(Screen.Challenge(demoId, 0)) } },
+        )
     }
 }
 
@@ -160,9 +169,18 @@ fun challengeSectionTitles(): List<String> = listOf(
     stringResource(Res.string.challenge_section_fallout),
 )
 
-/** Step bar + one section. Separate from loading so screenshots can pass a prepared controller. */
+/**
+ * Step bar + one section. Separate from loading so screenshots can pass a prepared controller.
+ * [onDemo] (null = no demo) starts the challenge's 1-minute demo from the briefing.
+ */
 @Composable
-fun ChallengeBody(controller: ChallengeController, section: Int, modifier: Modifier = Modifier, goTo: (Int) -> Unit) {
+fun ChallengeBody(
+    controller: ChallengeController,
+    section: Int,
+    modifier: Modifier = Modifier,
+    onDemo: (() -> Unit)? = null,
+    goTo: (Int) -> Unit,
+) {
     val titles = challengeSectionTitles()
     Column(modifier.fillMaxWidth()) {
         Box(Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 4.dp), contentAlignment = Alignment.Center) {
@@ -174,7 +192,7 @@ fun ChallengeBody(controller: ChallengeController, section: Int, modifier: Modif
                 DECISIONS -> DecisionsSection(controller, Modifier.weight(1f), onReview = { review = it }, goTo = goTo)
                 else -> ScreenColumn(Modifier.weight(1f), scrollState = rememberScrollState()) {
                     when (section) {
-                        BRIEFING -> BriefingSection(controller.challenge)
+                        BRIEFING -> BriefingSection(controller.challenge, onDemo)
                         PLAYBOOK -> PlaybookSection(controller.challenge)
                         FALLOUT -> FalloutSection(controller, onReview = { review = it }, goTo = goTo)
                     }
@@ -208,7 +226,7 @@ private fun SectionLines(lines: List<Line>) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ColumnScope.BriefingSection(challenge: Challenge) {
+private fun ColumnScope.BriefingSection(challenge: Challenge, onDemo: (() -> Unit)?) {
     val compact = TeaTheme.isCompact
     val b = challenge.briefing
     // Hero
@@ -216,11 +234,14 @@ private fun ColumnScope.BriefingSection(challenge: Challenge) {
     Text(challenge.headline, Modifier.semantics { heading() }, style = TeaTheme.type.h1, color = TeaTheme.colors.ink)
     Text(challenge.subtitle, style = TeaTheme.type.body, color = TeaTheme.colors.inkSoft)
     Text(
-        stringResource(Res.string.challenge_minutes, challenge.minutes) + ", " +
+        // The demo's headline already says "one minute" ("About 1 minutes" would not read well).
+        (if (challenge.demo) "" else stringResource(Res.string.challenge_minutes, challenge.minutes) + ", ") +
             pluralStringResource(Res.plurals.challenge_decisions_count, challenge.decisions.size, challenge.decisions.size),
         style = TeaTheme.type.smallStrong,
         color = TeaTheme.colors.inkSoft,
     )
+    // The full crisis stays as it is; a short demo is one tap away.
+    if (onDemo != null) TeaButton(stringResource(Res.string.challenge_demo_start), onDemo, variant = TeaButtonVariant.Secondary)
     if (challenge.advisers.isNotEmpty()) {
         Text(stringResource(Res.string.challenge_advisers), style = TeaTheme.type.label, color = TeaTheme.colors.ink)
         val rows = if (compact) challenge.advisers.map { listOf(it) } else challenge.advisers.chunked(2)

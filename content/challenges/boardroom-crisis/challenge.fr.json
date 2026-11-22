@@ -6,6 +6,7 @@
   "headline": "Les six premières heures",
   "subtitle": "Une attaque est en cours et le conseil vous regarde. Décidez de la suite, puis voyez ce que coûte chaque choix.",
   "minutes": 12,
+  "demo_id": "boardroom-crisis-demo",
   "deadline": "14:00",
   "start_meters": { "trust": 70, "cash": 75, "systems": 30, "legal": 70 },
   "dials": [

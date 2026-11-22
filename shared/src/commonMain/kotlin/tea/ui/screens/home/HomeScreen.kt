@@ -119,6 +119,7 @@ data class HomeUi(
 /** Home actions; the screen wires them to AppState. */
 class HomeActions(
     val openChapter: (ChapterUi) -> Unit = {},
+    val openDemo: (ChapterUi) -> Unit = {},
     val placement: () -> Unit = {},
     val practise: () -> Unit = {},
     val leaderboard: () -> Unit = {},
@@ -219,6 +220,7 @@ fun HomeScreen(app: AppState) {
         ui,
         HomeActions(
             openChapter = { c -> chapterTarget(app, c)?.let(app::navigate) },
+            openDemo = { c -> c.chapter.demoTarget?.let { app.navigate(Screen.Challenge(it, 0)) } },
             placement = { app.navigate(Screen.PlacementIntro) },
             practise = { app.navigate(Screen.Practice()) },
             leaderboard = { app.navigate(Screen.Leaderboard) },
@@ -314,6 +316,7 @@ private fun ColumnScope.MainColumn(ui: HomeUi, actions: HomeActions, columns: In
                 ChapterCard(
                     c,
                     onOpen = { actions.openChapter(c) },
+                    onDemo = if (c.chapter.demoTarget != null) ({ actions.openDemo(c) }) else null,
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                     tilt = if (TeaTheme.isCompact) 0f else if (i % 2 == 0) -0.6f else 0.6f,
                 )
@@ -325,7 +328,7 @@ private fun ColumnScope.MainColumn(ui: HomeUi, actions: HomeActions, columns: In
 
 /** One chapter (lesson or challenge): persona, kind, minutes, title, blurb, progress, action. */
 @Composable
-fun ChapterCard(ui: ChapterUi, onOpen: () -> Unit, modifier: Modifier = Modifier, tilt: Float = 0f) {
+fun ChapterCard(ui: ChapterUi, onOpen: () -> Unit, modifier: Modifier = Modifier, tilt: Float = 0f, onDemo: (() -> Unit)? = null) {
     val c = ui.chapter
     val colors = TeaTheme.colors
     val soon = c.status == ChapterStatus.SOON || c.target == null
@@ -355,6 +358,9 @@ fun ChapterCard(ui: ChapterUi, onOpen: () -> Unit, modifier: Modifier = Modifier
         } else {
             ProgressLine(ui.progress)
             TeaButton(stringResource(buttonLabel(ui.progress)), onOpen, Modifier.fillMaxWidth())
+            if (onDemo != null) {
+                TeaButton(stringResource(Res.string.challenge_demo_start), onDemo, Modifier.fillMaxWidth(), variant = TeaButtonVariant.Secondary)
+            }
         }
     }
 }

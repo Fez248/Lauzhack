@@ -24,6 +24,7 @@
       "id": "boardroom-crisis",
       "kind": "challenge",
       "target": "boardroom-crisis",
+      "demo_target": "boardroom-crisis-demo",
       "persona": "turtle",
       "title": "Crise au conseil",
       "blurb": "Une attaque est en cours et le conseil vous regarde. Cinq décisions, six heures.",

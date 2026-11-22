@@ -24,6 +24,7 @@
       "id": "boardroom-crisis",
       "kind": "challenge",
       "target": "boardroom-crisis",
+      "demo_target": "boardroom-crisis-demo",
       "persona": "turtle",
       "title": "Crisis en la junta",
       "blurb": "Hay un ataque en curso y la junta te está mirando. Cinco decisiones, seis horas.",

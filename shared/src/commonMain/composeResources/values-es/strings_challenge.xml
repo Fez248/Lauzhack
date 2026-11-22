@@ -8,6 +8,7 @@
     <string name="challenge_section_fallout">Balance</string>
     <string name="challenge_continue_to">Continuar: %1$s</string>
     <string name="challenge_minutes">Unos %1$d minutos</string>
+    <string name="challenge_demo_start">Empezar la demo de 1 minuto</string>
     <string name="challenge_advisers">Tus asesores</string>
     <string name="challenge_decision_of">Decisión %1$d de %2$d</string>
     <string name="challenge_choose_one">Elige una.</string>

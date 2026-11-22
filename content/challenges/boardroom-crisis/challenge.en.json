@@ -6,6 +6,7 @@
   "headline": "The first six hours",
   "subtitle": "A breach is under way and the board is looking at you. Decide what happens next, then see what each choice costs.",
   "minutes": 12,
+  "demo_id": "boardroom-crisis-demo",
   "deadline": "14:00",
   "start_meters": { "trust": 70, "cash": 75, "systems": 30, "legal": 70 },
   "dials": [

@@ -1,0 +1,115 @@
+{
+  "id": "email-demo",
+  "language": "fr",
+  "title": "L'hameçonnage en 90 secondes",
+  "subtitle": "Les règles, une chasse et deux e-mails. Même appli, en plus rapide.",
+  "minutes": 2,
+  "sections": [
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Sécurité personnelle",
+          "title": "Protégez-vous d'abord",
+          "say": "Je ne peux protéger personne si mes propres accès sont grands ouverts. Vous non plus. On commence donc par vous.",
+          "rules": [
+            {
+              "headline": "Lisez le domaine après le @.",
+              "body": "Chaque lettre. thisistea.example et thisistae-app.example appartiennent à deux propriétaires différents."
+            },
+            {
+              "headline": "Repérez la précipitation.",
+              "body": "Un délai de deux heures est une émotion que quelqu'un d'autre a mise en vous. Une émotion n'est pas une preuve."
+            },
+            {
+              "headline": "Ne saisissez jamais de mot de passe après avoir cliqué sur le lien d'un e-mail.",
+              "body": "Ouvrez le site vous-même, depuis un favori ou en tapant l'adresse."
+            }
+          ],
+          "sign_off": "La confiance zéro n'est pas de la paranoïa. C'est vérifier."
+        },
+        {
+          "persona": "turtle",
+          "role": "Sécurité de l'organisation",
+          "title": "Protégez toute la carapace",
+          "say": "En toutes ces années, j'ai appris une chose : une seule porte ouverte laisse entrer la marée dans toutes les pièces. Quand vous gardez votre boîte de réception, vous gardez aussi vos voisins. C'est un peu comme un vaccin.",
+          "rules": [
+            {
+              "headline": "Confirmez l'inhabituel, ensemble.",
+              "body": "Un virement, une réinitialisation de mot de passe, un fichier urgent : vérifiez par un autre canal. Un appel téléphonique coûte une minute."
+            },
+            {
+              "headline": "Prévenez les autres.",
+              "body": "Si un e-mail étrange vous est parvenu, il est aussi parvenu à vos collègues. Signalez-le au service informatique pour que nous puissions avertir tout le monde."
+            },
+            {
+              "headline": "Offrez une seconde serrure à toute l'équipe.",
+              "body": "Avec l'authentification multifacteur, un mot de passe volé n'est qu'une égratignure, pas une fissure dans la carapace."
+            }
+          ],
+          "sign_off": "Une équipe en qui l'on peut avoir confiance est une équipe où l'on veille les uns sur les autres."
+        }
+      ]
+    },
+    {
+      "type": "attacks",
+      "hunt": {
+        "item_id": "email-lesson-hunt-01",
+        "intro": "J'ai caché trois ruses dans cet e-mail. Cliquez sur tout ce qui vous semble un piège. Je ne dirai pas si vous vous approchez...",
+        "flags": [
+          {
+            "hotspot_id": "hs-from-address",
+            "title": "L'adresse",
+            "spider_says": "J'ai échangé deux lettres et déplacé un mot. Qui lit chaque lettre quand il s'inquiète ?"
+          },
+          {
+            "hotspot_id": "hs-clock",
+            "title": "Le compte à rebours",
+            "spider_says": "« Dans les 2 heures. » La panique est ma complice préférée. Elle endort la partie de vous qui vérifie."
+          },
+          {
+            "hotspot_id": "hs-ask",
+            "title": "La demande",
+            "spider_says": "ThisIsTea ne vous demanderait jamais votre mot de passe par e-mail. Mais je ressemblais à ThisIsTea, et cela a suffi."
+          }
+        ],
+        "debrief": "Chaque ruse dont il vient de se vanter correspond à l'une de mes trois règles. Adresse, précipitation, mot de passe. Retournez les relire une fois."
+      },
+      "recovery": {
+        "title_caught": "Si un vrai piège vous attrape un jour, ma chère, faites ceci.",
+        "lead_caught": "Cette fois, ce n'était qu'un entraînement et rien n'a été pris. Un vrai piège arrive aussi aux gens prudents, et ce qui compte alors, c'est la vitesse à laquelle on referme la porte. Voici la liste.",
+        "title_default": "Gardez ce plan dans votre poche",
+        "lead_default": "Vous êtes passé à côté de celui-ci. Un jour, il y en aura un plus convaincant. Voici le plan de secours en cinq étapes : le connaître par cœur, c'est déjà la moitié du remède.",
+        "steps": [
+          {
+            "headline": "Changez le mot de passe, sur le vrai site.",
+            "body": "Ouvrez le site vous-même, depuis un favori ou en tapant l'adresse, jamais par l'e-mail. Changez ensuite ce même mot de passe partout où vous l'avez réutilisé."
+          },
+          {
+            "headline": "Activez l'authentification multifacteur.",
+            "body": "Une seconde serrure signifie qu'un mot de passe volé ne suffit plus à ouvrir la porte."
+          },
+          {
+            "headline": "Prévenez tout de suite le service informatique ou la sécurité.",
+            "body": "Si vous le pouvez, transférez l'e-mail en pièce jointe. La rapidité compte plus que la fierté, et votre signalement peut protéger le collègue qui a reçu le même e-mail."
+          },
+          {
+            "headline": "Cherchez une activité étrange.",
+            "body": "Consultez l'historique des connexions et les appareils connectés, et cherchez les règles de messagerie qui transfèrent ou suppriment des messages. Déconnectez tout ce que vous ne reconnaissez pas."
+          },
+          {
+            "headline": "Attendez-vous à une seconde tentative.",
+            "body": "Les attaquants relancent souvent avec un message qui évoque le premier. Restez méfiant pendant les semaines qui suivent."
+          }
+        ]
+      }
+    },
+    {
+      "type": "practice",
+      "count": 2,
+      "focus": [],
+      "end_with_held_out": true
+    }
+  ]
+}

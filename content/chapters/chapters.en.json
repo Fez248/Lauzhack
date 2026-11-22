@@ -24,6 +24,7 @@
       "id": "boardroom-crisis",
       "kind": "challenge",
       "target": "boardroom-crisis",
+      "demo_target": "boardroom-crisis-demo",
       "persona": "turtle",
       "title": "Boardroom crisis",
       "blurb": "A breach is under way and the board is looking at you. Five decisions, six hours.",

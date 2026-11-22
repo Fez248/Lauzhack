@@ -110,6 +110,9 @@ class ChallengeContentTest {
                     ChapterKind.CHALLENGE -> c.target in challengeIds
                 }
                 if (!known) problems += "chapters.$lang/${c.id}: target '${c.target}' does not exist"
+                if (c.demoTarget != null && challenges()[c.demoTarget]?.get(lang)?.demo != true) {
+                    problems += "chapters.$lang/${c.id}: demo_target '${c.demoTarget}' is not a demo challenge"
+                }
             }
         }
         if (problems.isNotEmpty()) fail(problems.joinToString("\n"))
