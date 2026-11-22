@@ -1,0 +1,96 @@
+{
+  "id": "email-demo",
+  "language": "es",
+  "demo": true,
+  "title": "Phishing en un minuto",
+  "subtitle": "Las reglas, una caza y dos correos. La misma app, más rápida.",
+  "minutes": 2,
+  "sections": [
+    {
+      "type": "content",
+      "cards": [
+        {
+          "persona": "cat",
+          "role": "Seguridad personal",
+          "title": "Protégete primero",
+          "say": "No puedo cuidar de nadie si mis propias cuentas están abiertas de par en par. Tú tampoco. Así que empezamos por ti.",
+          "rules": [
+            {
+              "headline": "Lee el dominio que va después de la @.",
+              "body": "Cada letra. thisistea.example y thisistae-app.example pertenecen a dos dueños distintos."
+            },
+            {
+              "headline": "Fíjate en la prisa.",
+              "body": "Un plazo de dos horas es una sensación que otro te ha metido dentro. Las sensaciones no son pruebas."
+            },
+            {
+              "headline": "Nunca escribas una contraseña tras pulsar un enlace de un correo.",
+              "body": "Abre tú mismo el sitio, desde un marcador o escribiendo la dirección."
+            }
+          ],
+          "sign_off": "Desconfiar no es paranoia. Es comprobar."
+        },
+        {
+          "persona": "turtle",
+          "role": "Seguridad de la organización",
+          "title": "Protege todo el caparazón",
+          "say": "En todos mis años he aprendido una cosa: una sola puerta abierta deja entrar la marea en todas las habitaciones. Cuando proteges tu bandeja de entrada, proteges también a tus vecinos. Funciona un poco como una vacuna.",
+          "rules": [
+            {
+              "headline": "Confirmad juntos lo inusual.",
+              "body": "Una transferencia, un cambio de contraseña, un archivo urgente: compruébalo por otro canal. Una llamada cuesta un minuto."
+            }
+          ],
+          "sign_off": "Un equipo en el que podemos confiar es un equipo que se cuida entre sí."
+        }
+      ]
+    },
+    {
+      "type": "attacks",
+      "hunt": {
+        "item_id": "email-lesson-hunt-01",
+        "intro": "He escondido tres trucos en ese correo. Pulsa lo que creas que es una trampa. No te diré si te estás acercando.",
+        "flags": [
+          {
+            "hotspot_id": "hs-from-address",
+            "title": "La dirección",
+            "spider_says": "Cambié dos letras y moví una palabra... ¿Quién lee cada letra cuando está preocupado?"
+          },
+          {
+            "hotspot_id": "hs-clock",
+            "title": "El reloj",
+            "spider_says": "\"En un plazo de 2 horas.\" El pánico es mi cómplice favorito... Acalla la parte de ti que comprueba."
+          },
+          {
+            "hotspot_id": "hs-ask",
+            "title": "La petición",
+            "spider_says": "ThisIsTea jamás te pediría la contraseña por correo... Pero yo sonaba como ThisIsTea, y con eso bastó."
+          }
+        ],
+        "debrief": "Cada truco del que acaba de presumir es una de mis tres reglas. Dirección, prisa, contraseña. Vuelve atrás y léelas una vez más."
+      },
+      "recovery": {
+        "title_caught": "Si alguna vez te engañan de verdad, querido, haz esto.",
+        "lead_caught": "Esta vez solo era práctica y no te han quitado nada. Uno de verdad les pasa también a los cuidadosos, y entonces lo que importa es lo rápido que cerremos la puerta. Aquí tienes la lista.",
+        "title_default": "Guarda este plan en el bolsillo",
+        "lead_default": "Esta vez has pasado de largo. Algún día llegará uno mejor hecho. Aquí tienes los dos primeros pasos del plan de rescate: saberlos de memoria es media cura.",
+        "steps": [
+          {
+            "headline": "Cambia la contraseña, en la web de verdad.",
+            "body": "Abre tú mismo el sitio, desde un marcador o escribiendo la dirección, nunca desde el correo. Después cambia esa misma contraseña en cualquier otro sitio donde la hayas repetido."
+          },
+          {
+            "headline": "Activa la autenticación multifactor.",
+            "body": "Un segundo cerrojo hace que una contraseña robada, por sí sola, ya no abra la puerta."
+          }
+        ]
+      }
+    },
+    {
+      "type": "practice",
+      "count": 1,
+      "focus": [],
+      "end_with_held_out": true
+    }
+  ]
+}

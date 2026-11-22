@@ -75,6 +75,7 @@ class ChallengeController(
     }
 
     private fun finish() {
+        if (challenge.demo) return // a demo never counts: no best score, no XP, no event
         val best = app.load(LearnKeys.challengeBest(challenge.id), ChallengeBest.serializer())
         if (best == null || good > best.good) {
             app.save(LearnKeys.challengeBest(challenge.id), ChallengeBest.serializer(), ChallengeBest(good, total, outcome))

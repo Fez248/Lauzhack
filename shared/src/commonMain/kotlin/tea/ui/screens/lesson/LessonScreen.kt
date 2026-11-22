@@ -143,13 +143,16 @@ fun LessonContent(app: TeaApp, id: String, section: Int) {
     val loaded by produceState<Loaded<Lesson>>(Loaded.Loading, id, lang) {
         value = Loaded.Done(runCatching { app.content.lesson(id, lang) }.getOrNull())
     }
-    LaunchedEffect(id) {
-        app.emitOnce(LearnKeys.lessonStarted(id), EventTypes.LESSON_STARTED, JsonObject(mapOf("lesson_id" to JsonPrimitive(id))))
-    }
     LaunchedEffect(id, section) { app.save(LearnKeys.lessonSection(id), LearnKeys.INT, section) }
 
     val state = loaded
     val lesson = (state as? Loaded.Done)?.value
+    // A demo is not a real run: it emits no start event (the practice section also skips completion).
+    LaunchedEffect(id, lesson?.demo) {
+        if (lesson?.demo == false) {
+            app.emitOnce(LearnKeys.lessonStarted(id), EventTypes.LESSON_STARTED, JsonObject(mapOf("lesson_id" to JsonPrimitive(id))))
+        }
+    }
     Column(Modifier.fillMaxSize().background(TeaTheme.colors.paper)) {
         TopBar(title = lesson?.title, onBack = { app.back() })
         if (lesson == null) {
@@ -217,7 +220,10 @@ fun LessonSectionView(app: TeaApp, lesson: Lesson, index: Int, modifier: Modifie
                 if (lesson.subtitle.isNotBlank()) {
                     Text(lesson.subtitle, style = TeaTheme.type.body, color = TeaTheme.colors.inkSoft)
                 }
-                Text(pluralStringResource(Res.plurals.lesson_minutes_n, lesson.minutes, lesson.minutes), style = TeaTheme.type.smallStrong, color = TeaTheme.colors.inkSoft)
+                // The demo's title already says how long it takes ("About 1 minutes" would not read well).
+                if (!lesson.demo) {
+                    Text(pluralStringResource(Res.plurals.lesson_minutes_n, lesson.minutes, lesson.minutes), style = TeaTheme.type.smallStrong, color = TeaTheme.colors.inkSoft)
+                }
             }
             when (s) {
                 is ContentSection -> RulesSection(s, index + 1)
@@ -405,7 +411,7 @@ private fun PracticeSectionView(app: TeaApp, lesson: Lesson, index: Int, s: Prac
     }
     var restarts by remember { mutableStateOf(0) }
     val controller = remember(items, restarts) {
-        PracticeController(app, items, PracticeController.lessonOwner(lesson.id), s, lessonId = lesson.id, restart = restarts > 0)
+        PracticeController(app, items, PracticeController.lessonOwner(lesson.id), s, lessonId = lesson.id.takeUnless { lesson.demo }, restart = restarts > 0)
     }
     PracticeRunner(
         app,

@@ -41,26 +41,37 @@ class PasswordAnalyzer(private val pwned: PwnedClient) {
         if (count > 0) return PasswordVerdict.Rejected("breached")
 
         val pw = String(password) // nbvcxz needs a String; it lives only for this call
-        val result = synchronized(nbvcxz) { nbvcxz.estimate(pw) }
-        val spatial = result.matches.any { it is SpacialMatch }
+        val est = estimate(pw)
         val normalised = leet(pw.lowercase())
         return PasswordVerdict.Accepted(
             PasswordFindingsData(
                 length = length,
                 classes = classes(password),
-                score = result.basicScore.coerceIn(0, 4),
+                score = est.score,
                 pwned = false,
                 pwnedCount = 0,
                 containsName = containsWord(normalised, firstName),
                 containsEmail = emailTokens(emailLocalPart).any { normalised.contains(it) },
                 containsYear = YEAR.containsMatchIn(pw),
-                keyboardPattern = rowWalk(pw.lowercase()) ?: if (spatial) "spatial" else null,
+                keyboardPattern = rowWalk(pw.lowercase()) ?: if (est.spatial) "spatial" else null,
             ),
         )
     }
 
     companion object {
         const val MIN_LENGTH = 10
+
+        /** A guesser's view of one password: nbvcxz score 0-4, and whether it walks the keyboard. */
+        data class Estimate(val score: Int, val spatial: Boolean)
+
+        /**
+         * Shared by the account password and the Vault drill, so both are graded the same way.
+         * The string lives only for this call.
+         */
+        fun estimate(password: String): Estimate {
+            val r = synchronized(nbvcxz) { nbvcxz.estimate(password) }
+            return Estimate(score = r.basicScore.coerceIn(0, 4), spatial = r.matches.any { it is SpacialMatch })
+        }
         private val YEAR = Regex("19\\d\\d|20\\d\\d")
         private val nbvcxz by lazy { Nbvcxz() }
 

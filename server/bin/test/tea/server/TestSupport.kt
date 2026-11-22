@@ -54,11 +54,12 @@ class FakeClock(var now: Instant = Instant.parse("2026-11-18T10:00:00Z")) : Cloc
     fun advance(d: Duration) { now += d }
 }
 
-/** SHA-1 (upper hex) → breach count. Everything else: 0. */
-class FakePwned(private val known: Map<String, Int> = emptyMap()) : PwnedClient {
+/** SHA-1 (upper hex) → breach count. Everything else: 0. [unavailable] answers null, like a timeout. */
+class FakePwned(private val known: Map<String, Int> = emptyMap(), var unavailable: Boolean = false) : PwnedClient {
     val calls = java.util.Collections.synchronizedList(mutableListOf<String>())
     override suspend fun pwnedCount(sha1Hex: String): Int? {
         calls += sha1Hex
+        if (unavailable) return null
         return known[sha1Hex.uppercase()] ?: 0
     }
 
@@ -68,9 +69,27 @@ class FakePwned(private val known: Map<String, Int> = emptyMap()) : PwnedClient 
     }
 }
 
+/**
+ * Where the tests put their data. By default a fresh in-memory H2 per test.
+ *
+ * `-Dtea.test.db.url=...` points the suite at another database, which is how the schema and the
+ * queries get checked on a Postgres dialect rather than only on H2's default one. Every test needs
+ * its own data or they trip over each other's rows, so put `{id}` in the URL where a unique name
+ * belongs:
+ *
+ *     -Dtea.test.db.url='jdbc:h2:mem:pg-{id};MODE=PostgreSQL;DB_CLOSE_DELAY=-1'
+ */
+private fun testDbUrl(): String {
+    val template = System.getProperty("tea.test.db.url")
+        ?: return "jdbc:h2:mem:test-${UUID.randomUUID()};DB_CLOSE_DELAY=-1"
+    return template.replace("{id}", UUID.randomUUID().toString().replace("-", ""))
+}
+
 fun testConfig(contentDir: String = "does-not-exist", rateLimits: Boolean = false, devVerifyCode: String = "") = Config(
     devVerifyCode = devVerifyCode,
-    databaseUrl = "jdbc:h2:mem:test-${UUID.randomUUID()};DB_CLOSE_DELAY=-1",
+    databaseUrl = testDbUrl(),
+    databaseUser = System.getProperty("tea.test.db.user", ""),
+    databasePassword = System.getProperty("tea.test.db.password", ""),
     appPublicUrl = "https://app.example/tea/",
     apiPublicUrl = "https://api.example",
     fieldDelayMinS = 0,
@@ -78,6 +97,7 @@ fun testConfig(contentDir: String = "does-not-exist", rateLimits: Boolean = fals
     fieldPollInterval = 100.milliseconds,
     adminKey = "admin-secret",
     codePepper = "test-pepper",
+    passwordFpPepper = "test-fp-pepper",
     contentDir = contentDir,
     rateLimitsEnabled = rateLimits,
 )

@@ -121,6 +121,7 @@ data class HomeUi(
 /** Home actions; the screen wires them to AppState. */
 class HomeActions(
     val openChapter: (ChapterUi) -> Unit = {},
+    val openDemo: (ChapterUi) -> Unit = {},
     val placement: () -> Unit = {},
     val practise: () -> Unit = {},
     val leaderboard: () -> Unit = {},
@@ -130,8 +131,6 @@ class HomeActions(
     val signIn: () -> Unit = {},
     val openReveal: () -> Unit = {},
     val practiseFocus: () -> Unit = {},
-    /** The one-minute version of the password chapter: two rules, two accounts, one login back. */
-    val openDemo: () -> Unit = {},
 )
 
 /** Progress of [chapter] from flags and blobs. [total] = lesson sections or challenge decisions (0 = unknown). */
@@ -245,6 +244,13 @@ fun HomeScreen(app: AppState) {
         ui,
         HomeActions(
             openChapter = { c -> chapterTarget(app, c)?.let(app::navigate) },
+            openDemo = { c ->
+                // The password chapter's one-minute demo: two rules, two accounts, one login back.
+                if (c.chapter.target == LESSON_2_ID) app.navigate(startPasswordDemo(app))
+                else c.chapter.demoTarget?.let {
+                    app.navigate(if (c.chapter.kind == ChapterKind.LESSON) Screen.Lesson(it, 0) else Screen.Challenge(it, 0))
+                }
+            },
             placement = { app.navigate(Screen.PlacementIntro) },
             practise = { app.navigate(Screen.Practice()) },
             leaderboard = { app.navigate(Screen.Leaderboard) },
@@ -257,7 +263,6 @@ fun HomeScreen(app: AppState) {
             signIn = { app.navigate(Screen.Email) },
             openReveal = { field.revealToken?.let { app.navigate(Screen.Reveal(it)) } },
             practiseFocus = { app.navigate(Screen.Practice(focusWeakest = true)) },
-            openDemo = { app.navigate(startPasswordDemo(app)) },
         ),
     )
     if (showSuspicious) {
@@ -338,14 +343,15 @@ private fun ColumnScope.MainColumn(ui: HomeUi, actions: HomeActions, columns: In
         Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(TeaSpacing.s3)) {
             items.forEachIndexed { col, c ->
                 val i = row * columns + col
-                val demo = c.chapter.target == LESSON_2_ID && c.chapter.status == ChapterStatus.AVAILABLE
+                val passwordDemo = c.chapter.target == LESSON_2_ID && c.chapter.status == ChapterStatus.AVAILABLE
+                val hasDemo = passwordDemo || c.chapter.demoTarget != null
                 ChapterCard(
                     c,
                     onOpen = { actions.openChapter(c) },
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                     tilt = if (TeaTheme.isCompact) 0f else if (i % 2 == 0) -0.6f else 0.6f,
-                    demoLabel = if (demo) stringResource(Res.string.home_ch_demo) else null,
-                    onDemo = if (demo) actions.openDemo else null,
+                    demoLabel = if (!hasDemo) null else stringResource(if (passwordDemo) Res.string.home_ch_demo else Res.string.challenge_demo_start),
+                    onDemo = if (hasDemo) ({ actions.openDemo(c) }) else null,
                 )
             }
             repeat(columns - items.size) { Box(Modifier.weight(1f)) }

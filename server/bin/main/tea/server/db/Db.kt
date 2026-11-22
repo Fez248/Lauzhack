@@ -43,7 +43,11 @@ class Db private constructor(val database: Database, private val dataSource: Hik
 
         fun connect(config: Config): Db {
             val url = config.databaseUrl.ifBlank {
-                log.warn("DATABASE_URL is not set: using an in-memory H2 database (dev only, data is lost on restart)")
+                log.warn(
+                    "DATABASE_URL is not set: using an in-memory H2 database (dev only, data is lost on restart). " +
+                        "To keep accounts and drill progress across restarts, set " +
+                        "DATABASE_URL=jdbc:h2:file:./build/tea-dev;AUTO_SERVER=TRUE",
+                )
                 "jdbc:h2:mem:tea-${UUID.randomUUID()};DB_CLOSE_DELAY=-1"
             }
             val hikari = HikariConfig().apply {

@@ -17,6 +17,10 @@ data class Challenge(
     val headline: String,
     val subtitle: String,
     val minutes: Int = 12,
+    /** Id of the short demo of this challenge (a challenge with [demo] = true), offered on the briefing. */
+    val demoId: String? = null,
+    /** A short demo run: plays like the full one but earns no XP, best score or completion event. */
+    val demo: Boolean = false,
     /** "HH:MM": the attacker's deadline. */
     val deadline: String,
     /** Dial key → start value (0..100). */

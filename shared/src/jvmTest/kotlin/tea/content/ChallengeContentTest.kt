@@ -110,6 +110,15 @@ class ChallengeContentTest {
                     ChapterKind.CHALLENGE -> c.target in challengeIds
                 }
                 if (!known) problems += "chapters.$lang/${c.id}: target '${c.target}' does not exist"
+                if (c.demoTarget != null) {
+                    val isDemo = when (c.kind) {
+                        ChapterKind.LESSON -> File(contentDir, "lessons/${c.demoTarget}/lesson.$lang.json").let {
+                            it.isFile && ContentRepository.parseLesson(it.readBytes()).demo
+                        }
+                        ChapterKind.CHALLENGE -> challenges()[c.demoTarget]?.get(lang)?.demo == true
+                    }
+                    if (!isDemo) problems += "chapters.$lang/${c.id}: demo_target '${c.demoTarget}' is not a demo ${c.kind.name.lowercase()}"
+                }
             }
         }
         if (problems.isNotEmpty()) fail(problems.joinToString("\n"))

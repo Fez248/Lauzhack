@@ -164,7 +164,9 @@ class MeTest {
             "How good you think you are", "Large text", "Dark mode", "Daily goal", "Placement result",
             "Your status rating in the lesson", "Your password: length and kinds of characters",
             "Your password: strength score", "Your password: data breach check", "Your password: personal details inside",
-            "Your password: keyboard patterns", "Device settings", "Skill progress", "Answered exercises",
+            "Your password: keyboard patterns",
+            "Practice accounts", "Practice passwords", "Practice logins",
+            "Device settings", "Skill progress", "Answered exercises",
             "Activity record", "Practice emails sent to you", "Signed-in devices", "Sign-in codes", "Groups",
         )
         assertEquals(expected, about.map { it.field })

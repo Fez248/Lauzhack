@@ -35,6 +35,18 @@ class ChallengeControllerTest {
     }
 
     @Test
+    fun aDemoNeverGivesXpEventsOrABestScore() {
+        val app = app()
+        val demo = challenge.copy(id = "${challenge.id}-demo", demo = true)
+        val c = ChallengeController(app, demo) { 1L }
+        BoardroomFixture.perfect.forEachIndexed { i, sel -> c.lock(i, sel) }
+        assertTrue(c.complete)
+        assertEquals(0, app.xp.value)
+        assertEquals(0, app.events.count { it.type == EventTypes.CHALLENGE_COMPLETED })
+        assertNull(app.load(LearnKeys.challengeBest(demo.id), ChallengeBest.serializer()))
+    }
+
+    @Test
     fun completionGivesXpOnceAndKeepsTheBest() {
         val app = app()
         val c = ChallengeController(app, challenge) { 1L }

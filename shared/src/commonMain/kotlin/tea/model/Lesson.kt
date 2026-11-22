@@ -11,6 +11,8 @@ data class Lesson(
     val title: String,
     val subtitle: String = "",
     val minutes: Int = 10,
+    /** A short demo run (about a minute): plays like the lesson but emits no start or completion event and earns no lesson XP. */
+    val demo: Boolean = false,
     val sections: List<LessonSection>,
 )
 
