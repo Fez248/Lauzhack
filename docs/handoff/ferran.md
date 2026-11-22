@@ -1,6 +1,6 @@
 # Handoff: ferran
 
-Branch: `Fez248/storytelling` · Last updated: 2026-11-21 21:32 UTC
+Branch: `Fez248/storytelling` · Last updated: 2026-11-22 08:15 UTC
 
 ## Done
 
@@ -11,6 +11,9 @@ Branch: `Fez248/storytelling` · Last updated: 2026-11-21 21:32 UTC
   - `./gradlew -Ptea.android=false :shared:jvmTest :server:test`
   - `./gradlew -Ptea.android=false :shared:jvmTest -Pstrict=true`
   - `./gradlew -Ptea.android=false :composeApp:compileKotlinWasmJs`
+
+- Lightened the gotcha page background (outside the cards) to `spider` → `spiderDeep`; cards keep `gotchaCard`.
+- Replaced the placeholder `practice-email-01` (EN/FR/ES) with a ThisIsTea "unusual sign-in, log in now" practice email and matching four-step reveal. Only the existing click is recorded; no portal or form.
 
 ## In progress
 

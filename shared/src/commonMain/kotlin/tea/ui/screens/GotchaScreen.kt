@@ -141,7 +141,7 @@ fun GotchaContent(
         if (animateTransition) entered = true
     }
     val background by animateColorAsState(
-        targetValue = if (leaving || !entered) TeaTheme.colors.paper else TeaColors.badDeep,
+        targetValue = if (leaving || !entered) TeaTheme.colors.paper else TeaColors.spiderDeep,
         animationSpec = tween(TRANSITION_MS),
         label = "gotcha-background",
     )
@@ -167,7 +167,7 @@ fun GotchaContent(
             val gradientHeight = size.height
             drawRect(
                 brush = Brush.verticalGradient(
-                    colors = listOf(TeaColors.spiderDeep, TeaColors.badDeep),
+                    colors = listOf(TeaColors.spider, TeaColors.spiderDeep),
                     endY = gradientHeight,
                 ),
                 size = Size(size.width, gradientHeight),
