@@ -33,8 +33,10 @@ except through a reviewed pull request.
 You need JDK 21 (`JAVA_HOME` must point to it). Gradle comes with the wrapper.
 
 ```bash
-# 1a. Backend on http://localhost:8080 (in-memory database, emails printed to the console)
-RATE_LIMITS=off ./gradlew :server:run
+# 1a. Backend on http://localhost:8080 (in-memory database, emails printed to the console).
+#     The script finds a JDK 21, sets RATE_LIMITS=off and lets the live GitHub Pages app call it.
+./scripts/run-backend.sh                                      # Windows: powershell -ExecutionPolicy Bypass -File scripts/run-backend.ps1
+#     same thing by hand: RATE_LIMITS=off ./gradlew :server:run
 # 1b. or the same backend with Postgres, in Docker (no .env needed)
 docker compose -f deploy/docker-compose.dev.yml up --build
 
@@ -47,6 +49,9 @@ docker compose -f deploy/docker-compose.dev.yml up --build
 - The app finds the backend at `http://localhost:8080` by default. Another backend: open the web app
   with `?api=https://your-backend` (saved in the browser; **`?api=reset` clears it**: use it if a
   local web app keeps talking to another server), or set `TEA_API` on desktop.
+- **Live site against your own backend:** the GitHub Pages app has no API configured, so it also
+  falls back to `http://localhost:8080`. Run `scripts/run-backend.*` (it allows the Pages origin),
+  open the live site with `?api=reset`, and allow local network access if Chrome asks.
 - To try the production layout locally (web app at `/`, API at `/api`, behind Caddy, no TLS), stop the
   Gradle dev server and run `docker compose -f deploy/docker-compose.dev.yml --profile web up --build`,
   then open http://localhost:8081.
