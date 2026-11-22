@@ -4,6 +4,7 @@
       "id": "phishing",
       "kind": "lesson",
       "target": "email-01",
+      "demo_target": "email-demo",
       "persona": "cat",
       "title": "Repérer un e-mail d'hameçonnage",
       "blurb": "Lisez l'expéditeur, le lien et la pression. Quatre étapes, un e-mail à la fois.",

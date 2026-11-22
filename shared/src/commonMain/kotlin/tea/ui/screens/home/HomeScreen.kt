@@ -220,7 +220,11 @@ fun HomeScreen(app: AppState) {
         ui,
         HomeActions(
             openChapter = { c -> chapterTarget(app, c)?.let(app::navigate) },
-            openDemo = { c -> c.chapter.demoTarget?.let { app.navigate(Screen.Challenge(it, 0)) } },
+            openDemo = { c ->
+                c.chapter.demoTarget?.let {
+                    app.navigate(if (c.chapter.kind == ChapterKind.LESSON) Screen.Lesson(it, 0) else Screen.Challenge(it, 0))
+                }
+            },
             placement = { app.navigate(Screen.PlacementIntro) },
             practise = { app.navigate(Screen.Practice()) },
             leaderboard = { app.navigate(Screen.Leaderboard) },

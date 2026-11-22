@@ -4,6 +4,7 @@
       "id": "phishing",
       "kind": "lesson",
       "target": "email-01",
+      "demo_target": "email-demo",
       "persona": "cat",
       "title": "Spot a phishing email",
       "blurb": "Read the sender, the link and the pressure. Four steps, one email at a time.",

@@ -1,7 +1,8 @@
 {
   "id": "email-demo",
   "language": "es",
-  "title": "Phishing en 90 segundos",
+  "demo": true,
+  "title": "Phishing en un minuto",
   "subtitle": "Las reglas, una caza y dos correos. La misma app, más rápida.",
   "minutes": 2,
   "sections": [
@@ -38,14 +39,6 @@
             {
               "headline": "Confirmad juntos lo inusual.",
               "body": "Una transferencia, un cambio de contraseña, un archivo urgente: compruébalo por otro canal. Una llamada cuesta un minuto."
-            },
-            {
-              "headline": "Avisa a los demás.",
-              "body": "Si te ha llegado un correo extraño, también les ha llegado a tus compañeros. Avisa a informática para que podamos alertar a todos."
-            },
-            {
-              "headline": "Dale a todo el equipo un segundo cerrojo.",
-              "body": "Con la autenticación multifactor, una contraseña robada es un rasguño, no una grieta en el caparazón."
             }
           ],
           "sign_off": "Un equipo en el que podemos confiar es un equipo que se cuida entre sí."
@@ -80,7 +73,7 @@
         "title_caught": "Si alguna vez te engañan de verdad, querido, haz esto.",
         "lead_caught": "Esta vez solo era práctica y no te han quitado nada. Uno de verdad les pasa también a los cuidadosos, y entonces lo que importa es lo rápido que cerremos la puerta. Aquí tienes la lista.",
         "title_default": "Guarda este plan en el bolsillo",
-        "lead_default": "Esta vez has pasado de largo. Algún día llegará uno mejor hecho. Aquí tienes el plan de rescate en cinco pasos: saberlo de memoria es media cura.",
+        "lead_default": "Esta vez has pasado de largo. Algún día llegará uno mejor hecho. Aquí tienes los dos primeros pasos del plan de rescate: saberlos de memoria es media cura.",
         "steps": [
           {
             "headline": "Cambia la contraseña, en la web de verdad.",
@@ -89,25 +82,13 @@
           {
             "headline": "Activa la autenticación multifactor.",
             "body": "Un segundo cerrojo hace que una contraseña robada, por sí sola, ya no abra la puerta."
-          },
-          {
-            "headline": "Avisa enseguida a informática o a seguridad.",
-            "body": "Si puedes, reenvía el correo como archivo adjunto. La rapidez importa más que el orgullo, y tu aviso puede proteger al compañero que recibió el mismo correo."
-          },
-          {
-            "headline": "Busca actividad extraña.",
-            "body": "Revisa el historial de inicios de sesión y los dispositivos conectados, y busca reglas de correo que reenvíen o borren mensajes. Cierra la sesión en todo lo que no reconozcas."
-          },
-          {
-            "headline": "Espera un segundo intento.",
-            "body": "Los atacantes suelen insistir con un mensaje que menciona el primero. Mantente alerta durante las próximas semanas."
           }
         ]
       }
     },
     {
       "type": "practice",
-      "count": 2,
+      "count": 1,
       "focus": [],
       "end_with_held_out": true
     }

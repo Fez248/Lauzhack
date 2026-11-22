@@ -4,6 +4,7 @@
       "id": "phishing",
       "kind": "lesson",
       "target": "email-01",
+      "demo_target": "email-demo",
       "persona": "cat",
       "title": "Detectar un correo de phishing",
       "blurb": "Lee el remitente, el enlace y la presión. Cuatro pasos, un correo cada vez.",

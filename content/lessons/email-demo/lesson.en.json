@@ -1,7 +1,8 @@
 {
   "id": "email-demo",
   "language": "en",
-  "title": "Phishing in 90 seconds",
+  "demo": true,
+  "title": "Phishing in one minute",
   "subtitle": "The rules, one hunt and two emails. Same app, faster.",
   "minutes": 2,
   "sections": [
@@ -38,14 +39,6 @@
             {
               "headline": "Confirm the unusual, together.",
               "body": "A wire transfer, a password reset, an urgent file: check it on another channel. A phone call costs one minute."
-            },
-            {
-              "headline": "Tell the others.",
-              "body": "If a strange email reached you, it reached your colleagues too. Report it to IT so we can warn everyone."
-            },
-            {
-              "headline": "Give the whole team a second lock.",
-              "body": "With multi-factor authentication, one stolen password is a scratch, not a crack in the shell."
             }
           ],
           "sign_off": "A team we can trust is a team that looks out for each other."
@@ -80,7 +73,7 @@
         "title_caught": "If a real one ever gets you, dear, do this.",
         "lead_caught": "This time it was only practice and nothing was taken. A real one happens to the careful ones too, and then what matters is how fast we close the door. Here is the list.",
         "title_default": "Keep this plan in your pocket",
-        "lead_default": "You walked past this one. Someday one will look better. Here is the five-step rescue plan: knowing it by heart is half the cure.",
+        "lead_default": "You walked past this one. Someday one will look better. Here are the first two steps of the rescue plan: knowing them by heart is half the cure.",
         "steps": [
           {
             "headline": "Change the password, on the real site.",
@@ -89,25 +82,13 @@
           {
             "headline": "Turn on multi-factor authentication.",
             "body": "A second lock means a stolen password alone no longer opens the door."
-          },
-          {
-            "headline": "Tell IT or security straight away.",
-            "body": "If you can, forward the email as an attachment. Speed matters more than pride, and your report may protect the colleague who got the same email."
-          },
-          {
-            "headline": "Look for strange activity.",
-            "body": "Check the sign-in history and connected devices, and look for mail rules that forward or delete messages. Sign out anywhere you don't recognise."
-          },
-          {
-            "headline": "Expect a second attempt.",
-            "body": "Attackers often follow up with a message that mentions the first one. Stay suspicious for the next few weeks."
           }
         ]
       }
     },
     {
       "type": "practice",
-      "count": 2,
+      "count": 1,
       "focus": [],
       "end_with_held_out": true
     }
